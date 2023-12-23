@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PLMS Student</title>
+	<meta charset="utf-8">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<link rel="stylesheet" href="http://161.246.4.240/19s1ds/assets/bootstrap-3.3.7/css/bootstrap.min.css" >
+	<link href="http://161.246.4.240/19s1ds/assets/css/auth_custom.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="http://161.246.4.240/19s1ds/assets/codemirror-5.22.0/lib/codemirror.css" >
+	<script type="text/javascript" src="http://161.246.4.240/19s1ds/assets/codemirror-5.22.0/lib/codemirror.js"></script>
+	<script type="text/javascript" src="http://161.246.4.240/19s1ds/assets/codemirror-5.22.0/mode/clike/clike.js"></script>
+
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+
+	<style>
+		/* Remove the navbar's default margin-bottom and rounded borders */ 
+		.navbar {
+			margin-bottom: 0;
+			border-radius: 0;
+		}
+    
+    /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
+    .row.content {height: 450px}
+    
+    /* Set gray background color and 100% height */
+    .sidenav {
+      padding-top: 20px;
+      background-color: #f1f1f1;
+      height: 100%;
+    }
+    
+    /* Set black background color, white text and some padding */
+    footer {
+      background-color: #555;
+      color: white;
+      padding: 15px;
+    }
+    
+    /* On small screens, set height to 'auto' for sidenav and grid */
+    @media screen and (max-width: 767px) {
+      .sidenav {
+        height: auto;
+        padding: 15px;
+      }
+      .row.content {height:auto;} 
+    }
+	#page-content {
+		margin-top:95px;
+	}
+  </style>
+</head>
+<body>
+<!--  NAV TOP  -->
+<div class="container-fluid">
+	<div class="navbar navbar-default navbar-fixed-top">
+		<div class="navbar-header">
+		
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>                        
+			</button>
+			<!-- <a class="navbar-brand" href="#">Logo</a> -->
+
+			<img height="80px" width="80px" src="http://161.246.4.240/19s1ds/assets/images/logo1.png" >
+
+		</div>
+
+		<div class="navbar-text" style="margin-top:0px;padding-top:0px">
+			<h3>Programming Lab Management System</h3>
+			<h5>King Mongkut's Institute of Technolygy Ladkrabang</h5>
+		</div>
+    
+		<div class="collapse navbar-collapse" id="myNavbar">
+			<ul class="nav navbar-nav">
+
+
+			</ul>
+			<ul class="nav navbar-nav navbar-right" style="padding-top:15px;">
+				<li class="active"><a href="http://161.246.4.240/19s1ds/index.php/student/index">Home</a></li>
+				<li><a href="http://161.246.4.240/19s1ds/index.php/student/exercise_home">Exercise</a></li>
+				<!-- <li><a href="#">Layout</a></li> -->
+				<li><a href="http://161.246.4.240/19s1ds/index.php/student/edit_profile_form">Edit profile</a></li>
+
+				<li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" title="ความช่วยเหลือ">Help <b class="caret"></b></a>
+				<ul class="dropdown-menu">
+				<li>
+				<a href="http://161.246.4.240/19s1ds/index.php/student/show_lab_exercise" title="อ่านฉันก่อน"><i class="icon-list"></i> How to use First step</a>
+				</li>
+				<li>
+				<a href="#"><i class="icon-support"></i> Useful link</a>
+				</li>
+				<li>
+				<a href="#"><i class="icon-support"></i> About</a>
+				</li>
+				</ul>
+				</li>
+				<li><a  class="btn btn-default btn-lg"  href="http://161.246.4.240/19s1ds/index.php/auth/logout"> 
+				<span class="glyphicon glyphicon-log-out"></span> Log out </a></li>
+			</ul>
+		</div>
+  </div>
+  
+</div>
+<!-- /. NAV TOP  -->
+ 
+
+<!-- Page Contents -->
+<div class="container-fluid text-center"  style="background-color:GhostWhite">	
+	<!-- row content -->
+	<div class="row content">
+<!-- nav_sideleft -->
+
+<div class="col-sm-2 sidenav" style="padding-top:10px;margin-top:100px;">
+	<div class="affix" style="background-color:Pink; min-width: 15%; "><!-- -->
+
+		<div class="panel panel-default" style="background-color:AliceBlue; height:1024px;">
+			<img src="http://161.246.4.240/19s1ds/student_data/avatar/user.png" style="width:180px;height:216px;padding-top:20px">
+			
+			<div class="row" style="margin-top:10px">
+				<p>กลุ่มที่ : 101 </p>
+				<p>รหัสนักศึกษา : 66666666 </p>
+			</div>
+				
+
+			<div class="row">
+				
+					<p>นาย รักเรียน  พากเพียร					</p>
+			</div>
+			<div class="row">			
+				<p>   </p>
+			</div>
+
+			<div class="row">			
+				<p>วิศวกรรมคอมพิวเตอร์</p>
+			</div>
+			
+			
+		</div>
+	</div>
+
+	
+</div>
+<!-- nav_sideleft -->
+		
+		
+
+<!-- nav_body -->
+<div class="col-lg-10 col-md-10 col-sm-10 kpanel_body" style="margin-top:120px;">
+	<div class="row">
+		<div class="col-lg-1">
+		</div> 
+	
+		
+		<div class="col-lg-10">
+			<div class="panel panel-primary" style="min-width:800px;">
+				<div class="panel-heading">
+					 <div class="row">
+						<div class="col-xs-1">
+							<div></div>
+						</div>
+
+						<div class="col-xs-7">
+							<h2>Chapter : 1 - item : 2 - แสดงผลข้อความ แบบย้อนจากหลังมาหน้า</h2>
+						</div>
+						
+						<div class="col-xs-4">
+							<button class="btn btn-info btn-lg">คะแนน คะแนน : 0 / 2</button>
+							<p class="badge">ส่งมาแล้ว 0 ครั้ง</p>
+						</div>						
+
+					</div>
+				</div>
+
+				<div style="display:inline-block;"></div>
+
+				<div class="panel-body">
+					<p><p style="text-align: left;">จงเขียนโปรแกรม<font color="#ff0000"><u> รับข้อความ 1 บรรทัด</u></font> แล้วแสดงผล แบบย้อนกลับดังตัวอย่าง</p><ul><li style="text-align: left;">ข้อความในภาษาซี จะมี character พิเศษ เพื่อแสดงถึงจุดสิ้นสุดข้อความ '\0' หรือ NULL character</li><li style="text-align: left;">การแสดงผลต้องหาตำแหน่งแรกสุดก่อน (ไม่ต้องแสดงผล NULL character)</li><li style="text-align: left;">ตำแหน่งสุดท้าย คือ ตำแหน่ง 0</li></ul><p style="text-align: left;"><br></p><p>#include&lt;stdio.h&gt;</p><p>int main() {</p><p>&nbsp; <span style="white-space:pre">	</span>char str[300];</p><p>&nbsp; <span style="white-space:pre">	</span>int index;</p><p>&nbsp; <span style="white-space:pre">	</span>printf(" *** Reverse string display ***\n");</p><p>&nbsp; <span style="white-space:pre">	</span>printf("Enter a string : ");</p><p>&nbsp; <span style="white-space:pre">	</span>scanf("%[^\n]",str);</p><p>&nbsp; <span style="white-space:pre">	</span>printf("Output : ");</p><p>&nbsp; <span style="white-space:pre">	</span></p><p>&nbsp; &nbsp; &nbsp; printf("%s",str);</p><p>&nbsp; &nbsp; &nbsp;&nbsp;</p><p><span style="white-space:pre">	</span>return 0;</p><p>}</p></p>
+				</div>
+								
+				
+			</div>
+		</div>
+		<div class="col-lg-1">
+		</div>
+	</div>
+	<!--- --->
+	<div class="row">
+				<form action="http://161.246.4.240/19s1ds/index.php/student/exercise_submission" method="post" accept-charset="utf-8" id="exercise_submission" enctype="multipart/form-data"  onsubmit="return checkSourceCode()"  >
+			<input type="hidden"	name="stu_id"		value="66666666" >
+			<input type="hidden"	name="chapter_id"	value="1" >
+			<input type="hidden"	name="item_id"		value="2" >
+			<input type="hidden"	name="exercise_id"	value="63" >
+			
+
+
+			<input type="file" name="submitted_file" id="userfile" ><span><button type="submit"   >Submit</button></span>			
+
+		</form>
+			</div>
+	
+
+
+  
+
+  <script type="text/javascript">
+	function checkSourceCode(){
+		//alert("checking source code");
+
+		var sourceCode = document.getElementById("userfile");
+		var sourceCodeName = sourceCode.value;
+		
+		if(sourceCodeName==""){
+			alert("คุณยังไม่ได้เลือกซอร์สโค้ดที่ต้องการส่ง");
+			return false;
+		}
+		var extension = sourceCodeName.split(".");
+		if(extension[1]!=document.getElementById("id_extension").value) {
+			alert("อนุญาตให้ส่งไฟล์สกุล ."+document.getElementById("id_extension").value+"เท่านั้น");
+			return false;
+		}
+		/*
+		var fileName = extension[0].split('\\');
+		if(/^[a-zA-Z0-9]+/.test(fileName[2]) == true) {
+			
+		} else {
+			alert("ชื่อไฟล์สามารถประกอบด้วย a-z,A-Z,0-9 เท่านั้น");
+			return false;
+		}
+		
+		var soruceCodeFileSize = parseInt(sourceCode.files[0].size);
+		if (sourceCodeFileSize > 4096) {
+			alert("File size is too big : "+sourceCodeFileSize+" bytes.");
+			return false;
+		}
+		*/
+		alert("File name : "+sourceCodeName+" "+soruceCodeFileSize);
+	}
+
+	
+	</script>
+
+<!--- Testcase -->
+	
+<div class="row">
+	<div class="col-md-10">
+		<div class="panel panel-default">
+			<div class="panel-heading " style="font-size:24px;color:blue;">Testcase : #1
+				<span style="font-size:20px;color:blue;">
+				</span>
+			</div>	
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-md-10">
+						<div  style="font-family: Courier;font-size: 16px;border:2px blue;"><code><textarea cols="80" rows="3" style="background:black;color:white;" readonly> *** Reverse string display ***
+Enter a string : Bangkok.
+Output : .kokgnaB</textarea></code>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+</div><!-- <pre>
+<div style="border:1px solid #990000;padding-left:20px;margin:0 0 10px 0;">
+
+<h4>A PHP Error was encountered</h4>
+
+<p>Severity: Notice</p>
+<p>Message:  Undefined variable: data_for_testcase</p>
+<p>Filename: student/exercise_output_testcase.php</p>
+<p>Line Number: 56</p>
+
+
+	<p>Backtrace:</p>
+	
+		
+	
+		
+	
+		
+			<p style="margin-left:10px">
+			File: /opt/lampp/htdocs/19s1ds/application/views/student/exercise_output_testcase.php<br />
+			Line: 56<br />
+			Function: _error_handler			</p>
+
+		
+	
+		
+	
+		
+	
+		
+			<p style="margin-left:10px">
+			File: /opt/lampp/htdocs/19s1ds/application/controllers/Student.php<br />
+			Line: 658<br />
+			Function: view			</p>
+
+		
+	
+		
+			<p style="margin-left:10px">
+			File: /opt/lampp/htdocs/19s1ds/application/controllers/Student.php<br />
+			Line: 387<br />
+			Function: lab_exercise_action_v2			</p>
+
+		
+	
+		
+	
+		
+			<p style="margin-left:10px">
+			File: /opt/lampp/htdocs/19s1ds/index.php<br />
+			Line: 315<br />
+			Function: require_once			</p>
+
+		
+	
+
+</div><pre> =-->	
+<div class="row">
+	<div class="col-md-10">
+		<div class="panel panel-default">
+			<div class="panel-heading " style="font-size:24px;color:blue;">Testcase : #2
+				<span style="font-size:20px;color:blue;">
+				</span>
+			</div>	
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-md-10">
+						<div  style="font-family: Courier;font-size: 16px;border:2px blue;"><code><textarea cols="80" rows="4" style="background:black;color:white;" readonly> *** Reverse string display ***
+Enter a string : Computer Engineering.
+Output : .gnireenignE retupmoC</textarea></code>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+</div><!-- <pre>
+<div style="border:1px solid #990000;padding-left:20px;margin:0 0 10px 0;">
+
+<h4>A PHP Error was encountered</h4>
+
+<p>Severity: Notice</p>
+<p>Message:  Undefined variable: data_for_testcase</p>
+<p>Filename: student/exercise_output_testcase.php</p>
+<p>Line Number: 56</p>
+
+
+	<p>Backtrace:</p>
+	
+		
+	
+		
+	
+		
+			<p style="margin-left:10px">
+			File: /opt/lampp/htdocs/19s1ds/application/views/student/exercise_output_testcase.php<br />
+			Line: 56<br />
+			Function: _error_handler			</p>
+
+		
+	
+		
+	
+		
+	
+		
+			<p style="margin-left:10px">
+			File: /opt/lampp/htdocs/19s1ds/application/controllers/Student.php<br />
+			Line: 658<br />
+			Function: view			</p>
+
+		
+	
+		
+			<p style="margin-left:10px">
+			File: /opt/lampp/htdocs/19s1ds/application/controllers/Student.php<br />
+			Line: 387<br />
+			Function: lab_exercise_action_v2			</p>
+
+		
+	
+		
+	
+		
+			<p style="margin-left:10px">
+			File: /opt/lampp/htdocs/19s1ds/index.php<br />
+			Line: 315<br />
+			Function: require_once			</p>
+
+		
+	
+
+</div><pre> =-->	
+<div class="row">
+	<div class="col-md-10">
+		<div class="panel panel-default">
+			<div class="panel-heading " style="font-size:24px;color:blue;">Testcase : #3
+				<span style="font-size:20px;color:blue;">
+				</span>
+			</div>	
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-md-10">
+						<div  style="font-family: Courier;font-size: 16px;border:2px blue;"><code><textarea cols="80" rows="4" style="background:black;color:white;" readonly> *** Reverse string display ***
+Enter a string : The quick brown fox jumps over the lazy dog.
+Output : .god yzal eht revo spmuj xof nworb kciuq ehT</textarea></code>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+</div><!-- <pre>
+<div style="border:1px solid #990000;padding-left:20px;margin:0 0 10px 0;">
+
+<h4>A PHP Error was encountered</h4>
+
+<p>Severity: Notice</p>
+<p>Message:  Undefined variable: data_for_testcase</p>
+<p>Filename: student/exercise_output_testcase.php</p>
+<p>Line Number: 56</p>
+
+
+	<p>Backtrace:</p>
+	
+		
+	
+		
+	
+		
+			<p style="margin-left:10px">
+			File: /opt/lampp/htdocs/19s1ds/application/views/student/exercise_output_testcase.php<br />
+			Line: 56<br />
+			Function: _error_handler			</p>
+
+		
+	
+		
+	
+		
+	
+		
+			<p style="margin-left:10px">
+			File: /opt/lampp/htdocs/19s1ds/application/controllers/Student.php<br />
+			Line: 658<br />
+			Function: view			</p>
+
+		
+	
+		
+			<p style="margin-left:10px">
+			File: /opt/lampp/htdocs/19s1ds/application/controllers/Student.php<br />
+			Line: 387<br />
+			Function: lab_exercise_action_v2			</p>
+
+		
+	
+		
+	
+		
+			<p style="margin-left:10px">
+			File: /opt/lampp/htdocs/19s1ds/index.php<br />
+			Line: 315<br />
+			Function: require_once			</p>
+
+		
+	
+
+</div><pre> =-->	
+<div class="row">
+	<div class="col-md-10">
+		<div class="panel panel-default">
+			<div class="panel-heading " style="font-size:24px;color:blue;">Testcase : #4
+				<span style="font-size:20px;color:blue;">
+				</span>
+			</div>	
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-md-10">
+						<div  style="font-family: Courier;font-size: 16px;border:2px blue;"><code><textarea cols="80" rows="4" style="background:black;color:white;" readonly> *** Reverse string display ***
+Enter a string : You are my sunshine, my only sunshine.
+Output : .enihsnus ylno ym ,enihsnus ym era uoY</textarea></code>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+</div>
+<div class="row">
+	<div class="col-md-10">
+		<div class="panel panel-default">
+			<div class="panel-heading " style="font-size:24px;color:blue;">Testcase : #5
+				<span style="font-size:20px;color:blue;">
+				</span>
+			</div>	
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-md-10">
+						<div  style="font-family: Courier;font-size: 16px;border:2px blue;"><code><textarea cols="80" rows="4" style="background:black;color:white;" readonly> *** Reverse string display ***
+Enter a string : You are the wind beneath my wings.
+Output : .sgniw ym htaeneb dniw eht era uoY</textarea></code>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+</div>
+<div class="row">
+	<div class="col-md-10">
+		<div class="panel panel-default">
+			<div class="panel-heading " style="font-size:24px;color:blue;">Testcase : #6
+				<span style="font-size:20px;color:blue;">
+				</span>
+			</div>	
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-md-10">
+						<div  style="font-family: Courier;font-size: 16px;border:2px blue;"><code><textarea cols="80" rows="5" style="background:black;color:white;" readonly> *** Reverse string display ***
+Enter a string : I can tell by your eyes that you have probably been crying forever.
+Output : .reverof gniyrc neeb ylbaborp evah uoy taht seye ruoy yb llet nac I</textarea></code>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+</div>
+
+			
+
+
+
+			</div>
+			<!-- row content -->
+
+		</div>
+		<!-- Page content -->
+		
+		<div class="clearfix"></div>
+
+		<!-- footer start -->
+		<footer class="container-fluid" style="background-color:LightSteelBlue;border:2px blue;margin-left:320px;margin-right:15px;">
+		  <p>Page rendered in <strong>0.0321</strong> seconds. 
+				CodeIgniter Version <strong>3.1.2</strong> Fri Aug 2 01:58:12</p>
+		  
+		</footer>
+		
+	<script src="http://161.246.4.240/19s1ds/assets/jquery/jquery-3.1.1.min.js"></script>
+	
+    <script src="http://161.246.4.240/19s1ds/assets/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+
+	</body>
+</html>

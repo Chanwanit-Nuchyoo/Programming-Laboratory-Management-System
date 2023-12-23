@@ -1,0 +1,24 @@
+.user-avatar-container {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  width: 100%;
+  justify-content: flex-end; 
+}
+
+.text-container {
+  text-align: right;
+  font-size: 16px;
+  align-self: flex-start;
+  padding: 5px 0px;
+}
+
+.username {
+  color: var(--cerulean)
+}
+
+.avatar-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}

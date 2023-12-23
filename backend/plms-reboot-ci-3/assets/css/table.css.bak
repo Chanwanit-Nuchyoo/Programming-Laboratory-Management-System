@@ -1,0 +1,32 @@
+#id_history{
+	border-collapse:collapse;
+	text-align: center;
+	width:150%;
+	
+}
+.TableHead{
+	/*background-color: #FFCC33;*/
+	background-color:#fee48f;
+	border-collapse:collapse;
+	height:40px;
+	font-size: 1.3em;
+}
+.TableRow{
+	border-bottom: 2px solid #FFCC33;
+	height: 30px;
+}
+.TableRow:hover{
+	background-color: #FFF6D9;
+	/*background-color: #FFFF33;*/
+}
+.Row{
+	/*background-color: #FFF6D9;*/
+	border-bottom: 2px solid #FFCC33;
+	height: 30px;
+}
+
+.Row:hover{
+	background-color: #FFF6D9;
+}
+
+

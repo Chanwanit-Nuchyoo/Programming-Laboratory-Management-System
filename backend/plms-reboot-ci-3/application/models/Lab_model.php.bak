@@ -1,0 +1,689 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Lab_model extends CI_Model {
+	private $_table = '';
+	private $_data = '';
+
+	public function __construct() {
+			parent::__construct();
+			// Your own constructor code
+			//echo "model constructor : ".__FILE__." <br>";
+			
+	}
+
+	/*
+	*	Update information from user_supervisor table
+	*	if supervisor not exits create a new one
+	*
+	*/
+	public function add_lab() {
+		$data = array(
+			'lab_chapter'	=> $_POST['lab_chapter'],
+			'lab_level'		=> $_POST['lab_level'],
+			'lab_name'		=> $_POST['lab_name'],
+			'lab_content' => $_POST['lab_content'],
+			'added_by'		=> $_SESSION['username']
+			);
+		$this->db->insert('lab_exercise',$data);
+
+	}
+
+	/*
+	*	insert a new row to lab_exercise table
+	*	 and query from database to get exercise_id
+	*/
+	public function exercise_add() {
+		$_table = 'lab_exercise';
+		
+		// check table first before inserting a new row
+		$this->db->where('lab_chapter',0);
+		$this->db->where('lab_level','0');
+		$this->db->where('added_by',$_SESSION['username']);
+		$query = $this->db->get($_table);
+		//echo "<h3>". __METHOD__ ." : _SESSION :</h3><pre>"; print_r($_SESSION); echo "</pre>";
+		//echo "<h2>". __METHOD__ ." : _SESSION :</h2><pre>"; print_r($query->row_array(0)); echo "</pre>";
+		//echo "num of rows : ".$query->num_rows()."<br>";
+		//cannot find the data so add a new row
+		if($query->num_rows() < 1) {
+
+			$data = array(
+				'lab_chapter'	=> 0,
+				'lab_level'		=> '0',
+				'lab_name'		=> "new exercise",
+				'lab_content'	=> "nothing",
+				'added_by'		=> $_SESSION['username']
+				);
+			$query = $this->db->insert('lab_exercise',$data);
+			//echo '$query'; print_r($query); echo '<br>';
+		}
+		
+		//query from database to get exercise_id
+		$this->db->where('lab_chapter',0);
+		$this->db->where('lab_level','0');
+		$this->db->where('added_by',$_SESSION['username']);
+		$query = $this->db->get($_table);
+		$data = (array) $query->first_row();
+
+		//reset $_SESSION
+		$_SESSION['lab_2b_edit']=$data;
+		$_SESSION['sourcecode_content'] ='';
+		$_SESSION['sourcecode_output'] ='';
+		// echo "<h3>". __METHOD__ ." : _SESSION :</h3><pre>"; print_r($_SESSION); echo "</pre>";
+		return $data['exercise_id'];
+
+	}
+
+	public function show_lab_exercise()	{
+		$query = $this->db->get('lab_exercise');
+		return $query;
+
+	}
+
+	
+	public function get_lab_info() {
+		/*
+		echo '<h2>BASEPATH = '. BASEPATH .'</h2>';
+		echo '<h2>FCPATH = '. FCPATH .'</h2>';
+		echo '<h2>APPPATH = '. APPPATH .'</h2>';
+		echo '<h2>__FILE__ = '. __FILE__ .'</h2>';
+		echo '<h2>__DIR__ = '. __DIR__ .'</h2>';
+		echo '<h2>__FUNCTION__ = '. __FUNCTION__ .'</h2>';
+		echo '<h2>__CLASS__ = '. __CLASS__ .'</h2>';
+		echo '<h2>__TRAIT__ = '. __TRAIT__ .'</h2>';
+		echo '<h2>__METHOD__ = '. __METHOD__ .'</h2>';
+		echo '<h2>__NAMESPACE__ = '. __NAMESPACE__ .'</h2>';
+		*/
+		$query= $this->db->get('lab_classinfo');
+		return $query;
+	}
+
+	//return only exercise_id
+	public function get_student_exercise($stu_id, $chapter_id, $item_id) {
+		//echo '<h2>'. __METHOD__ ."  stu_id : $stu_id   chapter : $chapter_id    item : $item_id </h2>";
+		//echo ";
+		$_table = 'student_assigned_chapter_item';
+		$exercise_id =''; //place holder
+		
+		/*
+		if($chapter_id==1 && $item_id==1) {
+			$exercise_id = 1;
+			$full_mark = 2;
+		} else 	if($chapter_id==1 && $item_id==2) {
+			$exercise_id = 2;
+			$full_mark = 2;
+		} else if($chapter_id==1 && $item_id==3) {
+			$exercise_id = 3;
+			$full_mark = 2;
+		} else if($chapter_id==1 && $item_id==4) {
+			$exercise_id = 4;
+			$full_mark = 2;
+		} else {
+			$exercise_id = 5;
+			$full_mark = 2;
+		}
+		*/
+		$this->db->where("stu_id",$stu_id);
+		$this->db->where("chapter_id",$chapter_id);
+		$this->db->where("item_id",$item_id);
+		$query = $this->db->get($_table);
+		
+		if($query->num_rows() == 0) {
+			//data not available, have to add new record
+
+			// $temp is array of exercise list
+			/*
+			$data = $this->get_group_assigned_chapter_item($_SESSION['stu_group'], $chapter_id, $item_id);
+			$exiercise_list = $data->exercise_list;
+			$full_mark = $data->full_mark;
+			shuffle($exercise_list);*/
+			
+
+			//inset data to $_table
+			$data = array(	"stu_id"		=> $stu_id,
+							"chapter_id"	=> $chapter_id,
+							"item_id"		=> $item_id,
+							"exercise_id"	=> $exercise_id,
+							"full_mark"		=> $full_mark,
+							"marking"		=> 0
+				);
+			$this->db->insert($_table,$data);
+
+			//query again
+			$this->db->where("stu_id",$stu_id);
+			$this->db->where("chapter_id",$chapter_id);
+			$this->db->where("item_id",$item_id);
+			$query = $this->db->get($_table);
+
+		}
+			
+		//echo "<h2>".__METHOD__ . " stu_id : ". $stu_id ."  chapter : ".  $chapter_id ."  item : " .$item_id . "  exercise_id : ".$exercise_id."</h2>";
+
+		return $exercise_id;
+	}
+
+
+
+	public function get_group_assigned_chapter_item($stu_group, $chapter_id, $item_id) {
+		$table = 'group_assinged_chpater_item';
+		
+		$this->db->where("group_id",$stu_id);
+		$this->db->where("chapter_id",$chapter_id);
+		$this->db->where("item_id",$item_id);
+		$query = $this->db->get($table);
+		if($query->num_rows() == 0) {
+			//data not available, have to add new record
+			$this->get_group_assigned_chapter_item($_SESSION['stu_group'], $chapter_id, $item_id);
+		}
+		
+
+		$data = array("exercise_id"=>random_array($query->lab_id_list),
+						"full_mark" => $query->full_mark
+			);
+		return $data;
+
+		/*
+		//check serialize array
+		$data = array(10,20, 30,40,50);
+		$data_s = serialize($data);
+		$data_t = unserialize($data_s);
+		echo $data_s."<br>";
+		echo "data : ",print_r($data);echo "<br>";
+		echo "data_t : ",print_r($data_t);echo "<br>";
+
+		$data = array(789);
+		$data_s = serialize($data);
+		$data_t = unserialize($data_s);
+		echo $data_s."<br>";
+
+		$data = array("789");
+		$data_s = serialize($data);
+		$data_t = unserialize($data_s);
+		echo $data_s."<br>";
+
+		$data = array("Red","green","blue","yellow");
+		$data_s = serialize($data);
+		$data_t = unserialize($data_s);
+		echo $data_s."<br>";
+
+		$numbers = range(1, 20);
+		shuffle($numbers);
+		foreach ($numbers as $number) {
+			echo "$number <br>";
+		}
+
+		$input = array("Neo", "Morpheus", "Trinity", "Cypher", "Tank");
+		$rand_keys = array_rand($input, 2);
+		echo $input[$rand_keys[0]] . "<br>";
+		echo $input[$rand_keys[1]] . "<br>";
+		*/
+		
+	}// 
+
+	public function add_submitted_filename($stu_id,$chapter_id,$item_id,$saved_filename) {
+		$this->db->where("stu_id",$stu_id);
+		$this->db->where("chapter_id",$chapter_id);
+		$this->db->where("item_id",$item_id);
+		$this->db->set("",$saved_filename);
+		
+
+
+	}
+
+	public function get_submission_round($stu_id,$chapter_id,$item_id) {
+		$this->db->where("stu_id",$stu_id);
+		$this->db->where("chapter_id",$chapter_id);
+		$this->db->where("item_id",$item_id);
+	}
+
+	/*
+	*	load all information from student_assigned_chapter_item to $_SESSION
+	*	student is assigned item when he/she click on each item on exercise page
+	*
+	*/
+	public function setup_student_lab_data() {
+		$stu_id = $_SESSION['stu_id'];
+		$lab_data = array();
+		$this->db->where("stu_id",$stu_id);
+		$query = $this->db->get('student_assigned_chapter_item');
+		foreach ($query->result_array() as $key => $row) {
+			//echo $row['stu_id']." : ".$row['chapter_id']. $row['item_id']." : ";
+			//echo $row['exercise_id'] ." : ". $row['full_mark']." : ".$row['marking']." <br>";
+			//echo "<pre>";
+			//print_r($row);
+			//echo "</pre>";
+			$chapter_id = ''.$row['chapter_id'];
+			if (strlen($row['chapter_id'])==1)
+				$chapter_id = 'lab_0'.$chapter_id;
+			else
+				$chapter_id = 'lab_'.$chapter_id;
+
+			
+				
+			$item_id = $row['item_id'];
+			if (strlen($item_id)==1)
+				$item_id = 'item_0'.$item_id;
+			else
+				$item_id = 'item_'.$item_id;
+
+			//$item_str = strlen($item_str)<2 ? '0'.$item_str : $item_str;
+
+			unset($row['stu_id']);
+			//unset($row['chapter_id']);
+			//unset($row['item_id']);
+			unset($row['added_date']);
+			array_push($lab_data,$row);
+   
+		}		
+		$_SESSION['lab_data'] = $lab_data;
+	}
+
+	public function update_lab_exercise($exercise_id,$data) {
+		$_table = 'lab_exercise';
+		$this->db->set($data);
+		$this->db->where('exercise_id',$exercise_id);
+		$query = $this->db->update($_table);
+	}
+
+	public function update_sourcecode($exercise_id,$sourcecode_filename) {
+		$_table = 'lab_exercise';
+		$this->db->set('sourcecode',$sourcecode_filename);
+		$this->db->where('exercise_id',$exercise_id);
+		$query = $this->db->update($_table);
+	}
+
+	/*
+	*	update 1. chpater_id
+	*			2. lab_id
+	*			3. lab_name
+	*/
+	public function update_lab_exercise_part1($data) {
+		$_table = "lab_exercise";
+		$exercise_id = $data['exercise_id'];
+		unset($data['exercise_id']);
+		//print_r($data);
+		$this->db->set($data);
+		$this->db->where('exercise_id',$exercise_id);
+		$this->db->update($_table);
+	}
+
+	/*
+	*	update 1. lab_conent
+	*/
+	public function update_lab_exercise_part2($data) {
+		$_table = "lab_exercise";
+		$exercise_id = $data['exercise_id'];
+		unset($data['exercise_id']);
+		//print_r($data);
+		$this->db->set($data);
+		$this->db->where('exercise_id',$exercise_id);
+		$this->db->update($_table);
+	}
+
+
+	/*
+	*	student group doesn't have any exercise
+	*	then query from lab_exercise table and add to group_assigned_chapter_item
+	*/
+	public function get_exercise_list($group_id,$chapter_id,$item_id) {
+		$_table = "lab_exercise";
+		$this->db->where('lab_chapter',$chapter_id);
+		$this->db->where('lab_level',$item_id);
+		$query = $this->db->get($_table);
+		$exercise_list = array_column($query->result_array(),'exercise_id');
+		//print_r($exercise_list); echo "<br>";	
+		
+		
+		$_table = "group_assigned_chapter_item";
+		$this->db->where('group_id',$group_id);
+		$this->db->where('chapter_id',$chapter_id);
+		$this->db->where('item_id',$item_id);
+		$query = $this->db->get($_table);
+		if ($query->num_rows() == 0) {
+			//echo " nothing : ".$group_id." : ". $chapter_id . " : ".$item_id."<br>";
+			$data = array (
+							'group_id'			=> $group_id ,
+							'chapter_id'		=> $chapter_id,
+							'item_id'			=> $item_id,
+							'exercise_id_list'	=> serialize($exercise_list)
+					);
+			$query = $this->db->insert($_table,$data);
+		} else {
+			$this->db->where('group_id',$group_id);
+			$this->db->where('chapter_id',$chapter_id);
+			$this->db->where('item_id',$item_id);
+			$this->db->set('exercise_id_list',serialize($exercise_list));
+			$query = $this->db->update($_table);
+		}
+		$this->db->where('group_id',$group_id);
+		$this->db->where('chapter_id',$chapter_id);
+		$this->db->where('item_id',$item_id);
+		$query = $this->db->get($_table);
+		$exercise_list = $query->row_array();
+		$exercise_list = unserialize($exercise_list['exercise_id_list']);
+		//echo "<pre>",print_r($exercise_list),"</pre>";
+		return $exercise_list; 
+
+
+		
+		/*
+		$_table = "group_assigned_chapter_item";
+		$this->db->where('group_id',$group_id);
+		$this->db->where('chapter_id',$chapter_id);
+		$this->db->where('item_id',$item_id);
+		$query = $this->db->get($_table);
+		*/
+		
+		//return $exercise_list_group;
+
+		/*
+		$query = $query->result_array();
+		if (sizeof($query)==0)
+			echo "cannot find ".$group_id." : ".$chapter_id." , ".$item_id. "<br>";
+		else
+			echo "yes size : ".sizeof($query). " : ".$group_id." : ".$chapter_id." , ".$item_id. "<br>";
+		//echo "<pre>",print_r($_SESSION),"</pre>";
+		$lab_data = $_SESSION['lab_data'];
+		echo "<pre>",print_r($lab_data),"</pre>";
+		foreach ($lab_data as $key => $value) {
+			echo "key : ", $key," value : ";
+			if (is_array($value)) {
+				foreach ($value as $k => $v) {
+					echo ' ',$k,'/',$v;
+				}
+			} else {
+				echo $value;
+			}
+			echo "<br>";
+		}
+		//$lab_01 = $lab_data['lab_01'];
+		//echo "sum : ",array_sum($lab_01['full_mark'])," marking : ",array_sum($lab_01['marking']),"<br>";
+		$chapter1 = array_filter($lab_data, function ($data) {
+			return $data['chapter_id']==1;
+		});
+		echo "<pre>",print_r($chapter1),"</pre>";
+		$chapter1_fullmark = array_column($chapter1,'full_mark');
+		echo "sum : ",array_sum($chapter1_fullmark),'<br>';		
+		*/
+		
+	}
+
+	public function assign_student_exericse($stu_id,$chapter_id,$item_id,$exercise_id) {
+		$_table = "student_assigned_chapter_item";
+		$this->db->where('stu_id',$stu_id);
+		$this->db->where('chapter_id',$chapter_id);
+		$this->db->where('item_id',$item_id);
+		$query = $this->db->get($_table);
+
+		//if cannot find record insert new one to student_assigned_chapter_item
+		if ($query->num_rows()==0) {
+			$group_id = $_SESSION['stu_group'];
+			$full_mark_group = $this->get_full_mark_group($group_id,$chapter_id,$item_id);
+			$data = array (
+							'stu_id'		=> $stu_id,
+							'chapter_id'	=> $chapter_id,
+							'item_id'		=> $item_id,
+							'exercise_id'	=> $exercise_id,
+							'full_mark'		=> $full_mark_group
+							);
+			$query = $this->db->insert($_table,$data);
+		}
+		$this->db->where('stu_id',$stu_id);
+		$this->db->where('chapter_id',$chapter_id);
+		$this->db->where('item_id',$item_id);
+		$query = $this->db->get($_table);
+		$query = (array) $query->first_row();
+
+		return $query['exercise_id'];
+	}
+
+	public function get_full_mark_group($group_id,$chapter_id,$item_id) {
+		$table = "group_assigned_chapter_item";
+		$this->db->where('group_id',$group_id);
+		$this->db->where('chapter_id',$chapter_id);
+		$this->db->where('item_id',$item_id);
+		$query = $this->db->get($table);
+		$first_row = (array) $query->first_row();
+
+		return $first_row['full_mark'];
+	}
+			
+	public function get_sourcecode_filename($exercise_id) {
+		$table = "lab_exercise";
+		$this->db->where('exercise_id',$exercise_id);
+		$query = $this->db->get($table);
+		$query = (array) $query->first_row();
+		return $query['sourcecode'];
+	}
+	public function get_lab_name($exercise_id) {
+		$table = "lab_exercise";
+		$this->db->where('exercise_id',$exercise_id);
+		$query = $this->db->get($table);
+		$query = (array) $query->first_row();
+		return $query['lab_name'];
+	}
+
+	public function get_lab_chapter($exercise_id) {
+		$table = "lab_exercise";
+		$this->db->where('exercise_id',$exercise_id);
+		$query = $this->db->get($table);
+		$query = (array) $query->first_row();
+		return $query['lab_chapter'];
+	}
+
+	public function get_lab_level($exercise_id) {
+		$table = "lab_exercise";
+		$this->db->where('exercise_id',$exercise_id);
+		$query = $this->db->get($table);
+		$query = (array) $query->first_row();
+		return $query['lab_level'];
+	}
+
+	public function get_lab_full_mark($exercise_id) {
+		$table = "lab_exercise";
+		$this->db->where('exercise_id',$exercise_id);
+		$query = $this->db->get($table);
+		$query = (array) $query->first_row();
+		return $query['full_mark'];
+	}
+
+	/*
+	*	get exercise_id and query from lab_exercise table
+	*	then, put into $_SESSION['lab_2b_edit']
+	*/
+	public function get_lab_content($exercise_id) {
+		$table = 'lab_exercise';
+		$this->db->where('exercise_id',$exercise_id);
+		$query = $this->db->get($table);
+		$query = (array) $query->first_row();
+		return $query['lab_content'];
+		/*
+		$_SESSION['lab_2b_edit']=$query->row_array(0);
+		$sourcecode_filename = SUPERVISOR_CFILES_FOLDER.$_SESSION['lab_2b_edit']['sourcecode'];
+		if (file_exists($sourcecode_filename))
+			 $lab_content = file_get_contents($sourcecode_filename);
+		$_SESSION['sourcecode_content'] = $lab_content;
+		return $lab_content;
+		//$_SESSION['sourcecode_output']='';
+
+		/*
+		foreach ($query->result_array() as $row) {
+			echo "<pre>";
+			print_r($row);
+			echo "</pre>";
+		}
+		*/
+
+		//return first row
+		// or 
+		//  $row = $query->first_row()
+		// $row = $query->last_row()
+		// $row = $query->next_row()
+		// $row = $query->previous_row()
+		//return $query->row_array(0);
+	}
+
+	public function exercise_submission_add($data) {
+		$table = 'exercise_submission';
+		$query = $this->db->insert($table,$data);
+		//echo "<h1>",__METHOD__," : ",print_r($query),"</h1>";
+		$this->db->where($data);
+		$query = $this->db->get($table);
+		$query =  (array) $query->last_row();
+		//echo "<h1>",__METHOD__," : ",print_r($query),"</h1>";
+		return $query['submission_id'];
+	}
+
+	public function get_lab_exercise_sourcecode_filename($exercise_id){
+		$table = 'lab_exercise';
+		$this->db->where('exercise_id',$exercise_id);
+		$query = $this->db->get($table);
+		$query = (array) $query->first_row();
+		return $query['sourcecode'];
+	}
+
+	public function get_fullmark_from_student_assigned_chapter_item($stu_id,$chapter_id,$item_id,$exercise_id) {
+		$table = 'student_assigned_chapter_item';
+		$this->db->where('stu_id',$stu_id);
+		$this->db->where('chapter_id',$chapter_id);
+		$this->db->where('item_id',$item_id);
+		$query = $this->db->get($table);
+		$query = (array) $query->first_row();
+		return $query['full_mark'];
+	}
+
+	public function get_marking_from_student_assigned_chapter_item($stu_id,$chapter_id,$item_id,$exercise_id) {
+		$table = 'student_assigned_chapter_item';
+		$this->db->where('stu_id',$stu_id);
+		$this->db->where('chapter_id',$chapter_id);
+		$this->db->where('item_id',$item_id);
+		$query = $this->db->get($table);
+		$query = (array) $query->first_row();
+		return $query['marking'];
+	}
+
+	public function update_marking_student_assigned_chapter_item ($stu_id,$chapter_id,$item_id,$marking) {
+		$table = 'student_assigned_chapter_item';
+		$this->db->where('stu_id',$stu_id);
+		$this->db->where('chapter_id',$chapter_id);
+		$this->db->where('item_id',$item_id);
+		$this->db->set('marking',$marking);
+		$query = $this->db->update($table);
+	}
+
+	public function update_marking_exercise_submission($stu_id,$submission_id,$marking) {
+		$table = 'exercise_submission';
+		$this->db->where('submission_id',$submission_id);
+		$this->db->set('marking',$marking);
+		$query = $this->db->update($table);
+	}
+
+	public function get_student_marking_for_all_chapters($stu_id) {
+		$table = 'student_assigned_chapter_item';
+		$this->db->where('stu_id',$stu_id);
+		$this->db->order_by('chapter_id'); 
+		$this->db->order_by('item_id'); 
+		$query = $this->db->get($table);
+		$query = $query->result_array();
+
+		foreach($query as $row) {
+			$marking = $this->get_max_marking_from_exercise_submission($stu_id,$row['exercise_id']);
+
+			$this->db->where('stu_id',$stu_id);
+			$this->db->where('chapter_id',$row['chapter_id']);
+			$this->db->where('item_id',$row['item_id']);
+			$this->db->set('marking',$marking);
+			$this->db->update($table);
+		}
+
+		
+		$this->db->select('SUM(marking) as total');
+		$this->db->where('stu_id',$stu_id); 
+		$this->db->group_by('chapter_id'); 
+		$this->db->order_by('chapter_id'); 
+			
+		$query = $this->db->get($table);
+		$query = $query->result_array();
+		//echo '<pre>',print_r($query),'</pre>';
+		return $query;
+	}
+
+	
+
+	public function get_num_testcase($exercise_id) {
+		$table  = 'exercise_testcase';
+		$this->db->where('exercise_id',$exercise_id);
+		$query = $this->db->get($table);
+		$query = $query->result_array();
+		//echo 'exercise_id : ',$exercise_id,'  number of testcase : ',sizeof($query),'<br>';
+		return sizeof($query);
+	}
+
+	public function get_testcase_array($exercise_id){
+		$table  = 'exercise_testcase';
+		$this->db->where('exercise_id',$exercise_id);
+		$query = $this->db->get($table);
+		$query = $query->result_array();
+		
+		return $query;
+
+	}
+
+	public function exercise_testcase_add($exercise_id){
+		$table ='exercise_testcase';
+		$this->db->select_max('testcase_id');
+		$query = $this->db->get($table);
+		$result = $query->row_array();
+		$testcase_id = $result['testcase_id']+1;
+		
+		$data = array( 'testcase_id' => $testcase_id,
+						'exercise_id' => $exercise_id
+				);
+		$this->db->insert($table,$data);			
+	}
+
+	public function exercise_testcase_update($data) {
+		$table ='exercise_testcase';
+		$this->db->replace($table,$data);			
+	}
+
+	public function get_max_marking_from_exercise_submission($stu_id,$exercise_id) {
+		$table = 'exercise_submission';
+		$this->db->where('stu_id',$stu_id);
+		$this->db->where('exercise_id',$exercise_id);
+		$this->db->select_max('marking');
+		$query = $this->db->get($table);
+		$result = $query->row_array();
+		$marking = $result['marking'];
+		if (empty($marking)) {
+			return 0;
+		} else {
+			return $marking;
+		}
+	}
+
+	public function get_group_data($group_id) {
+		$query = $this->db->query(
+'SELECT T1.stu_id, T1.chapter_id, T1.item_id, T1.exercise_id,T2.max_marking
+FROM student_assigned_chapter_item T1 
+	LEFT JOIN
+    	(SELECT stu_id, exercise_id, MAX(marking) AS max_marking 
+         FROM exercise_submission
+         GROUP BY stu_id, exercise_id) T2
+         
+     	on T1.stu_id=T2.stu_id AND T1.exercise_id=T2.exercise_id
+GROUP BY stu_id, chapter_id, item_id
+ORDER BY stu_id, chapter_id, item_id');
+
+		return $query->result_array();
+	}
+
+	public function get_number_of_chapters($stu_group) {
+		$table = 'lab_classinfo';
+		//$this->db->where('group_id',$stu_group);
+		$query = $this->db->get($table);
+		return sizeof($query->result_array());
+	}
+
+
+
+}//class Lab_model

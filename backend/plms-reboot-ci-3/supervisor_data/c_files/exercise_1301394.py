@@ -1,0 +1,5 @@
+print('*** Perimeter of Rectangle ***')
+width, length = input('Enter width and length of Rectangle: ').split()
+width, length = float(width), float(length)
+Perimeter = 2*(width + length)
+print("Perimeter of a Rectangle = %.2f" %Perimeter)

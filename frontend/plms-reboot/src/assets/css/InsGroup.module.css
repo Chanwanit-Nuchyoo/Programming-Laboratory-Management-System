@@ -1,0 +1,6 @@
+.info-box {
+  /* minHeight={200} className="outlined" spacing={"10px"} bgcolor={"var(--mirage)"} borderRadius={"8px"} */
+  min-height: 200px;
+  background-color: var(--mirage);
+  border-radius: 8px;
+}

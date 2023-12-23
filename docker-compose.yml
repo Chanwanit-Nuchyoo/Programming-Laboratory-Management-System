@@ -1,0 +1,51 @@
+version: "3"
+
+services:
+  frontend:
+    build: ./frontend/plms-reboot
+    container_name: frontend-container
+    ports:
+      - 5173:5173
+    volumes:
+      - ./frontend/plms-reboot/:/app
+      - /app/node_modules
+    environment:
+      CHOKIDAR_USEPOLLING: true
+      VITE_BASE_URL: http://localhost
+      VITE_YEAR: 2022
+
+  backend:
+    build: ./backend/plms-reboot-ci-3
+    container_name: backend-container
+    ports:
+      - 80:80
+    volumes:
+      - ./backend/plms-reboot-ci-3:/var/www/html
+      - ./config/apache.conf:/etc/apache2/sites-enabled
+      - ./config/php.conf:/usr/local/etc/php
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0.31
+    container_name: db-container
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: plmskmitl2023
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db:/var/lib/mysql
+      - ./sql-files:/sql-files
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.2.0
+    container_name: phpmyadmin-container
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: plmskmitl2023
+    ports:
+      - 8080:80
+    depends_on:
+      - db

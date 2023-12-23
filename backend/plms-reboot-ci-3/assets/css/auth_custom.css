@@ -1,0 +1,39 @@
+body {
+	background-color:paleturquoise; 
+  background-image: url("../images/background_python-03.jpg");
+   /* width: 100vw;  */
+  background-position: top; 
+  background-size: cover; 
+  background-repeat: no-repeat;
+}
+.main {
+	padding-top: 70px;
+}
+
+.login-wrapper {
+    margin-top: 0px;
+}
+
+.blink_me {
+	pointer-events: none;
+	animation: blinker 5s linear infinite;
+	color: crimson;
+	font-weight: 600;
+	font-size: 2em;
+	
+}
+  
+@keyframes blinker {
+	0% { opacity: 0.2;}
+	5% { opacity: 0.2;}
+	25% { opacity: 0.5;	}
+	70% { opacity: 1;}
+	100% { opacity: 0.9;}
+}
+.subject_heading {
+	display:grid;
+	color: darkgoldenrod;
+	font-size: 1.2em;
+	text-align: center;
+	font-weight: 700;
+}

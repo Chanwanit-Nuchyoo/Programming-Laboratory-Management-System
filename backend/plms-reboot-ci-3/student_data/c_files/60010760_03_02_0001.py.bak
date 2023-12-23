@@ -1,0 +1,26 @@
+'''
+ * กลุ่มที่  : 19020053
+ * 60010760 ภัคพงษ์ ปุรสาชิต
+ * chapter : 3	item : 2	ครั้งที่ : 0001
+ * Assigned : Thursday 6th of February 2020 03:31:57 PM --> Submission : Thursday 6th of February 2020 04:18:16 PM	
+ * Elapsed time : 46 minutes.
+ * filename : PythonApplication1.py
+'''
+print(' *** Perfect Number Verification ***')
+a =  int(input('Enter number :'))
+if a<=0:
+    print('Only positive number !!!')
+sum = 0
+while a != 1:
+    
+    for i in range(a):
+        if a%i == 0:
+            a = a/i
+            list.append(i)
+            sum = sum+i
+if sum == a:
+    print('%s is a PERFECT NUMBER.',a)
+    print('Factors :',list)
+else:
+    print('%s is NOT a perfect number.',a)
+    print('Factors :',list)

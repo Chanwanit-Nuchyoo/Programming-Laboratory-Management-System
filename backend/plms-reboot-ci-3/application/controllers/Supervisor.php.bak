@@ -1,0 +1,853 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+define('MY_CONTROLLER', pathinfo(__FILE__, PATHINFO_FILENAME));
+
+class Supervisor extends MY_Controller {
+	protected $access = "supervisor";
+
+	public function __construct()	{
+		parent::__construct();		
+	}
+	
+	public function index()	{
+		//update student information
+		//echo "<h1>supervisor page index </h1>";
+		//$this->show_constants();
+		
+		$this->createLogFile(__METHOD__);
+
+		//update supervisor information as necessary
+		$this->load->model('supervisor_model');
+		$this->supervisor_model->update_supervisor_profile();
+		//$this->show_constants();
+
+		//$this->load->view('supervisor/head');
+		//$this->load->view('supervisor/template_edit');
+		
+		$this->load->view('supervisor/head');
+		$this->load->view('supervisor/nav_fixtop');
+		$this->load->view('supervisor/nav_sideleft');
+		$this->load->view('supervisor/home');
+		$this->load->view('supervisor/footer');
+		
+		
+		
+
+		//$this->load->view('test_webpage3');
+		
+	}//public function index()
+	
+	/*
+	*	Add new row into lab_exercise table
+	*	then, go to exercise_edit
+	*/
+	public function exercise_add() {
+		//echo "<h3>". __METHOD__ ." : _SESSION :</h3><pre>"; print_r($_SESSION); echo "</pre>";
+		// insert new record into lab_exercise table
+		// and update $_SESSION['lab_2b_edit']
+		$this->load->model('lab_model');
+		$exercise_id = $this->lab_model->exercise_add();
+		//echo "<h3>". __METHOD__ ." : _SESSION :</h3><pre>"; print_r($_SESSION); echo "</pre>";
+
+		$_POST = '';
+		$_POST['exercise_id']= $exercise_id;
+		$this->exercise_edit();
+
+	}
+
+	public function exercise_edit_part1() {
+		//echo "<h2>". __METHOD__ ." : _SESSION :</h2><pre>"; print_r($_SESSION); echo "</pre>";
+		//echo "<h3>". __METHOD__ ." : _POST : size = ". sizeof($_POST)."</h3><pre>"; print_r($_POST); echo "</pre>";
+		
+		//update table lab_exercise
+		$data = $_POST;
+		$exercise_id = $_POST['exercise_id'];
+		$this->load->model("lab_model");
+		$this->lab_model->update_lab_exercise_part1($data);
+		//reset $_POST
+		$_POST='';
+		$_POST['exercise_id'] = $exercise_id;
+		$this->exercise_edit();
+
+	}
+	
+	//update lab_content
+	public function exercise_edit_part2() {
+		//echo "<h2>". __METHOD__ ." : _SESSION :</h2><pre>"; print_r($_SESSION); echo "</pre>";
+		//echo "<h3>". __METHOD__ ." : _POST : size = ". sizeof($_POST)."</h3><pre>"; print_r($_POST); echo "</pre>";
+		
+		//update table lab_exercise
+		$data = $_POST;
+		$exercise_id = $_POST['exercise_id'];
+		$this->load->model("lab_model");
+		$this->lab_model->update_lab_exercise_part1($data);
+		//reset $_POST
+		$_POST='';
+		$_POST['exercise_id'] = $exercise_id;
+		$this->exercise_edit();
+
+	}
+	
+	//update sourcecode_content overwrite the old one
+	public function exercise_edit_part3() {
+		//echo "<h2>". __METHOD__ ." : _SESSION :</h2><pre>"; print_r($_SESSION); echo "</pre>";
+		//echo "<h3>". __METHOD__ ." : _POST : size = ". sizeof($_POST)."</h3><pre>"; print_r($_POST); echo "</pre>";
+		//update table lab_exercise
+		$data = $_POST;
+		$exercise_id = $data['exercise_id'];
+		$sourcecode_filename = $data['sourcecode_filename'];
+		$sourcecode_content = $data['sourcecode_content'];
+		if (strlen($sourcecode_content) > 10 ) {
+			//	write content to harddisk
+			if (strlen($sourcecode_content) > 10) {
+				file_put_contents(SUPERVISOR_CFILES_FOLDER.$sourcecode_filename,$sourcecode_content);
+			}
+
+			/*
+			//	mode is to choose where to keep .exe file  --> 'student' or 'supervisor'
+			//	generate $sourcecode_output
+			require_once 'exercise_test.php';
+			$exercise_test = new exercise_test();
+			$mode = $_SESSION['role'];
+			$sourcecode_output = $exercise_test->get_result_noinput($sourcecode_filename,$mode);
+			$sourcecode_output = $exercise_test->unify_whitespace($sourcecode_output);
+			$sourcecode_output = $exercise_test->insert_newline($sourcecode_output);
+			$_SESSION['sourcecode_output']  = $sourcecode_output;
+			$_SESSION['sourcecode_content']  = $sourcecode_content;
+			*/
+		};
+		//reset $_POST
+		$_POST='';
+		$_POST['exercise_id'] = $exercise_id;
+		$this->exercise_edit();
+
+	}
+
+	public function exercise_testcase_add() {
+		echo "<pre>",print_r($_POST),"</pre>";
+		$exercise_id = $_POST['exercise_id'];
+		$this->load->model('lab_model');
+		$this->lab_model->exercise_testcase_add($exercise_id);
+		$_POST='';
+		$_POST['exercise_id'] = $exercise_id;
+		$this->exercise_edit();
+	}
+
+	// update only one testcase: content,note, output
+	// and rerun the testcase to get output
+	public function exercise_testcase_update() {
+		//echo '<pre>',print_r($_POST),'</pre>';
+		$testcase = $_POST;
+		$exercise_id = $testcase['exercise_id'];
+		$testcase_id = $testcase['testcase_id'];
+
+		// update only one testcase
+		require_once 'exercise_test.php';
+		$exercise_test = new exercise_test();
+		$this->load->model('lab_model');
+		$sourcecode_filename = $this->lab_model->get_sourcecode_filename($testcase['exercise_id']);
+		$testcase['testcase_output'] = $exercise_test->get_exercise_output($sourcecode_filename,$testcase['testcase_content']);
+
+		$this->load->model('lab_model');
+		$this->lab_model->exercise_testcase_update($testcase);
+
+		$_POST='';
+		$_POST['exercise_id'] = $exercise_id;
+		$this->exercise_edit();
+	}
+
+	/*
+	*	1. call from exercise_show, only $exercise_id is posted.
+	*	2. call from exercise_show/add exercise only  $exercise_id is posted and no other info in database
+	*	3. call from exercise_edit, will have all 
+	*/	
+	public function exercise_edit() {
+		//echo "<h3>". __METHOD__ ." : _SESSION :</h3><pre>"; print_r($_SESSION); echo "</pre>";
+		//echo "<h3>". __METHOD__ ." : _POST : size = ". sizeof($_POST)."</h3><pre>"; print_r($_POST); echo "</pre>";
+
+		if (sizeof($_POST)==1)  {
+			//echo "<h3>". __METHOD__ ." : _POST : size = ". sizeof($_POST)." 1st cond.</h3><pre>"; print_r($_POST); echo "</pre>";
+			$exercise_id	= $_POST['exercise_id'] ;
+
+			// get lab content from database
+			// updating $_SESSION
+			$this->load->model('lab_model');
+			$this->lab_model->get_lab_content($exercise_id);
+			//echo '<h3> Updating $_SESSION[lab_2b_edit] : _SESSION :</h3><pre>'; print_r($_SESSION); echo "</pre>";
+			$lab_chapter	= $this->lab_model->get_lab_chapter($exercise_id);
+			$lab_level		= $this->lab_model->get_lab_level($exercise_id);
+			$lab_name		= $this->lab_model->get_lab_name($exercise_id);
+			$lab_content	= $this->lab_model->get_lab_content($exercise_id);
+			$full_mark		= $this->lab_model->get_lab_full_mark($exercise_id);
+			// check whether there are any testcase
+			$num_of_testcase = $this->lab_model->get_num_testcase($exercise_id);
+			//$testcase		= $_SESSION['lab_2b_edit']['testcase'];
+			//$sourcecode		= $_SESSION['lab_2b_edit']['sourcecode'];
+			//$full_mark		= $_SESSION['lab_2b_edit']['full_mark'];
+			//$added_date		= $_SESSION['lab_2b_edit']['added_date'];
+			//$added_by		= $_SESSION['lab_2b_edit']['added_by'];
+			//$lab_constrain	= $_SESSION['lab_2b_edit']['lab_constrain'];
+			
+			// sourcecode name is not available, then assign name
+			$sourcecode_filename = $this->lab_model->get_sourcecode_filename($exercise_id);
+			if (strlen($sourcecode_filename) < 3) {
+				$sourcecode_filename = ''.$exercise_id;
+				while (strlen($sourcecode_filename) < 5)
+					$sourcecode_filename = '0'.$sourcecode_filename;
+				$sourcecode_filename = 'exercise_'.$sourcecode_filename.'.c';
+			
+
+				//update database
+				// $sourcecode_filename only
+				$this->load->model('lab_model');
+				$this->lab_model->update_sourcecode($exercise_id,$sourcecode_filename);
+			}
+			 					
+			//get sourcecode_content file from harddisk
+			if (file_exists(SUPERVISOR_CFILES_FOLDER.$sourcecode_filename)) {
+				$sourcecode_content = file_get_contents (SUPERVISOR_CFILES_FOLDER.$sourcecode_filename);
+				$_SESSION['sourcecode_content'] =  $sourcecode_content;
+					/*			
+				//	mode is to choose where to keep .exe file  --> 'student' or 'supervisor'
+				//	generate $sourcecode_output
+				require_once 'exercise_test.php';
+				$exercise_test = new exercise_test();
+				$mode = $_SESSION['role'];
+				if ($num_of_testcase <= 0 ) {
+
+					$sourcecode_output = $exercise_test->get_result_noinput($sourcecode_filename,$mode);
+					$sourcecode_output = $exercise_test->unify_whitespace($sourcecode_output);
+					$sourcecode_output = $exercise_test->insert_newline($sourcecode_output);
+					$_SESSION['sourcecode_output']  = $sourcecode_output;
+				}
+				*/
+			} else {
+				$sourcecode_content = "#include<stdio.h>".NEWLINE.'int main() {'.NEWLINE.TAB.'return 0;'.NEWLINE.'}'; 
+			}
+
+			
+		} else {
+		//if (sizeof($_POST) > 1) {
+			//echo "<h3>". __METHOD__ ." : _POST : size = ". sizeof($_POST)." 2nd cond.</h3><pre>"; print_r($_POST); echo "</pre>";
+			$exercise_id = $_POST['exercise_id'];
+			$lab_chapter	= $_POST['lab_chapter'];
+			$lab_level		= $_POST['lab_level']; 
+			$lab_name		= $_POST['lab_name'];
+			$lab_content	= $_POST['lab_content'];
+			$testcase		= $_POST['testcase'];
+			$sourcecode		= $_SESSION['lab_2b_edit']['sourcecode'];
+			//$full_mark		= $_POST['full_mark'];
+			//$added_date		= $_POST['added_date'];
+			//$added_by		= $_POST['added_by'];
+			$lab_constrain	= $_POST['lab_constrain'];
+			$sourcecode_content = $_POST['sourcecode_content'];
+
+			$data = array( 
+						'lab_chapter' => $lab_chapter,
+						'lab_level'		=> "$lab_level",
+						'lab_name'		=> $lab_name,
+						'lab_content'	=> $lab_content,
+						'testcase'		=> $testcase,
+						//'sourcecode'	=> $sourcecode,
+						'lab_constrain'	=> $lab_constrain
+				);
+
+			//update database
+			$this->load->model('lab_model');
+			$this->lab_model->update_lab_exercise($exercise_id,$data);
+			$sourcecode_filename = $sourcecode;
+			if (strlen($sourcecode_content) > 10 ) {
+				//	write content to harddisk
+				if (strlen($sourcecode_content) > 10) {
+					file_put_contents(SUPERVISOR_CFILES_FOLDER.$sourcecode_filename,$sourcecode_content);
+				}
+
+/*
+				//	mode is to choose where to keep .exe file  --> 'student' or 'supervisor'
+				//	generate $sourcecode_output
+				require_once 'exercise_test.php';
+				$exercise_test = new exercise_test();
+				$mode = $_SESSION['role'];
+				$sourcecode_output = $exercise_test->get_result_noinput($sourcecode_filename,$mode);
+				$sourcecode_output = $exercise_test->unify_whitespace($sourcecode_output);
+				$sourcecode_output = $exercise_test->insert_newline($sourcecode_output);
+				$_SESSION['sourcecode_output']  = $sourcecode_output;
+				$_SESSION['sourcecode_content']  = $sourcecode_content;
+				*/
+			}
+			$this->lab_model->get_lab_content($exercise_id);
+			 
+
+		} 
+		
+			
+		// check whether there are any testcase
+		$num_of_testcase = $this->lab_model->get_num_testcase($exercise_id);
+		$testcase_array = $this->lab_model->get_testcase_array($exercise_id);
+		
+		
+		$data_testcase = array(
+								'exercise_id'		=>	$exercise_id,
+								'num_of_testcase'	=> $num_of_testcase,
+								'testcase_array'	=> $testcase_array
+								);
+
+		//echo "<pre>"; print_r($_SESSION); echo "</pre>";
+		$data =  array( 
+						'exercise_id'			=>	$exercise_id,
+						'lab_chapter'			=>	$lab_chapter,
+						'lab_level'				=>	$lab_level,
+						'lab_name'				=>	$lab_name,
+						'lab_content'			=>	$lab_content,
+						'sourcecode_filename'	=>	$sourcecode_filename,
+						'sourcecode_content'	=>	$sourcecode_content,
+						'full_mark'				=>	$full_mark		
+							);
+		//echo "<pre>"; print_r($data); echo "</pre>";
+		//echo "<h3>". __METHOD__ ." : _SESSION :</h3><pre>"; print_r($_SESSION); echo "</pre>";
+
+		
+		$this->load->view('supervisor/head');
+		$this->load->view('supervisor/nav_fixtop');
+		$this->load->view('supervisor/nav_sideleft');
+		$this->load->view('supervisor/exercise_edit_v2',$data);
+		if($num_of_testcase == 0)
+			$this->load->view('supervisor/exercise_edit_output',$data);
+		else
+			$this->load->view('supervisor/exercise_edit_testcase',$data_testcase);
+		$this->load->view('supervisor/add_exercise_footer');
+		
+		
+	} // function exercise_edit()
+
+	// add output to all testcases stored in testcase_array
+	public function add_output_testcases($excercise_id, $testcase_array) {
+		//echo "number of testcase : ",sizeof($testcase_array),"<br>";
+		foreach ($testcase_array as $key => $testcase) {
+			$testcase = $this->add_output_testcase($excercise_id, $testcase); 
+			$testcase_array[$key] = $testcase;
+			print_r($testcase); echo "<br>";
+		}
+		return $testcase_array;
+	}
+
+	// add output to a testcase stored in $testcase
+	public function add_output_testcase($testcase) {
+		$testcase['testcase_output']="this is output ".$exercise_id."-".$testcase['testcase_id']."<br>";
+		require_once 'exercise_test.php';
+		$exercise_test = new exercise_test();
+		
+		$sourcecode_filename = $this->lab_model->get_sourcecode_filename($testcase['exercise_id']);
+		$testcase['testcase_output'] = $exercise_test->get_exercise_output($sourcecode_filename,$testcase['testcase_content']);
+		return $testcase;
+	}
+
+
+	public function exercise_testing() {
+		/*
+		echo "<h2>MY_CONTROLLER : ".MY_CONTROLLER."</h2>";
+		echo '<h2>BASEPATH = '. BASEPATH .'</h2>';
+		echo '<h2>FCPATH = '. FCPATH .'</h2>';
+		echo '<h2>APPPATH = '. APPPATH .'</h2>';
+		echo '<h2>__FILE__ = '. __FILE__ .'</h2>';
+		echo '<h2>__DIR__ = '. __DIR__ .'</h2>';
+		echo '<h2>__FUNCTION__ = '. __FUNCTION__ .'</h2>';
+		echo '<h2>__CLASS__ = '. __CLASS__ .'</h2>';
+		echo '<h2>__TRAIT__ = '. __TRAIT__ .'</h2>';
+		echo '<h2>__METHOD__ = '. __METHOD__ .'</h2>';
+		echo '<h2>__NAMESPACE__ = '. __NAMESPACE__ .'</h2>';
+		echo "<pre>";
+		print_r($_POST);
+		echo "</pre>";
+		*/
+
+		//get lab content from database
+		$exercise_id = $_POST['exercise_id'];
+		$this->load->model('lab_model');
+		$this->lab_model->get_lab_content($exercise_id);
+		echo '<h1>'.__METHOD__.'</h1> <h2>$_POST :</h2><pre>'; print_r($_POST); echo "</pre>";
+		echo '<h2> $_SESSION : </h2><pre>'; print_r($_SESSION); echo "</pre>";
+		/*
+		$lab_id = $exercise['lab_id'];
+		if ($lab_id == 4) //this is special case for chapter 1
+		{
+			echo "lab_id=4";
+		} else if($exercise['testcase']=="no_input") {
+			echo "NO INPUT exercise";
+		} else {
+			echo "other";
+		}
+		$data = array('exercise'=> $exercise);
+
+		$this->load->view('supervisor/head');
+		$this->load->view('supervisor/nav_fixtop');
+		$this->load->view('supervisor/nav_sideleft');
+		$this->load->view('supervisor/exercise_test',$data);
+		$this->load->view('supervisor/add_exercise_footer');
+		*/
+
+
+	}//function exercise_test()
+
+	public function exercise_remove() {
+		echo "<h1> You have to be the creater of this exercise </h1>";
+	}
+	
+	public function add_exercise_form() {
+		//echo "This is add_exercise page";
+		//$this->load->view('supervisor/head');
+		//
+		//
+		//$this->load->view('supervisor/add_exercise');
+		//$this->load->view('supervisor/footer');
+
+		$this->load->view('supervisor/head');
+		$this->load->view('supervisor/nav_fixtop');
+		$this->load->view('supervisor/nav_sideleft');
+		$this->load->view('supervisor/add_exercise');
+		$this->load->view('supervisor/add_exercise_footer');
+	}
+
+	public function add_exercise_action() {
+		//echo "This is add_exercise Action";
+		//echo "<pre>";
+		//print_r($_POST);
+		//echo "</pre>";
+		//echo 'count($_POST [lab_content]) : '.count_chars($_POST['summernote-text'])."<br>";
+		$this->load->model('lab_model');
+		$this->lab_model->add_lab($_POST);
+
+		$this->show_lab_exercise();
+		//$this->load->view('supervisor/head');
+		//$this->load->view('supervisor/nav_fixtop');
+		//$this->load->view('supervisor/nav_sideleft');
+		//$this->load->view('supervisor/add_exercise');
+		//$this->load->view('supervisor/footer');
+		//$this->load->view('test_summernote-02');
+	}
+
+	public function exercise_show()	{
+		$this->load->model('lab_model');
+		$query = $this->lab_model->show_lab_exercise();
+		/*
+		foreach ($query->result() as $row)
+		{
+			echo $row->lab_id .' : '.$row->lab_chapter. ' : '.$row->lab_level.' : '. $row->lab_content."<br>";
+		}
+		*/
+		$data = array('query'=>$query);
+
+		$this->load->view('supervisor/head');
+		$this->load->view('supervisor/nav_fixtop');
+		$this->load->view('supervisor/nav_sideleft');
+		$this->load->view('supervisor/exercise_show',$data);
+		$this->load->view('supervisor/footer');
+	}
+
+	public function show_all_students()	{
+		$this->show_constants();
+		$this->load->model('student_model');
+		$query = $this->student_model->get_all_active_students();
+	}
+	
+
+	public function edit_profile_form() {
+		$this->load->view('supervisor/head');
+		$this->load->view('supervisor/nav_fixtop');
+		$this->load->view('supervisor/nav_sideleft');
+		$this->load->view('supervisor/edit_profile');
+		$this->load->view('supervisor/footer');
+	}
+
+	public function edit_profile_action() {
+		$this->createLogFile(__METHOD__ );
+		$current_password = md5($_POST['current_password']);
+		$database_password =  $this->get_password();
+		$new_password = $_POST['password_new'];
+		$confirm_password = $_POST['password_confirm'];
+		
+		//check current password if not correct return to edit_profile_form
+		if($current_password != $database_password)
+		{
+			//echo "<h4>Password incorrect !!!</h4>";
+			$this->session->set_flashdata("error", "Password is incorrect !!!");
+			$this->createLogFile(" Password is incorrect !!! => ".$_POST['current_password']);
+			return $this->edit_profile_form();
+		} 
+		//else {
+		//	echo "<h4>Password correct</h4>";
+		//}
+
+		//if (isset($new_password))
+		//	echo "isset($new_password) : true";
+		//else
+		//	echo "isset($new_password) : false";
+
+		//update name surname
+		$this->load->model('supervisor_model');
+		$this->supervisor_model->update_supervisor_record();
+		
+		//update $_SESSION		
+		$_SESSION['supervisor_gender']		= $_POST['supervisor_gender'];
+		$_SESSION['supervisor_firstname']	= $_POST['supervisor_firstname'];
+		$_SESSION['supervisor_lastname']	= $_POST['supervisor_lastname'];
+		$_SESSION['supervisor_nickname']	= $_POST['supervisor_nickname'];
+		$_SESSION['supervisor_dob']			= $_POST['supervisor_dob'];		
+		$_SESSION['supervisor_email']		= $_POST['supervisor_email'];
+		$_SESSION['supervisor_tel']			= $_POST['supervisor_tel'];
+		$_SESSION['supervisor_department']	= $_POST['supervisor_department'];
+		
+		
+		//update password
+		if (strlen($new_password) >= 4 && $new_password==$confirm_password)		
+		{
+			
+			//echo "<h2>Changing password to : ".$new_password."</h2>";
+			$this->load->model('supervisor_model');
+			$this->student_model->update_supervisor_password(md5($new_password));
+			$this->session->set_flashdata("status", "Password has been changed.");
+			$this->createLogFile(" Change password to : ".$new_password);
+		} else {
+			//echo "<h2>New password DONOT change : ".$new_password."</h2>";
+		}
+		/*
+		if(!isset($_POST['stu_avatar'] )) {
+			echo "impage is loaded : ".$_FILES['stu_avatar']['name']."<br>";
+		}
+		else {
+			echo "image is loaded<br>";
+		}
+		*/				
+					
+		
+
+		//upload impage
+		if(!isset($_FILE['supervisor_avatar'])  ) {
+
+			$imageupload =  $_FILES['supervisor_avatar']['tmp_name'] ;
+			$imageupload_name = $_FILES['supervisor_avatar']['name'] ;
+			$ext = strtolower(pathinfo($_FILES['supervisor_avatar']['name'],PATHINFO_EXTENSION));
+			$upload_filename = pathinfo($_FILES['supervisor_avatar']['name'],PATHINFO_FILENAME);
+			$saved_filename = "image_".$_SESSION['username'].'_'.uniqid().".".$ext;//ชื่อไฟล์
+			
+			//echo "Orignal filename : ".$imageupload_name."<br>";
+			//echo "New filename : $saved_filename<br>";
+			//echo "upload_filename : $upload_filename<br>";
+			//echo  "upoad_folder : ".$upload_path."<br>";
+			
+
+			//create directory if not exist
+			//if(!is_dir($upload_path)) {
+			//	mkdir ($upload_path);
+			//}
+
+			//check file type
+			if (!($ext =="jpg" || $ext =="jpeg" || $ext =="png" || $ext =="gif") ) {
+				$this->session->set_flashdata("error", "file type is not supported : $ext");
+				//echo "file type sinot supported : $ext";
+				echo "<script>alert('File type must be jpg , jpeg , png or gif')</script>";
+				return $this->edit_profile_form();
+			}
+				
+			
+			// Check file size
+			if ($_FILES["supervisor_avatar"]["size"] > 500000) {
+				$this->session->set_flashdata("error", "Image file is too large (>500k).");
+				//echo "Sorry, your file is too large.";
+				return $this->edit_profile_form();				
+			}
+
+			//echo $_SERVER['DOCUMENT_ROOT']."<br>";
+			//echo __FILE__."<br>";
+			//echo APPPATH.STUDENT_AVATAR_FOLDER."<br>";
+
+			
+			//save image file to harddisk
+			move_uploaded_file ( $imageupload ,  SUPERVISOR_AVATAR_FOLDER.$saved_filename );
+			
+			//update user_student table field only filename
+			$this->load->model('supervisor_model');
+			$this->supervisor_model->update_image($saved_filename);
+
+			//inform user
+			$this->session->set_flashdata("status", "Image file is updated.");
+			$_SESSION['supervisor_avatar']=$saved_filename;
+
+			
+		}
+
+		//echo "End now<br>";
+		
+
+		$this->session->set_flashdata("status", "Successfully Update.");		
+		$this->edit_profile_form();
+
+	}
+
+	//
+	private function get_password() {
+		
+		$this->load->model('supervisor_model');		
+		return $this->supervisor_model->get_password();
+	
+	}
+
+	private function show_constants()	{
+		echo "<h2>MY_CONTROLLER : ".MY_CONTROLLER."</h2>";
+		echo '<h2>BASEPATH = '. BASEPATH .'</h2>';
+		echo '<h2>FCPATH = '. FCPATH .'</h2>';
+		echo '<h2>APPPATH = '. APPPATH .'</h2>';
+		echo '<h2>__FILE__ = '. __FILE__ .'</h2>';
+		echo '<h2>__DIR__ = '. __DIR__ .'</h2>';
+		echo '<h2>__FUNCTION__ = '. __FUNCTION__ .'</h2>';
+		echo '<h2>__CLASS__ = '. __CLASS__ .'</h2>';
+		echo '<h2>__TRAIT__ = '. __TRAIT__ .'</h2>';
+		echo '<h2>__METHOD__ = '. __METHOD__ .'</h2>';
+		echo '<h2>__NAMESPACE__ = '. __NAMESPACE__ .'</h2>';
+		echo '<h3>$_SESSION Super global variable </h3>';
+		echo "<pre>";
+		print_r($_SESSION);
+		echo "</pre>";
+		echo "<br>";
+		echo '<h3>$_SERVER Super global variable </h3>';
+		echo "<pre>";
+		print_r($_SERVER);
+		echo "</pre>";
+	}
+
+	public function student_add() {
+		echo '<h2>BASEPATH = '. BASEPATH .'</h2>';
+		echo '<h2>FCPATH = '. FCPATH .'</h2>';
+		echo '<h2>APPPATH = '. APPPATH .'</h2>';
+		echo '<h2>__FILE__ = '. __FILE__ .'</h2>';
+		echo '<h2>__DIR__ = '. __DIR__ .'</h2>';
+		echo '<h2>__FUNCTION__ = '. __FUNCTION__ .'</h2>';
+		echo '<h2>__CLASS__ = '. __CLASS__ .'</h2>';
+		echo '<h2>__TRAIT__ = '. __TRAIT__ .'</h2>';
+		echo '<h2>__METHOD__ = '. __METHOD__ .'</h2>';
+		echo '<h2>__NAMESPACE__ = '. __NAMESPACE__ .'</h2>';
+
+		//$fp = fopen(ADMIN_DATA_FOLDER."16s2 Student group 19.csv",'r');
+
+		// openfile ADMIN_DATA_FOLDER."16s2 Student group 19.csv" and read data show onscreen
+		/* ***************   format example **************
+		1,19,56010886, นายพีระวิช  แก้วสาคร,นายพีระวิช,แก้วสาคร
+		2,19,56010912, นายภัทรฉัตร  บุษบงค์,นายภัทรฉัตร,บุษบงค์
+		3,19,59010012, นางสาวกนกอร  ทัดเทียม,นางสาวกนกอร,ทัดเทียม
+		4,19,59010059, นายกษิเดช  เมฆแสงอรุณรุ่ง,นายกษิเดช,เมฆแสงอรุณรุ่ง
+		5,19,59010084, นายกันตวิชญ์  พรหมทอง,นายกันตวิชญ์,พรหมทอง
+		6,19,59010182, นายจักรกฤษณ์  พาทีทิน,นายจักรกฤษณ์,พาทีทิน
+		7,19,59010198, นายจิตติพล  คำอุไร,นายจิตติพล,คำอุไร
+		8,19,59010261, นางสาวชนกจิต  น้อยคำ,นางสาวชนกจิต,น้อยคำ
+		9,19,59010427, นางสาวณัฐณิชา  รุ่งเรืองไพโรจน์,นางสาวณัฐณิชา,รุ่งเรืองไพโรจน์
+		10,19,59010465, นายณัฐภัทร  วิศรียา,นายณัฐภัทร,วิศรียา
+		11,19,59010469, นายณัฐรัฐ  เเย้มโพธิ์ใช้,นายณัฐรัฐ,เเย้มโพธิ์ใช้
+		12,19,59010479, นายณัฐวุฒิ  ทวีรประยูร,นายณัฐวุฒิ,ทวีรประยูร
+		13,19,59010502, นางสาวดุุษฎี  นาคบัว,นางสาวดุุษฎี,นาคบัว
+		14,19,59010540, นายแทนไท  กิจชูตระกูล,นายแทนไท,กิจชูตระกูล
+		15,19,59010580, นางสาวธนภรณ์  บัญชาดิฐ,นางสาวธนภรณ์,บัญชาดิฐ
+		16,19,59010635, นายธัชพล  อรรถประวิทย์,นายธัชพล,อรรถประวิทย์
+		17,19,59010658, นายธีรเดช  ธัญญเจริญ,นายธีรเดช,ธัญญเจริญ
+		*/
+		$row = 1;
+		if (($handle = fopen(ADMIN_DATA_FOLDER."16s2 Student group 19.csv", "r")) !== FALSE) {
+			while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+				$num = count($data);
+				//echo "<p> $num fields in line $row: <br /></p>\n";
+				$row++;
+				$stu_group = $data[1];
+				$stu_id = $data[2];
+				$stu_firstname = $data[4];
+				$stu_lastname = $data[5];
+				//echo $stu_id." : ".$stu_firstname." ".$stu_lastname."<br>";
+				/*
+				for ($c=0; $c < $num; $c++) {
+					echo "data[$c] : ".$data[$c] . "<br />\n";
+					
+				}
+				*/
+				// check data from 'user' table and add it if not exist
+				$this->load->model('student_model');
+				$result = $this->student_model->check_or_add_student_to_user($stu_id);
+				if($result == "added") {
+					//echo "Add : ".$stu_id." to 'user' table.<br>";
+					$this->createLogfile(__METHOD__." : $stu_id added to 'user' table.");
+				} else {
+					echo $stu_id." have previously been added<br>";
+				}
+
+				// extract data from $stu_firstname and set stu_gender accordingly
+				$stu_gender = 'other';
+				if(substr($stu_firstname,0,9) == 'นาย') {
+					$stu_gender = 'male';
+				} else if (substr($stu_firstname,0,18)=='นางสาว') {
+					$stu_gender = 'female';
+				} else {
+					$stu_gender = 'other';
+				}
+
+				// add data to 'user_student' if not exist
+				$student_data = array(	'stu_id'		=> $stu_id,
+										'stu_firstname'	=> $stu_firstname,
+										'stu_lastname'	=> $stu_lastname,
+										'stu_group'		=> $stu_group,
+										'stu_gender'	=> $stu_gender
+					);
+				echo '$student_data : '; print_r($student_data); echo substr($stu_firstname,0,9)." ".substr($stu_firstname,0,18)."<br>";
+				
+				$this->load->model('student_model');
+				$result = $this->student_model->check_or_add_student_to_user_student($student_data);
+				if($result) {
+					$this->createLogfile(__METHOD__." : $stu_id $stu_group $stu_firstname $stu_lastname added to 'user_student' table.");
+				} else {
+					echo "$stu_id $stu_firstname is not added to user_student table";
+				}
+				
+
+			}
+			fclose($handle);
+		}
+
+		
+		// default password will be md5(stu_id)
+		// check data from user_student table add it if not exist
+		//
+		
+
+	}//public function student_add()
+
+	public function student_show($stu_group) {
+		/*
+		echo '<h2>BASEPATH = '. BASEPATH .'</h2>';
+		echo '<h2>FCPATH = '. FCPATH .'</h2>';
+		echo '<h2>APPPATH = '. APPPATH .'</h2>';
+		echo '<h2>__FILE__ = '. __FILE__ .'</h2>';
+		echo '<h2>__DIR__ = '. __DIR__ .'</h2>';
+		echo '<h2>__FUNCTION__ = '. __FUNCTION__ .'</h2>';
+		echo '<h2>__CLASS__ = '. __CLASS__ .'</h2>';
+		echo '<h2>__TRAIT__ = '. __TRAIT__ .'</h2>';
+		echo '<h2>__METHOD__ = '. __METHOD__ .'</h2>';
+		echo '<h2>__NAMESPACE__ = '. __NAMESPACE__ .'</h2>';
+		echo "stu_group : $stu_group";
+		*/
+
+		$this->load->model('student_model');
+		$this->load->model('lab_model');
+		$students_data = $this->student_model->get_student_group($stu_group); // array
+		// create placeholder to store marking for each chapter and each student
+		$number_of_chapters = $this->lab_model->get_number_of_chapters($stu_group);
+		for($i=0; $i<sizeof($students_data); $i++) {
+			for($chapter = 1; $chapter <= $number_of_chapters; $chapter++) {
+				$students_data[$i][$chapter]=0;
+			}
+		}
+		/*
+		for($i=0; $i<sizeof($students_data); $i++) {
+			print_r($students_data[$i]);	echo "<br>";
+		}
+		*/
+		
+		
+		$marking_data = $this->lab_model->get_group_data($stu_group);
+		// $marking_data has stu_id, chapter_id, item_id, exercise_id and marking
+		// order by stu_id + chapter_id + item_id
+		
+		// add lab marking to $students_data		
+		for ($i=0,$m=0; $m<sizeof($marking_data); $m++) {		
+			echo $marking_data[$m]['stu_id'],' ',$marking_data[$m]['chapter_id'],' ',$marking_data[$m]['item_id'],' ',$marking_data[$m]['max_marking'];	echo "<br>";
+			for($i=0;$i<sizeof($students_data);$i++) {
+				if($marking_data[$m]['stu_id'] == $students_data[$i]['stu_id'] ){
+					$ch_id = $marking_data[$m]['chapter_id'];
+					$students_data[$i][$ch_id] += $marking_data[$m]['max_marking'];
+				} 	
+			}
+		}
+
+		//display updated data
+		/*
+		for($i=0; $i<sizeof($students_data); $i++) {
+			echo $students_data[$i]['stu_id'],' ',$students_data[$i]['stu_gender'],' ',$students_data[$i]['stu_firstname'],' ',$students_data[$i]['stu_lastname'],' ';
+			echo $students_data[$i]['stu_nickname'],' ',$students_data[$i]['stu_dob'],' ',$students_data[$i]['stu_avatar'],' ',$students_data[$i]['stu_email'],' ';
+			echo $students_data[$i]['stu_tel'],' ',$students_data[$i]['stu_department'],' ',$students_data[$i]['stu_group'],' ';
+			for($c=1;$c<=$number_of_chapters;$c++)
+				echo $students_data[$i][$c].' ';
+			echo "<br>";
+		}
+		*/
+
+		
+		$data = array('students_data'=>$students_data, 'stu_group' => $stu_group);
+
+		$this->load->view('supervisor/head');
+		$this->load->view('supervisor/nav_fixtop');
+		$this->load->view('supervisor/nav_sideleft');
+		$this->load->view('supervisor/student_show',$data);
+		$this->load->view('supervisor/footer');
+		
+
+	}
+	public function student_password_reset() {
+		$stu_id = $_POST['stu_id'];
+		$stu_group = $_POST['stu_group'];
+		$this->load->model('student_model');
+		$this->student_model->student_reset_password($stu_id);
+		$this->createLogfile(__METHOD__ ." stu_id : $stu_id");
+
+		$this->student_show($stu_group);
+		
+	}
+
+	public function group_management($group_id) {
+		echo "<h2>". __METHOD__ ." : _SESSION :</h2><pre>"; print_r($_SESSION); echo "</pre>";
+		echo "<h3>". __METHOD__ ." : _POST : size = ". sizeof($_POST)."</h3><pre>"; print_r($_POST); echo "</pre>";
+		echo "Group id : ".$group_id."<br>";
+		$this->load->model('lab_model');
+		$group_data = $this->lab_model->get_group_data($group_id);
+		// $group_data has stu_id, chapter_id, item_id, exercise_id and marking
+		// order by stu_id + chapter_id + item_id
+		$this->load->model('student_model');
+		$students_group = $this->student_model->get_student_group($group_id)->result_array();
+		$s=0;
+		for ($i=0;$i<sizeof($group_data); $i++) {
+		
+			$students_data[$s]['stu_id']		= $group_data[$i]['stu_id'];
+			$students_data[$s]['firstname']		= $students_group['stu_firstname'];
+			$students_data[$s]['lastname']		= $students_group['stu_lastname'];
+			$students_data[$s]['nickname']		= $students_group['stu_nickname'];
+			$students_data[$s]['avatar']		= $students_group['stu_avatar'];
+			
+			do {
+				 print_r($group_data[$i]);	echo "<br>";
+				$ch_id = $group_data[$i]['chapter_id'];
+				if (!isset($data[$s][$ch_id]))
+					$students_data[$s][$ch_id] = 0;
+				
+				$students_data[$s][$ch_id] +=  $group_data[$i]['marking'];
+				$i++;
+								
+			} while( $i+1<sizeof($group_data) && $students_data[$s]['stu_id'] == $group_data[$i+1]['stu_id']  );				
+			
+			print_r($students_data[$s]);	echo "<br>";
+			$s++;
+		}
+		$data['stu_group']= $group_id;
+		$data['students_data'] = $students_data;
+		// $group_data has stu_id, chapter_id, item_id, exercise_id and marking
+		// order by stu_id + chapter_id
+		$this->load->view('supervisor/head');
+		$this->load->view('supervisor/nav_fixtop');
+		$this->load->view('supervisor/nav_sideleft');
+		$this->load->view('supervisor/group_management',$data);
+		$this->load->view('supervisor/footer');
+
+	}
+
+	public function exercise_test_input() {
+		require_once 'exercise_test.php';
+		$exercise_test = new exercise_test();
+		$exercise_test->exercise_test_input('supervisor','exercise_00041.c','15');
+	}
+
+
+}//class Supervisor
+?>

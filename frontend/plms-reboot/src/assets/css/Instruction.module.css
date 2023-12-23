@@ -1,0 +1,16 @@
+.Title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    padding-top: 10px;
+    font-size: 20px;
+  }
+
+.rules{
+    padding: 20px;
+}
+
+.rules li {
+  font-size: 20px;
+}

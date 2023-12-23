@@ -1,0 +1,103 @@
+@font-face {
+	font-family: "UbuntuMono";
+	src: url("../fonts/UbuntuMono-Regular.ttf") format('truetype');
+
+	
+}
+.CodeMirror {
+	border: 1px solid #eee;
+	height: auto;
+  }
+.testcase {
+	resize: none;
+	font-family: UbuntuMono, monospace;
+	font-size: 16px;
+}
+.testcase-sample {
+	background-color: #3f3f3f;
+	color:white;
+	
+}
+
+.testcase-student {
+	background-color: #000000;
+	color:white;
+	resize: none;
+}
+
+#online_students {
+	color: cornsilk;
+	pointer-events: none;
+}
+.no_pointer {
+	color: cornsilk;
+	pointer-events: none;
+}
+.exercise_list_head {
+	background-color:#E5A9D6;
+	margin:10px 10px;
+	pointer-events: none;
+}
+.plms_footer {  
+	position:fixed;
+	bottom: 0;
+	display: flex;
+	width: 100%;
+	/* background-color: cyan; */
+	padding: 10px 10px 10px 10px;
+	margin: 5px 25px 5px 5px;
+	align-items:stretch;
+	justify-content: space-between;
+	color: darkgray;
+}
+
+.active {
+	font-weight: 400;
+	color:blue;
+}
+@media  only screen and (max-width: 1366px) {
+	.header-image {
+
+	}
+	.header-text {
+
+	}
+	.header-menu {
+		font-size: 1em;
+	}
+	.mynavbar {
+		/* font-size: 1rem; */
+		max-height: min-content;
+	}
+
+	.navbar-text {
+		margin-top:0px;
+		margin-bottom:0px;
+		padding-top:0px;
+		padding-bottom:0px;
+	}
+	.navbar-text1 {
+		margin-top:0px;
+		margin-bottom:0px;
+		padding-top:0px;
+		padding-bottom:0px;
+		font-size: 2rem;
+		font-weight: 600;
+	}
+	.navbar-text2 {
+		margin-top:0px;
+		margin-bottom:0px;
+		padding-top:0px;
+		padding-bottom:0px;
+		font-size: 1.25rem;
+	}
+	.navbar-text3 {
+		margin-top:0px;
+		margin-bottom:0px;
+		padding-top:0px;
+		padding-bottom:0px;
+		font-size: 1.25rem;
+	}
+	
+	
+}

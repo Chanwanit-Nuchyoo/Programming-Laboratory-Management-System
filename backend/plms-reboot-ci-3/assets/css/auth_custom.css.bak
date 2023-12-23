@@ -1,0 +1,7 @@
+.main {
+	padding-top: 70px;
+}
+
+.login-wrapper {
+    margin-top: 150px;
+}

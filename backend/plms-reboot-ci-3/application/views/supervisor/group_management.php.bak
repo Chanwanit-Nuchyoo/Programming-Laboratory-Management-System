@@ -1,0 +1,99 @@
+<!-- nav_body -->
+<div class="col-lg-10 col-md-10 col-sm-10" style="margin-left:300px;margin-right:30px">
+	
+
+	<div class="row">
+		<div class="col-lg-12">
+			<h2>นักศึกษา กลุ่มที่ <?php echo $stu_group ?>.</h2>
+			<div class="table-responsive">
+				<table class="table table-bordered table-hover" style="width-min:600px;width-max:700px;"">
+					<thead>
+						<tr>
+							<th style="width:60px;">NO.</th>
+							<th style="width:110px;">Student ID</th>
+							<th style="width:240px;">Name Surname</th>
+							<th>Avatar</th>
+							<th style="text-align:center">Lab 1</th>
+							<th style="text-align:center">Lab 2</th>
+							<th style="text-align:center">Lab 3</th>
+							<th style="text-align:center">Lab 4</th>
+							<th style="text-align:center">Lab 5</th>
+							<th style="text-align:center">Lab 6</th>
+							<th style="text-align:center">Lab 7</th>
+							<th style="text-align:center">Lab 8</th>
+							<th style="text-align:center">Lab 9</th>
+							<th style="text-align:center">Lab 10</th>
+							<th style="text-align:center">Lab 11</th>
+
+							<th>Reset Password</th>
+							
+						</tr>
+					</thead>
+					<tbody>
+						<?php $count=1; ?>
+						<tr>
+							<?php for($i=0;$i<sizeof($students_data);$i++) { ?>
+							<td>
+								<?php echo $count; ?>
+							</td>
+							
+							<td>
+								<?php echo $students_data[$i]['stu_id']; ?>
+							</td>
+							
+							<td style="text-align:left;">
+								<?php echo $row->stu_firstname; ?> <?php echo $row->stu_lastname; ?>
+							</td>
+
+							<td>
+								<img src="<?php echo $row->stu_avatar ? base_url(STUDENT_AVATAR_FOLDER.$row->stu_avatar) : base_url(STUDENT_AVATAR_FOLDER.'user.png'); ?>" style="width:90px;height:108px;">
+							</td>
+
+							<td><?php echo $students_data[$i][1] ? $students_data[$i][1] : 0; ?></td>
+							<td><?php echo $students_data[$i][2] ? $students_data[$i][2] : 0; ; ?></td>
+							<td><?php echo $students_data[$i][3] ? $students_data[$i][3] : 0; ; ?></td>
+							<td><?php echo $students_data[$i][4] ? $students_data[$i][4] : 0; ; ?></td>
+							<td><?php echo $students_data[$i][5] ? $students_data[$i][5] : 0; ; ?></td>
+							<td><?php echo $students_data[$i][6] ? $students_data[$i][6] : 0; ; ?></td>
+							<td><?php echo $students_data[$i][7] ? $students_data[$i][7] : 0; ; ?></td>
+							<td><?php echo $students_data[$i][8] ? $students_data[$i][8] : 0; ; ?></td>
+							<td><?php echo $students_data[$i][9] ? $students_data[$i][9] : 0; ; ?></td>
+							<td><?php echo $students_data[$i][10] ? $students_data[$i][10] : 0; ; ?></td>
+							<td><?php echo $students_data[$i][11] ? $students_data[$i][11] : 0; ; ?></td>
+
+							<td> 
+								<form action="<?php echo site_url('supervisor/student_password_reset')?>" id="student_password_reset" method="post" name="student_password_reset">
+									<button type="submit" class="btn btn-info" onclick="window.alert('Password will be reset to student id !!!');">reset</button>
+									<input type="text" name="stu_id" hidden value="<?php echo  $row->stu_id; ?>" >
+									<input type="text" name="stu_group" hidden value="<?php echo  $row->stu_group; ?>" >
+							
+								</form>
+							</td>
+
+							
+						</tr>						
+						<?php $count++; } ?>
+
+						
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+		
+	
+
+	<script>
+		$(document).ready(function() {
+			$('#summernote').summernote({
+				height: 500,                 // set editor height
+				width:240,					// set editor height
+				minHeight: null,             // set minimum height of editor
+				maxHeight: null,             // set maximum height of editor
+				focus: true,                  // set focus to editable area after initializing summernote
+				airmode: true
+			});
+		});
+	</script>
+</div>
+<!-- nav_body -->

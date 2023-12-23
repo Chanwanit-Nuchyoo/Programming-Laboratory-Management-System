@@ -1,0 +1,61 @@
+body {
+    padding: 0px;
+    margin: 0px;
+    background-color: rgb(232, 213, 233);
+}
+.container-fluid {
+    padding: 0px;
+    margin: 0px;
+    background: rgb(43, 163, 79);
+}
+.topbar {
+    background-color: burlywood;
+    margin: 0px;
+    padding: 0px;
+    border: 2px solid rgb(52, 18, 162);
+    max-height: 52px;
+}
+.topbar-logo {
+    background-color: burlywood;
+    
+    border: 2px solid rgb(52, 18, 162);
+}
+.topbar-subject {
+    background-color: burlywood;
+    
+    border: 2px solid rgb(19, 22, 196);
+}
+.topbar-user {
+    background-color: rgb(143, 27, 31);
+   
+    border: 2px solid rgb(52, 18, 162);
+}
+.header-subject {
+    font-family: sans-serif;
+    align-items: center;
+}
+.header-subject-name {
+    font-size: 20px;
+    color: blue;
+}
+.header-ce {
+    font-size: 18px;
+    color: #56951e;
+    align-items: center;
+}
+.sourcecode-text {
+
+}
+.sourcecode-output{
+
+}
+.output-sample{
+
+}
+.output-student{
+    
+}
+footer{
+    height: 20px;
+    background-color: darkgoldenrod;
+}
