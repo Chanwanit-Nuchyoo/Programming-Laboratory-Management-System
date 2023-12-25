@@ -5,20 +5,20 @@ services:
     build: ./frontend/plms-reboot
     container_name: frontend-container
     ports:
-      - 5173:5173
+      - 80:5173
     volumes:
       - ./frontend/plms-reboot/:/app
       - /app/node_modules
     environment:
       CHOKIDAR_USEPOLLING: true
-      VITE_BASE_URL: http://localhost
+      VITE_BASE_URL: http://localhost:3000
       VITE_YEAR: 2022
 
   backend:
     build: ./backend/plms-reboot-ci-3
     container_name: backend-container
     ports:
-      - 80:80
+      - 3000:80
     volumes:
       - ./backend/plms-reboot-ci-3:/var/www/html
       - ./config/apache.conf:/etc/apache2/sites-enabled
