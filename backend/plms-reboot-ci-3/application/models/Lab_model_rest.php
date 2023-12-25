@@ -649,6 +649,7 @@ class Lab_model_rest extends CI_Model
 		$query = (array) $query->first_row();
 		return $query['sourcecode'];
 	}
+
 	public function get_lab_name($exercise_id)
 	{
 		if (empty($exercise_id) || $exercise_id <= 0)
