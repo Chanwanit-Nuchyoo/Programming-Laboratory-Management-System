@@ -194,3 +194,12 @@ export const updateGroupAssignedChapterItem = async (formData) => {
   );
   return data;
 }
+
+export const runTestcases = async (formData) => {
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_BASE_URL}/index.php/common_rest/runTestcases`,
+    formData,
+    { withCredentials: true }
+  );
+  return data;
+}

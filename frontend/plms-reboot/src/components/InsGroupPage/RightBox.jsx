@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import ClassInfoBox from "@/components/InsGroupPage/ClassInfoBox"
-import { FormControlLabel, Switch, Typography } from "@mui/material"
+import { FormControlLabel, Typography } from "@mui/material"
+import IosStyleSwitch from "@/components/_shared/IosStyleSwitch";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { setAllowGroupLogin, setAllowGroupUploadPicture } from "@/utils/api";
 import { useParams } from "react-router-dom"
@@ -50,13 +51,13 @@ const RightBox = ({ groupData }) => {
     }} >
       <FormControlLabel
         value="start"
-        control={<Switch color="success" onClick={toggleAllowLogin} checked={groupData?.allow_login === "yes"} />}
+        control={<IosStyleSwitch color="success" onClick={toggleAllowLogin} checked={groupData?.allow_login === "yes"} />}
         label={<Typography color={"primary"} fontWeight={600} >Allow Login</Typography>}
         labelPlacement="start"
       />
       <FormControlLabel
         value="start"
-        control={<Switch color="success" onClick={toggleAllowUploadPicture} checked={groupData?.allow_upload_pic === "yes"} />}
+        control={<IosStyleSwitch color="success" onClick={toggleAllowUploadPicture} checked={groupData?.allow_upload_pic === "yes"} />}
         label={<Typography color={"primary"} fontWeight={600} >Upload picture</Typography>}
         labelPlacement="start"
       />

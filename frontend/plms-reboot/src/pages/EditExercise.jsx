@@ -77,7 +77,7 @@ const EditExercise = () => {
           <Testcases testcaseData={testcaseData} hasSourceCode={!!formData.sourcecode_content} />
         </Stack>
       </Container>
-    </Box >
+    </Box>
   );
 };
 

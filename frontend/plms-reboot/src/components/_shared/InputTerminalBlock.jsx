@@ -16,6 +16,7 @@ const InputTerminalBlock = ({ value, onChange, ...props }) => {
     width: '100%', // Take up full width
     boxSizing: 'border-box', // Ensure the box size includes border and padding
     lineHeight: '1.5', // Increase line spacing a little
+    height: '100%',
   };
 
   return (

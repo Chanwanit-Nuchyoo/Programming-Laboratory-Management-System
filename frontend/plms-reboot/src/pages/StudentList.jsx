@@ -46,7 +46,7 @@ const StudentList = () => {
 
         <Header logoSrc={blueFolder} title={`Group ${studentList.group_no}`} />
 
-        <Stack spacing={"10px"}>
+        <Stack spacing={"10px"} width="calc(100vw-256px)" sx={{ overflowX: "auto", position: "relative" }} >
           <Box>
             <Link to={ABS_INS_URL.DYNAMIC.ADD_STUDENT(groupId)} >
               <Button

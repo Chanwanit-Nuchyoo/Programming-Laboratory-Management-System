@@ -821,19 +821,4 @@ class Supervisor_rest extends MY_RestController
 			'payload' => $stu_logout,
 		], RestController::HTTP_OK);
 	}
-
-	public function runTestcase_post()
-	{
-		//echo '<pre>',print_r($_POST),'</pre>';
-		$testcase = $this->post();
-		$exercise_id = $testcase['exercise_id'];
-		$testcase_content = $testcase['testcase_content'];
-		if (strlen($testcase_content) <= 0) {
-			$this->response(['message' => 'Testcase content is empty.'], RestController::HTTP_BAD_REQUEST);
-		}
-
-		// update only one testcase
-		require_once 'Exercise_test.php';
-		$sourcecode_filename = $this->lab_model->get_sourcecode_filename($testcase['exercise_id']);
-	}
 }

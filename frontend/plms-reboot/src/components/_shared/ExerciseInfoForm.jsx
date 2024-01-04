@@ -5,7 +5,7 @@ import { defaultCon } from '@/store/store';
 import MyRte from '@/components/_shared/MyRte';
 import MyCodeEditor from '@/components/_shared/MyCodeEditor';
 import { useForm, Controller, set } from 'react-hook-form'
-import KwCategory from '@/components/_shared/KwCategeory';
+import KwCategory from '@/components/_shared/KwCategory';
 import { getKwConSourceCode } from '@/utils/pythonCode';
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

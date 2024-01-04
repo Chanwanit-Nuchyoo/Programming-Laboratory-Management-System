@@ -57,8 +57,6 @@ const KwCategory = ({ title, editable, name, control, category, getValues, side,
               })
             }} sx={{ cursor: "pointer" }} >Add new keyword constrain</Link>
           </Box>}
-
-
         </Stack>
       </Stack>
     </AccordionDetails>

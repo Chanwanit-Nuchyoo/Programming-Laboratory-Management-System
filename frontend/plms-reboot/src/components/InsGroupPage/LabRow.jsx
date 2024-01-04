@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
-import { Stack, Switch, Typography, Modal, Link as MuiLink, Box } from "@mui/material"
+import { Stack, Typography, Modal, Link as MuiLink, Box } from "@mui/material"
+import IosStyleSwitch from "@/components/_shared/IosStyleSwitch";
 import { Link } from 'react-router-dom';
 import { ABS_INS_URL } from '@/utils/constants/routeConst';
 import AllowTypeForm from '@/components/InsGroupPage/AllowTypeForm';
@@ -26,7 +27,7 @@ const LabRow = ({ lab, groupId, groupNo }) => {
         <Typography>{lab.chapter_fullmark}</Typography>
       </Stack>
       <Stack width={300} direction={"row"} spacing={"20px"} justifyContent="flex-start" alignItems="center" paddingX="30px" >
-        <Switch
+        <IosStyleSwitch
           color="success"
           checked={!!checkIsAccessible(lab.allow_access_type, currentTime, moment(lab.access_time_start), moment(lab.access_time_end))}
           onClick={() => setIsAccessModalOpen(true)}
@@ -44,7 +45,7 @@ const LabRow = ({ lab, groupId, groupNo }) => {
         </Stack>
       </Stack>
       <Stack width={300} direction={"row"} spacing={"20px"} justifyContent="flex-start" alignItems="center" paddingX="30px">
-        <Switch
+        <IosStyleSwitch
           color="success"
           checked={!!checkIsAccessible(lab.allow_submit_type, currentTime, moment(lab.submit_time_start), moment(lab.submit_time_end))}
           onClick={() => setIsSubmitModalOpen(true)}

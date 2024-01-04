@@ -3,9 +3,11 @@ import { Stack, Typography, Button } from "@mui/material"
 import { useForm, FormProvider, useFieldArray } from 'react-hook-form';
 import Testcase from "@/components/AddExercisePage/Testcase"
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getExerciseTestcases } from "@/utils/api";
 import { useEffect, useState } from "react";
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { runTestcases } from "@/utils/api"
 
 const buttonProps = {
   size: 'medium',
@@ -19,35 +21,99 @@ const Testcases = ({ hasSourceCode = false }) => {
     queryKey: ['testcaseData', exerciseId],
     queryFn: () => getExerciseTestcases(exerciseId)
   })
+
+  const queryClient = useQueryClient();
+
+  const { mutate: saveTestcases } = useMutation({
+    mutationFn: runTestcases,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(['testcaseData', exerciseId])
+    }
+  })
+
   const [isEditable, setIsEditable] = useState(false);
+  const [originalTestcases, setOriginalTestcases] = useState([]);
 
-  const methods = useForm({ defaultValues: { testcases: [] } });
+  const methods = useForm({ defaultValues: { testcase_list: [], removedList: [] }, shouldUnregister: false });
 
-  const { reset, control, handleSubmit, formState: { isDirty } } = methods
-  const { fields: testcaseData, append, remove } = useFieldArray({ control, name: "testcases" });
+  const { reset, control, handleSubmit, watch, formState: { isDirty } } = methods
+  const { fields: testcaseData, append: appendTestcaseList, remove } = useFieldArray({ control, name: "testcase_list" });
+
+  const watchedTestcaseData = watch("testcase_list");
+  const watchedRemovedList = watch("removedList");
+  const allTestcasesHaveInput = watchedTestcaseData.every(testcase => !!testcase.testcase_content);
 
   useEffect(() => {
     if (!isLoading && data) {
-      reset({ testcases: data })
+      reset({ testcase_list: data })
+      setOriginalTestcases(data);
     }
   }, [data, isLoading, reset])
 
   const handleCancel = () => {
-    reset({ testcases: data || [] })
+    reset({ testcase_list: data || [] })
     setIsEditable(false)
   }
 
-  const handleSave = (data) => {
-    console.log(data)
-    setIsEditable(false)
+  const handleSubmitedAll = (formData) => {
+    const requestBody = {
+      "exercise_id": exerciseId,
+      "testcase_list": formData.testcase_list,
+      "removed_list": watchedRemovedList
+    }
+    saveTestcases(requestBody);
+  }
+
+  const handleSubmitEditedTestcase = (formData) => {
+    const requestBody = {
+      "exercise_id": exerciseId,
+      "testcase_list": [],
+      "removed_list": watchedRemovedList
+    }
+
+    const editedOrAddedTestcases = formData.testcase_list.filter((testcase, index) => {
+      return testcase.testcase_content !== originalTestcases[index]?.testcase_content || testcase.testcase_note !== originalTestcases[index]?.testcase_note || testcase.show_to_student !== originalTestcases[index]?.show_to_student || testcase.active !== originalTestcases[index]?.active;
+    });
+
+    requestBody["testcase_list"] = editedOrAddedTestcases;
+
+    setIsEditable(false);
+    saveTestcases(requestBody);
+  }
+
+  const handleSubmitSingle = (formData, testcaseIndex) => {
+    const requestBody = {
+      "exercise_id": exerciseId,
+      "testcase_list": [],
+      "removed_list": watchedRemovedList
+    }
+    const testcase = formData.testcase_list[testcaseIndex];
+
+    requestBody["testcase_list"].push(testcase);
+    saveTestcases(requestBody);
+    return
+  }
+
+  const handleAddNewTestcase = (event) => {
+    event.preventDefault();
+    appendTestcaseList({
+      "testcase_id": null,
+      "exercise_id": exerciseId,
+      "testcase_note": "",
+      "active": "no",
+      "show_to_student": "no",
+      "testcase_content": "",
+      "testcase_error": "",
+      "testcase_output": ""
+    })
   }
 
   return (
     <>
       {
         <FormProvider {...methods} >
-          <form onSubmit={handleSubmit(handleSave)}>
-            <Stack onSubmit={handleSubmit(handleSave)} spacing={"20px"} sx={{
+          <form onSubmit={(e) => e.preventDefault()}>
+            <Stack spacing={"20px"} sx={{
               padding: "20px",
               border: "1px solid #202739",
               borderRadius: "8px",
@@ -56,25 +122,29 @@ const Testcases = ({ hasSourceCode = false }) => {
               <Stack direction={"row"} justifyContent={"space-between"} >
                 <Typography variant='h6' >Test case</Typography>
                 <Stack direction={"row"} spacing={"10px"} >
-                  {hasSourceCode ?
-                    <>
-                      {isEditable ?
-                        <>
-                          <Button {...buttonProps} disabled={!isDirty} type="submit">Save</Button>
-                          <Button {...buttonProps} color="error" type="button" onClick={handleCancel}>Cancel</Button>
-                        </>
-                        :
+                  <>
+                    {isEditable ?
+                      <>
+                        <Button {...buttonProps} disabled={!isDirty || !allTestcasesHaveInput} onClick={handleSubmit(handleSubmitEditedTestcase)} >Save</Button>
+                        <Button {...buttonProps} color="error" type="button" onClick={handleCancel}>Cancel</Button>
+                      </>
+                      :
+                      <>
+                        <Button {...buttonProps} color={'error'} type="button" onClick={handleSubmit(handleSubmitedAll)}>Run All Testcase</Button>
                         <Button {...buttonProps} type="button" onClick={() => { setIsEditable(true) }}>Edit</Button>
-                      }
-                    </>
-                    :
-                    (
-                      <Button {...buttonProps} disabled={true} type="button" onClick={() => { setIsEditable(true) }}>Edit</Button>
-                    )
-                  }
+                      </>
+                    }
+                  </>
                 </Stack>
               </Stack>
-              {testcaseData.map((item, index) => <Testcase key={item.id} index={index} control={control} editable={isEditable} />)}
+              <Stack direction={'row'} >
+                {isEditable && <Button {...buttonProps} type="submit" variant={"outlined"} startIcon={<AddCircleIcon size="small" />} onClick={handleAddNewTestcase} >Add New Testcase</Button>}
+              </Stack>
+              {!isLoading && data && [...testcaseData].reverse().map((item, reversedIndex) => {
+                const realIndex = testcaseData.length - 1 - reversedIndex;
+                const originalTestcase = item.testcase_id === null ? null : originalTestcases.filter(testcase => testcase.testcase_id === item.testcase_id)[0];
+                return <Testcase key={item.id} realIndex={realIndex} originalTestcase={originalTestcase} testcase={item} remove={remove} editable={isEditable} submitFn={handleSubmitSingle} />
+              })}
             </Stack >
           </form>
         </FormProvider>

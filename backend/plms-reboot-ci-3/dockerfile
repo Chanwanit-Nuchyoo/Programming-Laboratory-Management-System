@@ -1,8 +1,30 @@
 FROM php:8.0.23-apache
 
-RUN apt-get update
-RUN apt-get install -y wget vim git zip unzip zlib1g-dev libzip-dev libpng-dev
+# Update packages and install dependencies
+RUN apt-get update && apt-get install -y \
+  wget \
+  vim \
+  git \
+  zip \
+  unzip \
+  zlib1g-dev \
+  libzip-dev \
+  libpng-dev \
+  build-essential \
+  checkinstall \
+  libreadline-dev \
+  libncursesw5-dev \
+  libssl-dev \
+  libsqlite3-dev \
+  tk-dev \
+  libgdbm-dev \
+  libc6-dev \
+  libbz2-dev \
+  libffi-dev \
+  zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/*
 
+# Install PHP extensions
 RUN docker-php-ext-install mysqli pdo_mysql gd zip pcntl exif 
 RUN docker-php-ext-enable mysqli
 
@@ -10,8 +32,8 @@ RUN docker-php-ext-enable mysqli
 RUN a2enmod headers expires rewrite
 
 # XDEBUG
-RUN pecl install xdebug
-RUN docker-php-ext-enable xdebug
+RUN pecl install xdebug && docker-php-ext-enable xdebug
+
 # This needs in order to run xdebug from VSCode
 ENV PHP_IDE_CONFIG 'serverName=DockerApp'
 
@@ -19,13 +41,17 @@ ENV PHP_IDE_CONFIG 'serverName=DockerApp'
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 # Install Python 3.12
-RUN apt-get install -y build-essential checkinstall libreadline-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev
-RUN wget https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tgz
-RUN tar xzf Python-3.12.0.tgz
-RUN cd Python-3.12.0 && ./configure --enable-optimizations && make altinstall
+RUN wget https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tgz \
+  && tar xzf Python-3.12.0.tgz \
+  && cd Python-3.12.0 \
+  && ./configure --enable-optimizations \
+  && make altinstall \
+  && cd .. \
+  && rm -rf Python-3.12.0.tgz Python-3.12.0
 
 # Set working directory to web files
 WORKDIR /var/www/html
+
 # Copy the directory from your local machine into the Docker image
 COPY . .
 

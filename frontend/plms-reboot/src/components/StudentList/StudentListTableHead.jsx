@@ -25,7 +25,7 @@ const StudentListTableHead = ({ isLoading, labInfo }) => {
   return (
     <>
       <Stack direction="row" spacing="5px" width="fit-content" sx={{ ...commonStackStyle, top: "-1px", paddingY: "10px" }} >
-        <Stack direction="row" spacing="5px" sx={{ ...commonStackStyle, left: "80px" }} >
+        <Stack direction="row" spacing="5px" sx={{ ...commonStackStyle, left: "0px" }} >
           {buttons.map((button, index) => (
             <TableHeadButton key={index} {...button} />
           ))}

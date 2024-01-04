@@ -191,4 +191,157 @@ class Common_rest extends MY_RestController
 
     $this->response($data, RestController::HTTP_OK);
   }
+
+  public function runTestcases_post()
+  {
+    $req_body = $this->post(null, true);
+    $exercise_id = $req_body['exercise_id'];
+    $testcase_list = $req_body['testcase_list'];
+    $removed_list = $req_body['removed_list'];
+
+    if (!isset($exercise_id)) {
+      return $this->response(['message' => 'Invalid request body'], RestController::HTTP_BAD_REQUEST);
+    }
+
+    if (!empty($removed_list)) {
+      $this->load->model('lab_model_rest');
+      $this->lab_model_rest->exercise_testcase_delete_by_id_list($removed_list);
+    }
+
+    $this->load->model('lab_model_rest');
+    $file_name = $this->lab_model_rest->get_sourcecode_filename($exercise_id);
+
+    $role = $this->session->userdata('role');
+
+    $directory_path = $role == "student" ? STUDENT_CFILES_FOLDER : SUPERVISOR_CFILES_FOLDER;
+
+    // Prepare source code file
+    $file_to_run = $directory_path . $file_name; //$this->prepareExerciseCode($directory_path . $file_name, $exercise_id, $directory_path);
+
+    $result_list = array();
+
+    $this->load->model("lab_model_rest");
+
+    foreach ($testcase_list as $testcase) {
+      // Prepare input file
+      $input_file = $this->prepareInputFile($testcase['testcase_content'], $exercise_id, $directory_path);
+
+      // Run the test case
+      $result = $this->runPython($file_to_run, $input_file);
+
+      $testcase['testcase_output'] = $result['output'];
+      $testcase['testcase_error'] = $result['error'];
+
+      array_push($result_list, $testcase);
+
+
+
+      $this->lab_model_rest->exercise_testcase_upsert($testcase);
+    }
+
+    $this->response([
+      'result_list' => $result_list,
+      'file_to_run' => $file_to_run,
+      'input_file' => $input_file,
+    ], RestController::HTTP_OK);
+  }
+
+  public function prepareExerciseCode($file_path, $exercise_id, $directory_path)
+  {
+    $python_code = <<<EOT
+  # ================== Injected code ==================
+  import builtins
+  
+  def custom_input(user_inputs, prompt=""):
+      if not user_inputs:
+          raise EOFError("Ran out of input values.")
+      response = user_inputs.pop(0)
+      print(prompt + response)
+      return response
+  
+  with open('{$directory_path}exercise_temp_$exercise_id.py.input', 'r') as file:
+      user_inputs = file.read().splitlines()
+  
+  builtins.input = lambda prompt="": custom_input(user_inputs, prompt)
+  
+  # ================== Actual sourcecode content ================== 
+  
+  EOT;
+
+    $temp_file = $directory_path . "exercise_temp_" . $exercise_id . ".py";
+    $temp_file_handle = fopen($temp_file, "w");
+    fwrite($temp_file_handle, $python_code);
+    fwrite($temp_file_handle, "\n");  // Add an empty line
+    fwrite($temp_file_handle, file_get_contents($file_path));
+    fclose($temp_file_handle);
+
+    return $temp_file;
+  }
+
+  public function prepareInputFile($input, $exercise_id, $directory_path)
+  {
+    $input_file = $directory_path . "exercise_temp_" . $exercise_id . ".py.input";
+    $input_file_handle = fopen($input_file, "w");
+    fwrite($input_file_handle, $input);
+    fclose($input_file_handle);
+
+    // return the temp file path
+    return $input_file;
+  }
+
+  public function runPython($exercise_path, $input_path)
+  {
+    // Set the time limit
+    $time_limit = 3;  // 1 second
+    $memory_limit = 100000; // 100 MB
+
+    // Sanitize the input to prevent command injection
+    $exercise_path = escapeshellarg($exercise_path);
+    $input_path = escapeshellarg($input_path);
+    $runner_path = escapeshellarg("py-runner/runner.py");
+
+    // Run the Python file with the input file and return the output within time limit
+    $command = "timeout $time_limit /bin/bash -c \"ulimit -v $memory_limit; python3.12 $runner_path $exercise_path $input_path\" 2>&1";
+    $output = [];
+    $return_var = null;
+    exec($command, $output, $return_var);
+
+    // Prepare a result array
+    $result = array(
+      'output' => null,
+      'error' => null,
+      'command' => $command,
+      'return_var' => $return_var,
+    );
+
+    // Check if the command timed out
+    if ($return_var == 124) {
+      $result['error'] = "Time limit exceeded";
+      return $result;
+    }
+
+    // Check if the memory limit was exceeded
+    if ($return_var == 139) {
+      $result['error'] = "Memory limit exceeded";
+      return $result;
+    }
+
+    // Check for other errors
+    if ($return_var != 0) {
+      if (!empty($output)) {
+        $result['error'] = implode("\n", $output);
+      } else {
+        $result['error'] = "An error occurred while executing the script";
+      }
+      return $result;
+    }
+
+    if (empty($output)) {
+      $result['error'] = "The script didn't produce any output";
+      return $result;
+    }
+
+    $result['output'] = implode("\n", $output);
+    return $result;
+  }
 }

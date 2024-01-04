@@ -3,7 +3,7 @@ import { Box, Button, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
 import { ABS_INS_URL } from "@/utils/constants/routeConst";
 import { useParams } from "react-router-dom";
-import avatarPlaceHolder from "@/assets/images/avatarplaceholder.png";
+import avatarPlaceHolder from "@/assets/images/AvatarPlaceholder.png";
 
 const StudentListTableBody = ({ isLoading, labInfo, students }) => {
   const { groupId } = useParams();
@@ -16,7 +16,7 @@ const StudentListTableBody = ({ isLoading, labInfo, students }) => {
             key={index}
             direction="row"
             spacing="5px"
-            paddingY="10px"
+            paddingY="5px"
             bgcolor="#142142"
             width="fit-content"
             sx={{
@@ -31,18 +31,18 @@ const StudentListTableBody = ({ isLoading, labInfo, students }) => {
               spacing="5px"
               sx={{
                 position: "sticky",
-                left: "80px",
                 zIndex: "10",
+                left: 0,
                 bgcolor: "inherit",
               }}
             >
               <Box width={120} className="table-body-column" paddingX="10px">
                 <img
-                  src={
-                    student.avatar
-                      ? `${import.meta.env.VITE_BASE_URL}/${student.avatar}`
-                      : avatarPlaceHolder
-                  }
+                  src={avatarPlaceHolder}
+                  /* student.avatar
+                    ? `${import.meta.env.VITE_BASE_URL}/${student.avatar}`
+                    : avatarPlaceHolder */
+
                   alt="user avatar"
                   className="image"
                 />

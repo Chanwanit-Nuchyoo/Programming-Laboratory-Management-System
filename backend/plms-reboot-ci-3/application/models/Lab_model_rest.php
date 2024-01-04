@@ -947,7 +947,29 @@ class Lab_model_rest extends CI_Model
 		$this->db->replace($table, $data);
 	}
 
+	public function exercise_testcase_upsert($data)
+	{
+		$table = 'exercise_testcase';
 
+		$testcase_id = $data['testcase_id'];
+		$exercise_id = $data['exercise_id'];
+		unset($data['testcase_id']);
+
+		if (empty($testcase_id)) {
+			$this->db->insert($table, $data);
+		} else {
+			$this->db->where('exercise_id', $exercise_id);
+			$this->db->where('testcase_id', $testcase_id);
+			$this->db->update($table, $data);
+		}
+	}
+
+	public function exercise_testcase_delete_by_id_list($testcase_id_list)
+	{
+		$table = 'exercise_testcase';
+		$this->db->where_in('testcase_id', $testcase_id_list);
+		$this->db->delete($table);
+	}
 
 	public function get_group_data($group_id)
 	{

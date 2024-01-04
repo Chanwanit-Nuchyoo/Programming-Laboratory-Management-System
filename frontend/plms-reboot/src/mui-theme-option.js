@@ -79,4 +79,22 @@ export const themeOptions = {
   shape: {
     borderRadius: 8,
   },
+  components: {
+    "MuiInputBase": {
+      "styleOverrides": {
+        root: {
+          "&.Mui-disabled": {
+            backgroundColor: 'rgba(255,255,255,0.1)',
+          }
+        }
+      }
+    },
+    "MuiButton": {
+      "styleOverrides": {
+        root: {
+          "textTransform": "none",
+        }
+      }
+    },
+  }
 };
