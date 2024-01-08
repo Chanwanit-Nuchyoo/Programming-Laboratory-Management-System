@@ -203,3 +203,12 @@ export const runTestcases = async (formData) => {
   );
   return data;
 }
+
+export const sendRunTaskMessage = async (formData) => {
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_BASE_URL}/index.php/common_rest/sendRunTaskMessage`,
+    formData,
+    { withCredentials: true }
+  );
+  return data;
+}

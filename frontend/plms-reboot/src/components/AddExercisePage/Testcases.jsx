@@ -7,7 +7,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getExerciseTestcases } from "@/utils/api";
 import { useEffect, useState } from "react";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { runTestcases } from "@/utils/api"
+import { sendRunTaskMessage } from "@/utils/api"
 
 const buttonProps = {
   size: 'medium',
@@ -17,16 +17,29 @@ const buttonProps = {
 
 const Testcases = ({ hasSourceCode = false }) => {
   const { exerciseId } = useParams();
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, status } = useQuery({
     queryKey: ['testcaseData', exerciseId],
-    queryFn: () => getExerciseTestcases(exerciseId)
+    queryFn: () => getExerciseTestcases(exerciseId),
+    refetchInterval: ({ state: { data } }) => {
+      if (data && Array.isArray(data) && data.length !== 0) {
+        if (data.every(testcase => testcase.is_ready === "yes")) {
+          return false;
+        } else {
+          return 1000;
+        }
+      } else if (data && Array.isArray(data)) {
+        return false;
+      } {
+        return 1000;
+      }
+    },
   })
 
   const queryClient = useQueryClient();
 
   const { mutate: saveTestcases } = useMutation({
-    mutationFn: runTestcases,
-    onSuccess: (data) => {
+    mutationFn: sendRunTaskMessage,
+    onSuccess: () => {
       queryClient.invalidateQueries(['testcaseData', exerciseId])
     }
   })

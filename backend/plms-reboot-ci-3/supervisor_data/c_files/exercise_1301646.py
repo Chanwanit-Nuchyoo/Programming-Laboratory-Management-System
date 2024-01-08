@@ -1,8 +1,18 @@
 a = float(input("Enter a: "))
 b = float(input("Enter b: "))
 
-while True:
-    print(1)
+# i = 0
+# while True:
+#     print(i)
+#     i+=1
+
+# def create_large_list():
+#     # Each integer in Python takes up around 28 bytes (on a 64-bit system)
+#     # So, to use more than 100MB of memory, we need to create a list of more than about 3.5 million integers
+#     large_list = [i for i in range(3500000)]
+#     return large_list
+
+# create_large_list()
 
 if b == 0:
     print("The devider can't be zero!!!!")
@@ -11,9 +21,6 @@ else:
 
 a = float(input("Enter a: "))
 b = float(input("Enter b: "))
-
-# while True:
-#     print(1)
 
 if b == 0:
     print("The devider can't be zero!!!!")

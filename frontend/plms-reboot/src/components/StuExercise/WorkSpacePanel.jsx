@@ -6,6 +6,7 @@ import MyCodeEditor from "@/components/_shared/MyCodeEditor";
 import Split from "react-split";
 import MyDiff from "@/components/_shared/MyDiff";
 import { useEffect, useRef, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
 
 /* const expected = ` *** Distance *** 
 Enter Velocity Acceleration Time: 10,0,10
@@ -19,6 +20,16 @@ const WorkSpacePanel = () => {
 
   const handleCollapse = () => {
     setIsCollapsed(prev => !prev);
+  }
+
+  const { control, handleSubmit } = useForm({
+    defaultValues: {
+      sourcecode: ""
+    }
+  });
+
+  const onSubmit = (data) => {
+    console.log(data);
   }
 
   return (
@@ -45,7 +56,17 @@ const WorkSpacePanel = () => {
           cursor="col-resize"
         >
           <Box overflow={"auto"} borderRadius="0px 0px 8px 8px" >
-            <MyCodeEditor minHeight="100%" />
+            <Controller
+              name="source"
+              control={control}
+              render={({ field: { value, onChange } }) => (
+                <MyCodeEditor
+                  value={value}
+                  onChange={onChange}
+                  minHeight={"100%"}
+                />
+              )}
+            />
           </Box>
 
           <Stack borderRadius={"8px"} sx={{ overflowY: "hidden", position: "relative" }} >
@@ -59,7 +80,7 @@ const WorkSpacePanel = () => {
                 }} />
               </Stack>
               <Stack>
-                <Button color="primary" variant="contained" sx={{ textTransform: "none" }} >Submit</Button>
+                <Button onClick={handleSubmit(onSubmit)} color="primary" variant="contained" sx={{ textTransform: "none" }} >Submit</Button>
               </Stack>
             </PanelHeader>
             <Stack spacing={"10px"} padding="5px" bgcolor="black" height="100%" sx={{ overflowY: "auto" }} >

@@ -32,6 +32,7 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: plmskmitl2023
+      MYSQL_DATABASE: plms-php
     ports:
       - 3306:3306
     volumes:
@@ -49,3 +50,38 @@ services:
       - 8080:80
     depends_on:
       - db
+
+  # redis: 
+  #   image: redis:7.2.3
+  #   container_name: redis-container
+  #   ports:
+  #     - 6379:6379
+  #   volumes:
+  #     - ./redis:/data
+
+  rabbitmq:
+    image: rabbitmq:3.12.11-management-alpine
+    container_name: rabbitmq-container
+    tty: true
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: "plms" # Set default RabbitMQ user
+      RABBITMQ_DEFAULT_PASS: "plmskmitl2023" # Set default RabbitMQ password
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq
+
+  worker:
+    build: ./worker
+    restart: always
+    volumes:
+      - ./worker:/app
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 150M
+    depends_on:
+      - db
+      - rabbitmq

@@ -1,2 +1,6 @@
 /db
 /sql-files
+/rabbitmq
+
+exercise.py
+input.txt

@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Box } from "@mui/material";
 
-const TerminalBlock = ({ text, hug, error, ...props }) => {
+const TerminalBlock = ({ text, error, ...props }) => {
 
   const terminalStyle = {
     whiteSpace: 'pre', // Preserve whitespace and line breaks
@@ -10,10 +10,8 @@ const TerminalBlock = ({ text, hug, error, ...props }) => {
     bgcolor: '#0d1117', // Background color for the terminal block
     color: error ? 'red' : '#FFF', // Text color
     tabSize: '4',
-    minHeight: hug ? "" : "150px",
-    height: hug ? "" : "100%",
+    height: "100%",
     overflowX: "auto",
-    minWidth: "0px",
     fontSize: "13px",
   };
 

@@ -929,16 +929,16 @@ class Lab_model_rest extends CI_Model
 	public function exercise_testcase_add($exercise_id)
 	{
 		$table = 'exercise_testcase';
-		$this->db->select_max('testcase_id');
-		$query = $this->db->get($table);
-		$result = $query->row_array();
-		$testcase_id = $result['testcase_id'] + 1;
 
 		$data = array(
-			'testcase_id' => $testcase_id,
 			'exercise_id' => $exercise_id
 		);
 		$this->db->insert($table, $data);
+
+		// Get the ID of the newly inserted record
+		$insert_id = $this->db->insert_id();
+
+		return $insert_id;
 	}
 
 	public function exercise_testcase_update($data)
@@ -957,6 +957,8 @@ class Lab_model_rest extends CI_Model
 
 		if (empty($testcase_id)) {
 			$this->db->insert($table, $data);
+			$insert_id = $this->db->insert_id();
+			return $insert_id;
 		} else {
 			$this->db->where('exercise_id', $exercise_id);
 			$this->db->where('testcase_id', $testcase_id);

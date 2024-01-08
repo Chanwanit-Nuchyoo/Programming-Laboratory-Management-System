@@ -1,6 +1,8 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Message\AMQPMessage;
 
 require_once(APPPATH . "/controllers/MY_RestController.php");
 
@@ -9,7 +11,7 @@ class Common_rest extends MY_RestController
   public function __construct()
   {
     parent::__construct();
-    $this->protected();
+    // $this->protected();
     $this->load->model('common_model_rest');
   }
 
@@ -240,9 +242,91 @@ class Common_rest extends MY_RestController
     }
 
     $this->response([
-      'result_list' => $result_list,
-      'file_to_run' => $file_to_run,
-      'input_file' => $input_file,
+      'status' => 'success',
+      'message' => 'Testcases are being run',
+      'job_id' => $job_id,
+    ], RestController::HTTP_OK);
+  }
+
+  public function sendRunTaskMessage_post()
+  {
+    $req_body = $this->post(null, true);
+    $exercise_id = $req_body['exercise_id'];
+    $testcase_list = $req_body['testcase_list'];
+    $removed_list = $req_body['removed_list'];
+
+    if (!isset($exercise_id)) {
+      return $this->response(['message' => 'Invalid request body'], RestController::HTTP_BAD_REQUEST);
+    }
+
+    $this->load->model('lab_model_rest');
+
+    // Start a transaction
+    $this->db->trans_begin();
+
+    if (!empty($removed_list)) {
+      $this->lab_model_rest->exercise_testcase_delete_by_id_list($removed_list);
+    }
+
+    // Update testcase.is_ready to false
+    foreach ($testcase_list as &$testcase) {
+      $testcase['is_ready'] = 'no';
+      if ($testcase['testcase_id'] == null) {
+        $testcase['testcase_id'] = $this->lab_model_rest->exercise_testcase_upsert($testcase);
+      } else {
+        $this->lab_model_rest->exercise_testcase_upsert($testcase);
+      }
+    }
+    unset($testcase); // Unset reference when it's no longer needed
+
+    $file_name = $this->lab_model_rest->get_sourcecode_filename($exercise_id);
+
+    $role = $this->session->userdata('role');
+
+    $directory_path = $role == "student" ? STUDENT_CFILES_FOLDER : SUPERVISOR_CFILES_FOLDER;
+
+    // Prepare source code file
+    $file_to_run = $directory_path . $file_name;
+
+    $result_list = array();
+
+    try {
+      $connection = new AMQPStreamConnection('rabbitmq', 5672, 'plms', 'plmskmitl2023');
+      $channel = $connection->channel();
+      $channel->queue_declare('exercise-testcase', false, true, false, false);
+
+      $job_id = uniqid();
+
+      $message = new AMQPMessage(json_encode(array(
+        'job_id' => $job_id,
+        'job_type' => 'upsert-testcase',
+        'exercise_id' => $exercise_id,
+        'testcase_list' => $testcase_list,
+        'sourcecode' => file_get_contents($file_to_run),
+      )));
+
+      $channel->basic_publish($message, '', 'exercise-testcase');
+
+      $channel->close();
+      $connection->close();
+
+      // If the AMQP message was sent successfully, commit the transaction
+      $this->db->trans_commit();
+    } catch (Exception $e) {
+      // If an error occurred, roll back the transaction
+      $this->db->trans_rollback();
+
+      $this->response([
+        'status' => 'error',
+        'message' => 'An error occurred while running testcases',
+        'error' => $e->getMessage(),
+      ], RestController::HTTP_INTERNAL_ERROR);
+    }
+
+    $this->response([
+      'status' => 'success',
+      'message' => 'Testcases are being run',
+      'job_id' => $job_id,
     ], RestController::HTTP_OK);
   }
 

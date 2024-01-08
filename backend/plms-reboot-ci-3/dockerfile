@@ -1,4 +1,11 @@
-FROM php:8.0.23-apache
+# First stage: Python
+FROM python:3.12.0-bullseye AS python-stage
+
+# Second stage: PHP with Python
+FROM php:8.0.23-apache-bullseye
+
+# Copy Python from the first stage
+COPY --from=python-stage /usr/local /usr/local
 
 # Update packages and install dependencies
 RUN apt-get update && apt-get install -y \
@@ -25,7 +32,7 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-install mysqli pdo_mysql gd zip pcntl exif 
+RUN docker-php-ext-install mysqli pdo_mysql gd zip pcntl exif sockets
 RUN docker-php-ext-enable mysqli
 
 # Enable common Apache modules
@@ -40,15 +47,6 @@ ENV PHP_IDE_CONFIG 'serverName=DockerApp'
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
-# Install Python 3.12
-RUN wget https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tgz \
-  && tar xzf Python-3.12.0.tgz \
-  && cd Python-3.12.0 \
-  && ./configure --enable-optimizations \
-  && make altinstall \
-  && cd .. \
-  && rm -rf Python-3.12.0.tgz Python-3.12.0
-
 # Set working directory to web files
 WORKDIR /var/www/html
 
@@ -57,6 +55,9 @@ COPY . .
 
 RUN composer install
 
-COPY entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/entrypoint.sh
-ENTRYPOINT ["entrypoint.sh"]
+RUN chown -R root:root /var/www/html
+RUN chmod -R 777 /var/www/html
+
+# COPY entrypoint.sh /usr/local/bin/
+# RUN chmod +x /usr/local/bin/entrypoint.sh
+# ENTRYPOINT ["entrypoint.sh"]

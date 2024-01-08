@@ -11,6 +11,7 @@ import { useFormContext, useFieldArray } from "react-hook-form";
 const Testcase = ({ originalTestcase, realIndex, remove, editable, submitFn }) => {
   const { watch, control, handleSubmit } = useFormContext();
   const { append: appendRemovedList } = useFieldArray({ control, name: "removedList" });
+
   // Watch the specific fields
   const watchedTestcaseContent = watch(`testcase_list.${realIndex}.testcase_content`);
   const watchedTestcaseNote = watch(`testcase_list.${realIndex}.testcase_note`);
@@ -121,7 +122,8 @@ const Testcase = ({ originalTestcase, realIndex, remove, editable, submitFn }) =
           />
         </Grid>
         <Grid item className="hide-cursor" xs={12} md={6}>
-          {watchedTestcase.testcase_output ?
+          {watchedTestcase.is_ready === "no" && <TerminalBlock text="Testcase is running..." />}
+          {watchedTestcase.is_ready === "yes" && watchedTestcase.testcase_output ?
             <TerminalBlock text={watchedTestcase.testcase_output} />
             :
             <TerminalBlock text={watchedTestcase.testcase_error} error />
