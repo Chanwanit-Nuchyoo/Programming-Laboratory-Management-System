@@ -120,3 +120,35 @@ export async function addAndUpdateTestcase(channel, db_connection, msg, msg_body
     tmpFile.removeCallback();
   }
 }
+
+export async function runSubmission(channel, db_connection, msg, msg_body) {
+  const { submission_id, stu_id, exercise_id, sourcecode, inf_loop, testcase_list, output } = msg_body;
+
+  // Create a unique temporary file
+  const tmpFile = tmp.fileSync({ postfix: '.py' });
+
+  fs.writeFileSync(tmpFile.name, sourcecode);
+
+  try {
+    // Run the script for each testcase
+    for (const testcase of testcase_list) {
+      const result = await runPythonScript(testcase, tmpFile.name);
+
+      console.log(result);
+
+
+
+      // Update the testcase in the database
+      await updateTestcase(db_connection, exercise_id, testcase);
+      console.log(`Updated testcase ${testcase.testcase_id}`);
+    }
+
+    // Acknowledge the message
+    channel.ack(msg);
+  } catch (err) {
+    console.log(err);
+  } finally {
+    // Remove the temporary file
+    tmpFile.removeCallback();
+  }
+}
