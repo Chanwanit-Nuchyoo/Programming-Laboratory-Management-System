@@ -1950,4 +1950,13 @@ class Lab_model_rest extends CI_Model
 
 		return $this->db->select('*')->where('exercise_id', $exercise_id)->from('lab_exercise')->get()->row_array();
 	}
+
+	public function get_exercise_by_id($exercise_id)
+	{
+		$this->db->select('*')
+			->where('exercise_id', $exercise_id)
+			->from('lab_exercise');
+		$query = $this->db->get();
+		return $query->row_array();
+	}
 }//class Lab_model

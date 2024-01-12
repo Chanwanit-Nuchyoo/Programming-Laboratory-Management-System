@@ -67,7 +67,7 @@
     padding-bottom: 1px;
     padding-left: 30px;
     font-size: 12px;
-    font-weight: normal;
+    font-weight: bold;
   }
 
   .nav > li > a:hover,
@@ -79,12 +79,13 @@
   .nav > .active:hover > a,
   .nav > .active:focus > a {
     padding-left: 29px;
-    font-weight: 400;
+    font-weight: bold;
   }
 }
 
 // Show and affix the side nav when space allows it
 @media (min-width: 992px) {
+
   .s2-docs-sidebar .s2-docs-sidenav {
     padding-top: 40px;
     transition: border-color .2s;

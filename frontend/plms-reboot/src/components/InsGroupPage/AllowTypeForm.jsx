@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Stack, Box, Typography, FormControl, RadioGroup, FormControlLabel, Radio, Paper, Button } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
-import checked from '@/assets/images/checked.png';
+import checked from '@/assets/images/allowsubmit.svg';
 import { modalStyle } from '@/utils';
 import TimerFields from "@/components/InsGroupPage/TimerFields";
 import DateTimeFields from "@/components/InsGroupPage/DateTimeFields";
@@ -61,16 +61,16 @@ const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
     mutate(form);
   };
 
-
+ 
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={"15px"} sx={modalStyle}>
-        <Stack direction="row" spacing={"10px"} alignItems="center">
-          <Box width={20} height={20}>
-            <img src={checked} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="checked" />
+        <Stack direction="row" spacing={"10px"} alignItems="center"  >
+          <Box style={{ margin: 0 }}>
+            <img src={checked} style={{ width: "36px", height: "36px", objectFit: "cover" }} alt="checked" />
           </Box>
-          <Typography variant='h6'>{title}</Typography>
+          <Typography sx={{color: '#0CA6E9', fontSize: '20px', fontWeight: 'bold'}}>{title}</Typography>
         </Stack>
         <Controller
           name={`allow_${prefix}_type`}
@@ -119,8 +119,8 @@ const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
           </Paper>
         )}
         <Stack direction="row" justifyContent="flex-end" spacing={"5px"}>
-          <Button onClick={() => handleClose('cancel')} variant="contained" sx={{ width: "70px", bgcolor: "var(--raven)", ":hover": { bgcolor: "#444" } }}>Cancel</Button>
-          <Button type="submit" variant="contained" sx={{ width: "70px" }}>Done</Button>
+          <Button onClick={() => handleClose('cancel')} variant="contained" sx={{ width: "100px", height: "40px", fontSize: "16px", textTransform: 'none', bgcolor: "var(--raven)", ":hover": { bgcolor: "#444" } }}>Cancel</Button>
+          <Button type="submit" variant="contained" sx={{ width: "100px", height: "40px", fontSize: "16px", textTransform: 'none', }}>Done</Button>
         </Stack>
       </Stack>
     </form>

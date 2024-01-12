@@ -1,4 +1,4 @@
-import { Container, Stack, Grid, Skeleton } from "@mui/material";
+import { Container, Stack, Skeleton } from "@mui/material";
 import slideShow from '@/assets/images/slideshowicon.svg';
 import { useSetAtom } from "jotai";
 import { sidebarSelectedAtom } from "@/store/store";
@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs';
 import Header from '@/components/_shared/Header';
 import GroupCard from "@/components/MyGroupsPage/GroupCard";
-import { getGroupListById } from "../utils/api";
+import { getGroupListById } from "../utils/api";  
 
 function MyGroups() {
   const setSelected = useSetAtom(sidebarSelectedAtom);
@@ -30,27 +30,29 @@ function MyGroups() {
       <Stack spacing="20px">
         <MyBreadCrumbs items={items} />
         <Header logoSrc={slideShow} title="My Groups" />
-        <Grid container spacing="10px" sx={{ width: "100%" }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap:"10px", width: '100%',flexDirection: "row", justifyContent: "flex-start" }}>
+          
+          
           {isLoading &&
             <>
-              <Grid item xs={12} md={4}>
+              <div style={{ flex: '0 0 calc(100% / 3)', marginBottom: '20px' }}>
                 <Skeleton variant="rounded" animation="wave" width={"100%"} height={296.35} />
-              </Grid>
-              <Grid item xs={12} md={4}>
+              </div>
+              <div style={{ flex: '0 0 calc(100% / 3)', marginBottom: '20px' }}>
                 <Skeleton variant="rounded" animation="wave" width={"100%"} height={296.35} />
-              </Grid>
-              <Grid item xs={12} md={4}>
+              </div>
+              <div style={{ flex: '0 0 calc(100% / 3)', marginBottom: '20px' }}>
                 <Skeleton variant="rounded" animation="wave" width={"100%"} height={296.35} />
-              </Grid>
-              <Grid item xs={12} md={4}>
+              </div>
+              <div style={{ flex: '0 0 calc(100% / 3)', marginBottom: '20px' }}>
                 <Skeleton variant="rounded" animation="wave" width={"100%"} height={296.35} />
-              </Grid>
-              <Grid item xs={12} md={4}>
+              </div>
+              <div style={{ flex: '0 0 calc(100% / 3)', marginBottom: '20px' }}>
                 <Skeleton variant="rounded" animation="wave" width={"100%"} height={296.35} />
-              </Grid>
-              <Grid item xs={12} md={4}>
+              </div>
+              <div style={{ flex: '0 0 calc(100% / 3)', marginBottom: '20px' }}>
                 <Skeleton variant="rounded" animation="wave" width={"100%"} height={296.35} />
-              </Grid>
+              </div>
             </>
           }
 
@@ -65,7 +67,7 @@ function MyGroups() {
               department={group.department}
             />
           ))}
-        </Grid>
+</div>
       </Stack>
     </Container>
   );

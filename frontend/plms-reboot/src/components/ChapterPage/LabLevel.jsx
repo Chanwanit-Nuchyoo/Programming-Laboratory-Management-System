@@ -109,7 +109,10 @@ const Actions = ({ groupId, chapterId, lv, selectedListFromAPI, selected, setSel
         onClick={handleUpdate}
         disabled={arraysAreEqual(selectedListFromAPI, selected)}
         sx={{
-          paddingX: "25px",
+          //paddingX: "26px",
+          fontSize: '16px',
+          width: '120px',
+          paddingY: "8px",
           borderRadius: "8px",
           bgcolor: "var(--cerulean )",
           textTransform: "none",
@@ -119,15 +122,23 @@ const Actions = ({ groupId, chapterId, lv, selectedListFromAPI, selected, setSel
       {arraysAreEqual(selectedListFromAPI, selected) ?
         (<Link to={ABS_INS_URL.DYNAMIC.ADD_EXERCISE(groupId, chapterId, lv)} >
           <Button variant='outlined' size='medium' sx={{
+            width: '140px',
+            paddingY: "6px",
+            border: "1px solid",
+            fontSize: '16px',
             textTransform: "none"
-          }} startIcon={<AddCircleIcon size="small" color="primary" />}>Add Lab</Button>
+          }} startIcon={<AddCircleIcon size="small" color="primary" />} >Add Lab</Button>
         </Link>)
         :
         ((
           <Button variant='contained' color='error' size='medium'
             onClick={handleReset}
             sx={{
-              textTransform: "none"
+              textTransform: "none",
+              //paddingX: "26px",
+              width: '120px',
+              paddingY: "8px",
+              fontSize: '16px'
             }}>Reset</Button>
         ))
       }

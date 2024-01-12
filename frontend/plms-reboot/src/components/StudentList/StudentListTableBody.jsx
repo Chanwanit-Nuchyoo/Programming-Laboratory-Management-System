@@ -3,7 +3,7 @@ import { Box, Button, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
 import { ABS_INS_URL } from "@/utils/constants/routeConst";
 import { useParams } from "react-router-dom";
-import avatarPlaceHolder from "@/assets/images/AvatarPlaceholder.png";
+import avatarPlaceHolder from "@/assets/images/avatarplaceholder.svg";
 
 const StudentListTableBody = ({ isLoading, labInfo, students }) => {
   const { groupId } = useParams();
@@ -45,6 +45,7 @@ const StudentListTableBody = ({ isLoading, labInfo, students }) => {
 
                   alt="user avatar"
                   className="image"
+                  //style={{ width: '120px', height: '120px' }}
                 />
               </Box>
               <Stack
@@ -54,13 +55,7 @@ const StudentListTableBody = ({ isLoading, labInfo, students }) => {
                 paddingX="10px"
               >
                 {student.stu_id}
-                <Button
-                  variant="contained"
-                  size="small"
-                  sx={{ textTransform: "none", fontSize: "14px" }}
-                >
-                  Reset Password
-                </Button>
+                
               </Stack>
               <Box
                 width={250}

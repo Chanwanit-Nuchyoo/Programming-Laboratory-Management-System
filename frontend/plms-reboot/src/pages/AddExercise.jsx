@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Container, Stack } from '@mui/material';
 import Header from '@/components/_shared/Header';
 /* import Testcases from '@/components/AddExercisePage/Testcases'; */
-import folderIcon from '@/assets/images/foldericon.png';
+import chapterIcon from '@/assets/images/chaptericon.svg';
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs';
 import ExerciseInfoForm from '@/components/_shared/ExerciseInfoForm';
 import { useParams } from 'react-router-dom';
@@ -35,7 +35,7 @@ const AddExercise = () => {
           { label: "Add Exercise", href: '#' },
         ]} />
 
-        <Header logoSrc={folderIcon} title={`Chapter ${chapterId} : ${bc?.chapter_name}`} />
+        <Header logoSrc={chapterIcon} title={`Chapter ${chapterId} : ${bc?.chapter_name}`} />
         <ExerciseInfoForm onAddExercisePage={true} lv={level} editable />
         {/* <Testcases editable /> */}
       </Stack>

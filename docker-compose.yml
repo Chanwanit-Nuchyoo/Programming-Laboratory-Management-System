@@ -74,7 +74,6 @@ services:
 
   worker:
     build: ./worker
-    restart: always
     volumes:
       - ./worker:/app
     deploy:

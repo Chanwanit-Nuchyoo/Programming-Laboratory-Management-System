@@ -50,9 +50,15 @@ const StudentList = () => {
           <Box>
             <Link to={ABS_INS_URL.DYNAMIC.ADD_STUDENT(groupId)} >
               <Button
-                variant="outlined"
+                variant="contained"
                 color="primary"
-                startIcon={<AddCircleIcon color="primary" />}
+                sx={{
+                  height:'40px', 
+                  width: '200px', 
+                  fontSize: '16px',
+                  textTransform: 'none'
+                }}
+                startIcon={<AddCircleIcon />}
               >
                 Add Student
               </Button>

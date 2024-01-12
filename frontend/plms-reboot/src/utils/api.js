@@ -195,19 +195,19 @@ export const updateGroupAssignedChapterItem = async (formData) => {
   return data;
 }
 
-export const runTestcases = async (formData) => {
+export const sendRunTaskMessage = async (formData) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/common_rest/runTestcases`,
+    `${import.meta.env.VITE_BASE_URL}/index.php/common_rest/sendRunTaskMessage`,
     formData,
     { withCredentials: true }
   );
   return data;
 }
 
-export const sendRunTaskMessage = async (formData) => {
+export const getKeywordList = async (formdata) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/common_rest/sendRunTaskMessage`,
-    formData,
+    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/getKeywordList`,
+    formdata,
     { withCredentials: true }
   );
   return data;

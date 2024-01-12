@@ -1,10 +1,13 @@
 /* eslint-disable react/prop-types */
-import ClassInfoBox from "@/components/InsGroupPage/ClassInfoBox"
-import { FormControlLabel, Typography } from "@mui/material"
-import IosStyleSwitch from "@/components/_shared/IosStyleSwitch";
+import React from 'react';
+import ClassInfoBox from "@/components/InsGroupPage/ClassInfoBox";
+import { Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { setAllowGroupLogin, setAllowGroupUploadPicture } from "@/utils/api";
-import { useParams } from "react-router-dom"
+import { useParams } from "react-router-dom";
+import allowUpload from '@/assets/images/allowupload.svg';
+import allowLogin from '@/assets/images/allowlogin.svg';
+import ToggleSwitch from './ToggleSwitch';  // Import the ToggleSwitch component
 
 const RightBox = ({ groupData }) => {
   const { groupId } = useParams();
@@ -34,35 +37,34 @@ const RightBox = ({ groupData }) => {
     mutateAllowLogin({
       group_id: groupId,
       allow_login: groupData?.allow_login === "yes" ? "no" : "yes"
-    })
-  }
+    });
+  };
 
   const toggleAllowUploadPicture = () => {
     mutateAllowUploadPicture({
       group_id: groupId,
       allow_upload_pic: groupData?.allow_upload_pic === "yes" ? "no" : "yes"
-    })
-  }
+    });
+  };
 
   return (
-    <ClassInfoBox stackProps={{
-      justifyContent: "center",
-      alignItems: "start"
-    }} >
-      <FormControlLabel
-        value="start"
-        control={<IosStyleSwitch color="success" onClick={toggleAllowLogin} checked={groupData?.allow_login === "yes"} />}
-        label={<Typography color={"primary"} fontWeight={600} >Allow Login</Typography>}
-        labelPlacement="start"
-      />
-      <FormControlLabel
-        value="start"
-        control={<IosStyleSwitch color="success" onClick={toggleAllowUploadPicture} checked={groupData?.allow_upload_pic === "yes"} />}
-        label={<Typography color={"primary"} fontWeight={600} >Upload picture</Typography>}
-        labelPlacement="start"
-      />
+    <ClassInfoBox 
+      stackProps={{ display: 'flex', flexDirection: 'row' }}
+    >
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRight: '1px solid rgba(255, 255, 255, 0.20)' }}>
+        <img src={allowLogin} style={{ marginTop: '10px', marginBottom: '10px' }} alt="Allow Login" />
+        <Typography color={"primary"} fontWeight={600} style={{ marginBottom: '34px' }}>Allow log in</Typography>
+        <ToggleSwitch isChecked={groupData?.allow_login === "yes"} onToggle={toggleAllowLogin} />
+      </div>
+  
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <img src={allowUpload} style={{ marginBottom: '10px' }} alt="Allow Upload" />
+        <Typography color={"primary"} fontWeight={600} style={{ marginBottom: '10px' }}>Allow upload <br />profile picture</Typography>
+        <ToggleSwitch isChecked={groupData?.allow_upload_pic === "yes"} onToggle={toggleAllowUploadPicture} />
+      </div>
     </ClassInfoBox>
-  )
-}
+  );
+  
+};
 
 export default RightBox

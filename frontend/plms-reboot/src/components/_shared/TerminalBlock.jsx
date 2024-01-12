@@ -10,7 +10,7 @@ const TerminalBlock = ({ text, error, ...props }) => {
     bgcolor: '#0d1117', // Background color for the terminal block
     color: error ? 'red' : '#FFF', // Text color
     tabSize: '4',
-    height: "100%",
+    minHeight: '150px',
     overflowX: "auto",
     fontSize: "13px",
   };

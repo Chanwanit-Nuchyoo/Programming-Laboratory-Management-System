@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
-import { useState, useRef, useEffect } from "react";
-import { Stack, Typography, Button, TextField, Box, Grid } from "@mui/material";
+import React, { useState, useRef, useEffect } from "react";
+import { Stack, Typography, Button, TextField, Box, Grid, Modal } from "@mui/material";
 import { defaultCon } from '@/store/store';
 import MyRte from '@/components/_shared/MyRte';
 import MyCodeEditor from '@/components/_shared/MyCodeEditor';
@@ -9,8 +9,13 @@ import KwCategory from '@/components/_shared/KwCategory';
 import { getKwConSourceCode } from '@/utils/pythonCode';
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createExercise, updateExercise } from "@/utils/api";
+import { createExercise, updateExercise, getKeywordList } from "@/utils/api";
 import { ABS_INS_URL } from "@/utils/constants/routeConst";
+import levelIcon from '@/assets/images/levelicon.svg'
+import suggestedIcon from '@/assets/images/suggestedicon.svg'
+import addfileIcon from '@/assets/images/addfileicon.svg'
+import codingIcon from '@/assets/images/codingicon.svg'
+//import deleteIcon from '@/assets/images/deleteicon.svg'
 
 const defaultValues = {
   lab_name: '',
@@ -62,6 +67,29 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
     }
   })
 
+  const { mutate: getKwList } = useMutation({
+    mutationFn: getKeywordList,
+    onSuccess: (data) => {
+      if (data.status === 'success') {
+        setValue('keyword_constraints.suggested_constraints.reserved_words', data.data.reserved_words);
+        setValue('keyword_constraints.suggested_constraints.functions', data.data.functions);
+        setValue('keyword_constraints.suggested_constraints.methods', data.data.methods);
+        setValue('keyword_constraints.suggested_constraints.variables', data.data.variables);
+        setValue('keyword_constraints.suggested_constraints.imports', data.data.imports);
+        setValue('keyword_constraints.suggested_constraints.classes', data.data.classes);
+      } else {
+        alert(data.message);
+      }
+    },
+  })
+
+  const handleCodeChecking = () => {
+    const sourcecode = getValues('sourcecode_content')
+    getKwList({
+      sourcecode: sourcecode
+    })
+  }
+
   const handleCreateExercise = async (data) => {
     try {
       const newExercise = { ...data }
@@ -94,52 +122,26 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
     }
   }, [editor, formData, reset]);
 
-  useEffect(() => {
-    pyodideWorkerRef.current = new Worker('/workers/pyodideWorker.js');
-
-    pyodideWorkerRef.current.onmessage = ({ data }) => {
-      if (data.status === 'initialized') {
-        setIsPyodideReady(true);
-        console.log(data.message);
-      } else if (data.status === 'success') {
-        setValue('keyword_constraints.suggested_constraints.reserved_words', data.data.reserved_words);
-        setValue('keyword_constraints.suggested_constraints.functions', data.data.functions);
-        setValue('keyword_constraints.suggested_constraints.methods', data.data.methods);
-        setValue('keyword_constraints.suggested_constraints.variables', data.data.variables);
-        setValue('keyword_constraints.suggested_constraints.imports', data.data.imports);
-        setValue('keyword_constraints.suggested_constraints.classes', data.data.classes);
-      } else {
-        alert(data.message);
-      }
-    };
-
-    return () => {
-      if (pyodideWorkerRef.current) {
-        pyodideWorkerRef.current.terminate();
-      }
-    };
-  }, []);
-
-  const handleKeywordAnalyzer = (pythonCode) => {
-    if (!isPyodideReady) {
-      console.warn('Pyodide is not ready yet.');
-      alert('Pyodide is not ready yet.');
-      return;
-    }
-
-    if (!editable) return;
-
-    pyodideWorkerRef.current.postMessage({ pythonCode: getKwConSourceCode(pythonCode) });
-  };
-
   const renderEditButtons = () => {
     if (onAddExercisePage) {
       return (
         <Stack direction="row" spacing={1}>
-          <Button disabled={!isValid} type='submit' variant="outlined" size="medium">
-            Submit
+          <Button disabled={!isValid} type='submit' variant="contained" size="medium"
+            sx={{
+              width: '120px',
+              height: '40px',
+              fontSize: '16px',
+              textTransform: 'none'
+            }}>Submit
           </Button>
-          <Button variant="contained" color="error" size="medium" onClick={() => navigate(ABS_INS_URL.DYNAMIC.CHAPTER(groupId, chapterId))}>
+          <Button variant="contained" color="error" size="medium"
+            sx={{
+              width: '120px',
+              height: '40px',
+              fontSize: '16px',
+              textTransform: 'none'
+            }}
+            onClick={() => navigate(ABS_INS_URL.DYNAMIC.CHAPTER(groupId, chapterId))}>
             Cancel
           </Button>
         </Stack>
@@ -147,28 +149,60 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
     } else if (editable) {
       return (
         <Stack direction="row" spacing={1}>
-          <Button disabled={!isValid || !isDirty} type='submit' variant="contained" size="medium">
+          <Button disabled={!isValid || !isDirty} type='submit' variant="contained" size="medium"
+            sx={{
+              width: '120px',
+              height: '40px',
+              fontSize: '16px',
+              textTransform: 'none'
+            }}>
             Save
           </Button>
-          <Button variant="contained" color="error" size="medium" onClick={() => {
-            setEditable(false)
-            reset(formData)
-            if (editor) {
-              editor
-                .chain()
-                .setContent(formData.lab_content)
-                .run();
-            }
-          }} >
+          <Button variant="contained" color="error" size="medium"
+            sx={{
+              width: '120px',
+              height: '40px',
+              fontSize: '16px',
+              textTransform: 'none'
+            }}
+            onClick={() => {
+              setEditable(false)
+              reset(formData)
+              if (editor) {
+                editor
+                  .chain()
+                  .setContent(formData.lab_content)
+                  .run();
+              }
+            }} >
             Cancel
           </Button>
         </Stack>
       );
     } else {
       return (
-        <Button variant="contained" size="medium" onClick={() => setEditable(true)}>
-          Edit
-        </Button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <Button variant="contained" color="error" size="medium"
+            sx={{
+              width: '120px',
+              height: '40px',
+              fontSize: '16px',
+              textTransform: 'none'
+            }}
+          //onClick={() => (true)}
+          >Delete</Button>
+
+          <Button variant="contained" size="medium"
+            sx={{
+              width: '120px',
+              height: '40px',
+              fontSize: '16px',
+              textTransform: 'none'
+            }}
+            onClick={() => setEditable(true)}
+          >Edit</Button>
+        </div>
+
       );
     }
   };
@@ -181,9 +215,12 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} >
-      <Stack spacing={2} sx={{ padding: '20px', border: '1px solid #202739', borderRadius: '8px' }}>
+
+      <Stack spacing={2} sx={{ padding: '20px', bgcolor: 'var(--biscay)', borderRadius: '8px' }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6">Level {lv}</Typography>
+          <Typography sx={{ color: '#0ca6e9', fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center' }} >
+            <img src={levelIcon} alt="Level Icon" style={{ marginRight: '8px' }} /> Level {lv}
+          </Typography>
           {renderEditButtons()}
         </Stack>
         <Controller
@@ -203,35 +240,48 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
           }
         />
 
-        <Box height={400}>
-          <Controller
-            name="sourcecode_content"
-            control={control}
-            rules={{ required: 'The content of exercise is required!' }}
-            render={({ field: { onChange, onBlur, value } }) =>
-              <MyCodeEditor
-                editable={editable}
-                onChange={onChange}
-                onBlur={() => {
-                  onBlur()
-                  // my custom onBlur logic
-                  handleKeywordAnalyzer(value)
-                }}
-                value={value}
-              />
-            }
-          />
-        </Box>
+        <Stack spacing="10px" >
+          <Stack direction="row" justifyContent='space-between' alignItems="center" >
+            <Stack direction="row" spacing="10px">
+              <img src={codingIcon} alt="Addfile Icon" />
+              <Typography>Source code :</Typography>
+            </Stack>
+            <Stack direction="row" spacing="10px">
+              <Button variant="contained" onClick={handleCodeChecking} >Code Checker</Button>
+            </Stack>
+          </Stack>
+
+          <Box height={400} sx={{ borderRadius: '8px', overflow: 'hidden' }}>
+            <Controller
+              name="sourcecode_content"
+              control={control}
+              rules={{ required: 'The content of exercise is required!' }}
+              render={({ field: { onChange, onBlur, value } }) =>
+                <MyCodeEditor
+                  editable={editable}
+                  onChange={onChange}
+                  value={value}
+                />
+              }
+            />
+          </Box>
+        </Stack>
 
         <Grid container spacing={1}>
           <Grid item xs={12} md={6}>
-            <Typography paddingBottom={2}>Suggested Keyword Constraints :</Typography>
+            <Box display="flex" alignItems="center" paddingBottom={2}>
+              <img src={suggestedIcon} alt="Suggested Icon" style={{ marginRight: '8px' }} />
+              <Typography>Suggested Keyword Constraints:</Typography>
+            </Box>
             <Stack spacing={"5px"}>
               {category_keys.map((category, index) => <KwCategory editable={editable} key={index} title={getCategoryTitle(category)} getValues={getValues} name={`keyword_constraints.suggested_constraints.${category}`} control={control} watch={watch} category={category} side={"suggested"} />)}
             </Stack>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography paddingBottom={2}>User defined Keyword Constraints :</Typography>
+            <Box display="flex" alignItems="center" paddingBottom={2}>
+              <img src={addfileIcon} alt="Addfile Icon" style={{ marginRight: '8px' }} />
+              <Typography>User defined Keyword Constraints :</Typography>
+            </Box>
             <Stack spacing={"5px"}>
               {category_keys.map((category, index) => <KwCategory editable={editable} key={index} title={getCategoryTitle(category)} getValues={getValues} name={`keyword_constraints.user_defined_constraints.${category}`} control={control} watch={watch} category={category} side={"user_defined"} />)}
             </Stack>

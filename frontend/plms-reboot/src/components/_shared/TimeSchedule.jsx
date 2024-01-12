@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 const TimeSchedule = ({ classDate }) => {
   return (
-    <Typography sx={{ borderRadius: "30px", bgcolor: dayColor[classDate.split(",")[0]] || "var(--raven)", color: "black", width: "fit-content", paddingX: "25px" }} >
+    <Typography sx={{ borderRadius: "24px", bgcolor: dayColor[classDate.split(",")[0]] || "var(--raven)", color: "#0f1729", width: "fit-content", padding: "6px 20px", fontSize: "16px" }} >
       {classDate}
     </Typography>
   )

@@ -8,7 +8,7 @@ const StudentBriefInfo = ({ imgSrc, studentId, studentName, studentNickName, gro
       <Box width={80} height={80} borderRadius={"8px"} overflow={"hidden"} >
         <img className="image-contain" src={imgSrc ? imgSrc : avatarPlaceholder} alt="user avatar image" />
       </Box>
-
+ 
       <Stack className="outlined" spacing={"10px"} bgcolor={"var(--mirage)"} padding={"10px 20px"} borderRadius={"8px"} >
         <Stack direction={"row"} spacing={"5px"}>
           <Typography variant="subitem2" color="primary" >Student ID</Typography>

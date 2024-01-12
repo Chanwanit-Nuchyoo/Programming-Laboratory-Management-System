@@ -1,4 +1,4 @@
 # Source code
-name = input("Enter name:")
+name = input("Enter name: ")
 
 print(f'Hello, {name}')

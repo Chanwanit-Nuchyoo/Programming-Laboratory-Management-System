@@ -12,7 +12,7 @@ const DB_CONFIG = {
 
 // RabbitMQ configuration
 const RABBITMQ_URL = "amqp://plms:plmskmitl2023@rabbitmq";
-const QUEUE_NAME = "exercise-testcase";
+const QUEUE_NAME = "task-queue";
 
 // Create and connect to the database
 const db_connection = mysql.createConnection(DB_CONFIG);
@@ -43,7 +43,7 @@ async function python_consumer() {
     console.log("Waiting for messages...")
 
     // Set prefetch count
-    channel.prefetch(1);
+    channel.prefetch(3);
 
     // Consume messages from the queue
     channel.consume(QUEUE_NAME, (msg) => {
@@ -56,8 +56,6 @@ async function python_consumer() {
       if (job_type === "upsert-testcase") {
         addAndUpdateTestcase(channel, db_connection, msg, msg_body);
       } else if (job_type === "exercise-submit") {
-
-      } else if (job_type === "keyword-constraint") {
 
       }
 

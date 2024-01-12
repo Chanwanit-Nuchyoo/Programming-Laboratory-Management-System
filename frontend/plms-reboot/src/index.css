@@ -21,6 +21,13 @@
 }
 
 @font-face {
+  font-family: 'Kanit';
+  src: url("./assets/fonts/Kanit-Regular.ttf") format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
   font-family: 'Anton';
   src: url("./assets/fonts/Anton-Regular.ttf") format('truetype');
   font-weight: normal;
@@ -30,6 +37,13 @@
 @font-face {
   font-family: 'BeVietnamPro';
   src: url("./assets/fonts/BeVietnamPro-Regular.ttf") format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'ChakraPetch';
+  src: url("./assets/fonts/ChakraPetch-Light.ttf") format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -299,4 +313,32 @@ body {
 
 ::-ms-reveal {
   filter: invert(1);
+}
+
+.switch-toggle {
+  width: 60px;
+  height: 30px;
+  background-color: #ccc;
+  border-radius: 15px;
+  position: relative;
+  cursor: pointer;
+}
+
+.switch-toggle.checked {
+  background-color: #4cd964;
+}
+
+.switch-handle {
+  width: 28px;
+  height: 28px;
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  transition: left 0.3s;
+}
+
+.switch-toggle.checked .switch-handle {
+  left: 31px;
 }

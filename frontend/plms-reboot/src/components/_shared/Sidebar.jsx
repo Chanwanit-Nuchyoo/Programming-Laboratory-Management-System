@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import logo from "@/assets/images/Logo.svg";
+import logo from "@/assets/images/logo.svg";
 import close from "@/assets/images/Close.svg";
 import classes from "@/assets/css/Sidebar.module.css";
 import { getClassNames } from "@/utils";

@@ -3,14 +3,27 @@
     justify-content: center;
     align-items: center;
     height: 100%;
-    padding-top: 10px;
-    font-size: 20px;
+    padding-top: 30px;
+    font-size: 22px;
+    font-weight: 600;
   }
 
 .rules{
-    padding: 20px;
+    padding: 10px;
 }
 
 .rules li {
-  font-size: 20px;
+  font-size: 18px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+.rules li {
+  list-style-type: none; /* ยกเลิกการแสดงเลขที่ของ <li> */
+  counter-increment: li-counter; /* เพิ่มค่าลำดับของ <li> ทีละ 1 */
+}
+
+.rules li:before {
+  content: counter(li-counter) ". "; /* เพิ่มเลขลำดับของ <li> และจุดหลังจากเลข */
+  margin-right: 10px; /* ระยะห่างระหว่างตัวเลขกับข้อความ */
 }

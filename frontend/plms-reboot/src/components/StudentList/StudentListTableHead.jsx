@@ -2,13 +2,13 @@
 import { Box, Button, Stack, Skeleton } from "@mui/material";
 import { buttonStyle } from "@/utils";
 
-const buttonStyleExtended = { ...buttonStyle, minHeight: "63.48px" };
+const buttonStyleExtended = { ...buttonStyle, minHeight: "36px" };
 const buttons = [
   { label: "Avatar", boxProps: { flex: 1.5, width: 120 } },
   { label: "Student ID", boxProps: { flex: 1, width: 150 } },
   { label: "Name", boxProps: { width: 250 } },
 ]
-
+ 
 const defaultBoxProps = { width: 85 }
 const commonStackStyle = {
   position: "sticky",
@@ -24,8 +24,8 @@ const StudentListTableHead = ({ isLoading, labInfo }) => {
 
   return (
     <>
-      <Stack direction="row" spacing="5px" width="fit-content" sx={{ ...commonStackStyle, top: "-1px", paddingY: "10px" }} >
-        <Stack direction="row" spacing="5px" sx={{ ...commonStackStyle, left: "0px" }} >
+      <Stack direction="row" spacing="5px" width="fit-content" sx={{ ...commonStackStyle, top: "-1px" }} >
+        <Stack direction="row" spacing="5px" sx={{ ...commonStackStyle, left: "80px" }} >
           {buttons.map((button, index) => (
             <TableHeadButton key={index} {...button} />
           ))}

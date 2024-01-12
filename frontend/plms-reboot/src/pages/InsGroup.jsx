@@ -1,5 +1,5 @@
-import { Box, Button, Container, Grid, Stack, Skeleton } from "@mui/material"
-import blueFolderIcon from '@/assets/images/bluefoldericon.svg'
+import { Box, Button, Container, Stack, Skeleton } from "@mui/material"
+import folderIcon from '@/assets/images/foldericon.svg';
 import { useParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios"
@@ -12,7 +12,8 @@ import LabRow from "@/components/InsGroupPage/LabRow"
 import RightBox from "../components/InsGroupPage/RightBox";
 
 const InsGroup = () => {
-  const { groupId } = useParams();
+const { groupId } = useParams();
+
 
   // TODO: Do something with this later
   const { data: groupData, isLoading: isClassLoading } = useQuery({
@@ -40,32 +41,28 @@ const InsGroup = () => {
             { label: `Group ${groupData?.group_no}`, href: '#' },
           ]} />
 
-          <Header logoSrc={blueFolderIcon} title={`Group ${!isClassLoading ? groupData?.group_no : "..."}`} />
+          <Header logoSrc={folderIcon} title={`Group ${!isClassLoading ? groupData?.group_no : "..."}`} />
 
-          <Grid container spacing={"10px"} >
-
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', width: '100%', heigh: '100%' }}>
             <LeftBox isClassLoading={isClassLoading} groupData={groupData} />
-
             <MiddleBox isClassLoading={isClassLoading} groupData={groupData} />
-
             <RightBox groupData={groupData} />
-
-          </Grid>
+          </div>
 
           <Stack spacing={"10px"}>
             {/* Table Head */}
-            <Stack direction={"row"} spacing={"5px"} sx={{ position: "sticky", top: "0", bgcolor: "var(--ebony)", zIndex: "10", paddingY: "10px" }} >
+            <Stack direction={"row"} spacing={"5px"} sx={{ position: "sticky", top: "0", bgcolor: "var(--ebony)", zIndex: "10", paddingY: "0px" }} >
               <Box flex={1} className="table-head-column">
-                <Button fullWidth sx={{ height: "100%", color: "white" }} >Chapter</Button>
+                <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none" }} >Chapter</Button>
               </Box>
               <Box width={100} className="table-head-column">
-                <Button fullWidth sx={{ height: "100%", color: "white" }} >Score</Button>
+                <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none"  }} >Score</Button>
               </Box>
               <Box width={300} className="table-head-column">
-                <Button fullWidth sx={{ height: "100%", color: "white" }} >Access exercise</Button>
+                <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none"  }} >Access exercise</Button>
               </Box>
               <Box width={300} className="table-head-column">
-                <Button fullWidth sx={{ height: "100%", color: "white" }} >Allow submit</Button>
+                <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none"  }} >Allow submit</Button>
               </Box>
             </Stack>
 

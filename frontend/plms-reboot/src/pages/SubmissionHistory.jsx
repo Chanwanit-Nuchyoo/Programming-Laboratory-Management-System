@@ -1,5 +1,5 @@
 import { Box, Stack, Container } from "@mui/material";
-import folderIcon from '@/assets/images/foldericon.png';
+import chapterIcon from '@/assets/images/chaptericon.svg';
 
 // components
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs';
@@ -29,7 +29,7 @@ const SubmissionHistory = () => {
             groupNo={401}
           />
 
-          <Header logoSrc={folderIcon} title="Group 401 (Student)" />
+          <Header logoSrc={chapterIcon} title="Group 401 (Student)" />
 
           <ExerciseInfoBox />
 

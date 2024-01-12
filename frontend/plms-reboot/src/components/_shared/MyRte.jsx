@@ -125,10 +125,6 @@ const MyRte = ({ rteRef, editable = false, contentValue, ...props }) => {
           </>
         )}
       </RichTextEditor>
-
-      <Button onClick={() => console.log(rteRef.current?.editor?.getHTML())}>
-        Log HTML
-      </Button>
     </Box>
   )
 }

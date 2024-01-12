@@ -117,7 +117,8 @@ const SignIn = () => {
               />
             </Stack>
             <Box className="flex-center">
-              <Button type="submit" variant="contained" color="primary">Sign In</Button>
+              <Button type="submit" variant="contained" color="primary"
+              sx={{ height: '40px', width: '400px', fontSize: '16px', borderRadius: '24px'}}>Sign in</Button>
             </Box>
           </Stack>
         </form>

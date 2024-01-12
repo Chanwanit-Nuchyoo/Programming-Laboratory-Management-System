@@ -4,7 +4,7 @@ import { Box, Container, Stack } from '@mui/material';
 import ExerciseInfoForm from '@/components/_shared/ExerciseInfoForm';
 import Header from '@/components/_shared/Header';
 import Testcases from '@/components/AddExercisePage/Testcases';
-import folderIcon from '@/assets/images/foldericon.png';
+import chapterIcon from '@/assets/images/chaptericon.svg';
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -72,7 +72,7 @@ const EditExercise = () => {
             { label: isBcLoading ? "..." : bc?.lab_name, href: '#' },
           ]} />
 
-          <Header logoSrc={folderIcon} title={`Chapter ${chapterId} : ${bc?.chapter_name}`} />
+          <Header logoSrc={chapterIcon} title={`Chapter ${chapterId} : ${bc?.chapter_name}`} />
           <ExerciseInfoForm lv={level} editable={true} formData={formData} />
           <Testcases testcaseData={testcaseData} hasSourceCode={!!formData.sourcecode_content} />
         </Stack>

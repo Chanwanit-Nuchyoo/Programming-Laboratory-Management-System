@@ -194,60 +194,6 @@ class Common_rest extends MY_RestController
     $this->response($data, RestController::HTTP_OK);
   }
 
-  public function runTestcases_post()
-  {
-    $req_body = $this->post(null, true);
-    $exercise_id = $req_body['exercise_id'];
-    $testcase_list = $req_body['testcase_list'];
-    $removed_list = $req_body['removed_list'];
-
-    if (!isset($exercise_id)) {
-      return $this->response(['message' => 'Invalid request body'], RestController::HTTP_BAD_REQUEST);
-    }
-
-    if (!empty($removed_list)) {
-      $this->load->model('lab_model_rest');
-      $this->lab_model_rest->exercise_testcase_delete_by_id_list($removed_list);
-    }
-
-    $this->load->model('lab_model_rest');
-    $file_name = $this->lab_model_rest->get_sourcecode_filename($exercise_id);
-
-    $role = $this->session->userdata('role');
-
-    $directory_path = $role == "student" ? STUDENT_CFILES_FOLDER : SUPERVISOR_CFILES_FOLDER;
-
-    // Prepare source code file
-    $file_to_run = $directory_path . $file_name; //$this->prepareExerciseCode($directory_path . $file_name, $exercise_id, $directory_path);
-
-    $result_list = array();
-
-    $this->load->model("lab_model_rest");
-
-    foreach ($testcase_list as $testcase) {
-      // Prepare input file
-      $input_file = $this->prepareInputFile($testcase['testcase_content'], $exercise_id, $directory_path);
-
-      // Run the test case
-      $result = $this->runPython($file_to_run, $input_file);
-
-      $testcase['testcase_output'] = $result['output'];
-      $testcase['testcase_error'] = $result['error'];
-
-      array_push($result_list, $testcase);
-
-
-
-      $this->lab_model_rest->exercise_testcase_upsert($testcase);
-    }
-
-    $this->response([
-      'status' => 'success',
-      'message' => 'Testcases are being run',
-      'job_id' => $job_id,
-    ], RestController::HTTP_OK);
-  }
-
   public function sendRunTaskMessage_post()
   {
     $req_body = $this->post(null, true);
@@ -305,7 +251,7 @@ class Common_rest extends MY_RestController
         'sourcecode' => file_get_contents($file_to_run),
       )));
 
-      $channel->basic_publish($message, '', 'exercise-testcase');
+      $channel->basic_publish($message, '', 'task-queue');
 
       $channel->close();
       $connection->close();
@@ -328,49 +274,6 @@ class Common_rest extends MY_RestController
       'message' => 'Testcases are being run',
       'job_id' => $job_id,
     ], RestController::HTTP_OK);
-  }
-
-  public function prepareExerciseCode($file_path, $exercise_id, $directory_path)
-  {
-    $python_code = <<<EOT
-  # ================== Injected code ==================
-  import builtins
-  
-  def custom_input(user_inputs, prompt=""):
-      if not user_inputs:
-          raise EOFError("Ran out of input values.")
-      response = user_inputs.pop(0)
-      print(prompt + response)
-      return response
-  
-  with open('{$directory_path}exercise_temp_$exercise_id.py.input', 'r') as file:
-      user_inputs = file.read().splitlines()
-  
-  builtins.input = lambda prompt="": custom_input(user_inputs, prompt)
-  
-  # ================== Actual sourcecode content ================== 
-  
-  EOT;
-
-    $temp_file = $directory_path . "exercise_temp_" . $exercise_id . ".py";
-    $temp_file_handle = fopen($temp_file, "w");
-    fwrite($temp_file_handle, $python_code);
-    fwrite($temp_file_handle, "\n");  // Add an empty line
-    fwrite($temp_file_handle, file_get_contents($file_path));
-    fclose($temp_file_handle);
-
-    return $temp_file;
-  }
-
-  public function prepareInputFile($input, $exercise_id, $directory_path)
-  {
-    $input_file = $directory_path . "exercise_temp_" . $exercise_id . ".py.input";
-    $input_file_handle = fopen($input_file, "w");
-    fwrite($input_file_handle, $input);
-    fclose($input_file_handle);
-
-    // return the temp file path
-    return $input_file;
   }
 
   public function runPython($exercise_path, $input_path)
@@ -477,6 +380,7 @@ class Common_rest extends MY_RestController
     $inserted_row = $this->lab_model_rest->exercise_submission_add($submission);
 
     $testcase_list = $this->lab_model_rest->get_testcase_array($exercise_id);
+    $exercise =  $this->lab_model_rest->get_exercise_by_id($exercise_id);
 
     try {
       $connection = new AMQPStreamConnection('rabbitmq', 5672, 'plms', 'plmskmitl2023');
@@ -491,7 +395,7 @@ class Common_rest extends MY_RestController
         'submission_id' => $inserted_row,
         'sourcecode' => file_get_contents($directory_path . $file_name),
         'testcase_list' => $testcase_list,
-        'keyword-constraint' => array(),
+        'keyword_constraints' => $exercise['user_defined_constraints'],
       )));
 
       $channel->basic_publish($message, '', 'task-queue');

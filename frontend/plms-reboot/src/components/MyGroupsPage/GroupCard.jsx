@@ -1,50 +1,62 @@
-import { Stack, Typography, Box, Button, Grid } from "@mui/material"
+import { Stack, Typography, Box, Button, Avatar } from "@mui/material"
 import PropTypes from 'prop-types';
 import { dayColor } from "@/utils/constants/common";
 import { ABS_INS_URL } from "@/utils/constants/routeConst";
 import { Link } from "react-router-dom";
+import folderIcon from '@/assets/images/foldericon.svg';
 
 const GroupCard = ({ id, groupNo, schedule, year, semester, department }) => {
   const day = schedule.split(",")[0];
 
   return (
-    <Grid item xs={12} md={4}>
+    <div style={{
+      flex: '0 0 calc(100% / 3 - 10px)',  
+      maxWidth: 'calc(33.3333%)' 
+    }}>
       <Stack spacing={3} sx={{
         bgcolor: "var(--biscay)",
         height: "fit-content",
-        minHeight: "270px",
-        borderRadius: "8px",
-        padding: "30px 20px",
+        //minHeight: "270px",
+        borderRadius: "16px",
+        padding: "30px",
         transition: "all ease-in-out 0.2s"
       }}>
-        <Typography variant="h4" color="primary">Group {groupNo}</Typography>
+        
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar alt="Folder Icon" src={folderIcon} sx={{ width: 32, height: 32, marginRight: '8px' }} />
+          <Typography fontSize="24px" color="white" style={{ marginBottom: '0', paddingBottom: '0' }}>Group {groupNo}</Typography>
+        </div>
+
         <Box sx={{
-          padding: "2px 25px",
+          padding: "6px 20px",
           bgcolor: dayColor[day],
-          borderRadius: "20px",
+          borderRadius: "24px",
           width: "fit-content",
-          color: "black"
+          color: "#0f1729",
+          
         }}>{schedule}</Box>
 
         <Stack spacing={1}>
-          <Stack direction="row" spacing="10px" alignItems="baseline" >
+          <Stack direction="row" sx={{ width: "100%", justifyContent: "start", flexWrap: "wrap", gap: "1rem"}} >
             <TypographyStack label="Year" value={year} />
             <TypographyStack label="Semester" value={semester} />
           </Stack>
           <TypographyStack label="Department" value={department} />
         </Stack>
 
-        <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
+        <Stack direction="row" sx={{ width: "100%", justifyContent: "start", flexWrap: "wrap", gap: "1rem"}}>
           <Link to={ABS_INS_URL.DYNAMIC.GROUP(id)}>
-            <Button variant="contained" sx={{ borderRadius: "30px", padding: "7px 25px" }}>Exercise</Button>
+            <Button variant="contained" 
+            sx={{ borderRadius: "24px", padding: "6px 26px", textTransform: 'none', fontSize: "16px", minWidth: "120px"}}>Exercise</Button>
           </Link>
 
           <Link to={ABS_INS_URL.DYNAMIC.STUDENT_LIST(id)}>
-            <Button variant="contained" sx={{ borderRadius: "30px", padding: "7px 25px" }}>Student</Button>
+            <Button variant="contained" 
+            sx={{ borderRadius: "24px", padding: "6px 26px", textTransform: 'none', fontSize: "16px", minWidth: "120px" }}>Student </Button>
           </Link>
         </Stack>
       </Stack>
-    </Grid>
+      </div>
   );
 };
 

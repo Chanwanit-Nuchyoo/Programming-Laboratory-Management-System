@@ -4,7 +4,7 @@ import { Typography, Stack, Skeleton, Box, Button } from "@mui/material"
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { logoutAllStudentInGroup } from "@/utils/api";
 import { useParams } from "react-router-dom"
-import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@/assets/images/logouticon.svg';
 
 const MiddleBox = ({ isClassLoading, groupData }) => {
   const { groupId } = useParams();
@@ -28,25 +28,25 @@ const MiddleBox = ({ isClassLoading, groupData }) => {
     <ClassInfoBox>
       <Stack direction={"row"} spacing={"20px"} >
         <Stack direction={"row"} gap={"5px"} >
-          <Typography color={"primary"}  >Department</Typography>
+          <Typography color={"primary"}  >Department:</Typography>
           <Typography >{isClassLoading ? <Skeleton variant="text" width={90} sx={{ fontSize: "16px" }} /> : groupData?.dept_name}</Typography>
         </Stack>
       </Stack>
       <Stack direction={"row"} spacing={"20px"} >
         <Stack direction={"row"} gap={"5px"} >
-          <Typography color={"primary"}  >All Student</Typography>
+          <Typography color={"primary"}  >All Student:</Typography>
           <Typography >{isClassLoading ? <Skeleton variant="text" width={40} sx={{ fontSize: "16px" }} /> : groupData?.student_no}</Typography>
         </Stack>
       </Stack>
       <Stack direction={"row"} spacing={"20px"} >
         <Stack direction={"row"} gap={"5px"} >
-          <Typography color={"primary"}  >Student online</Typography>
+          <Typography color={"primary"}  >Student online:</Typography>
           <Typography ></Typography>
         </Stack>
       </Stack>
       <Box>
-        <Button variant="contained" color="primary" startIcon={<LoginIcon />} sx={{ textTransform: "none" }} onClick={handleLogoutAllStudent} >
-          Sign out all student
+        <Button variant="contained" color="primary" startIcon={<img src={LogoutIcon} alt="Logout" />} sx={{ textTransform: "none", padding: "6px 26px", fontSize: "16px" }} onClick={handleLogoutAllStudent} >
+          Log out all student
         </Button>
       </Box>
     </ClassInfoBox>

@@ -8,6 +8,7 @@ import { getExerciseTestcases } from "@/utils/api";
 import { useEffect, useState } from "react";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { sendRunTaskMessage } from "@/utils/api"
+import testcaseIcon from '@/assets/images/testcaseicon.svg'
 
 const buttonProps = {
   size: 'medium',
@@ -128,12 +129,14 @@ const Testcases = ({ hasSourceCode = false }) => {
           <form onSubmit={(e) => e.preventDefault()}>
             <Stack spacing={"20px"} sx={{
               padding: "20px",
-              border: "1px solid #202739",
+              //border: "1px solid #202739",
               borderRadius: "8px",
             }} >
               {/* <Testcase /> */}
               <Stack direction={"row"} justifyContent={"space-between"} >
-                <Typography variant='h6' >Test case</Typography>
+                <Typography sx={{ color: '#0ca6e9', fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center' }} >
+                  <img src={testcaseIcon} alt="Testcase Icon" style={{ marginRight: '8px' }} /> Test case
+                </Typography>
                 <Stack direction={"row"} spacing={"10px"} >
                   <>
                     {isEditable ?
@@ -148,6 +151,40 @@ const Testcases = ({ hasSourceCode = false }) => {
                       </>
                     }
                   </>
+                  {/* {hasSourceCode ?
+                    <>
+                      {isEditable ?
+                        <>
+                          <Button {...buttonProps} disabled={!isDirty} type="submit"
+                          sx={{
+                            width: '120px',
+                            height: '40px',
+                            fontSize: '16px',
+                            textTransform: 'none'
+                          }}>Save</Button>
+                          <Button {...buttonProps} color="error" type="button" onClick={handleCancel}
+                          sx={{
+                            width: '120px',
+                            height: '40px',
+                            fontSize: '16px',
+                            textTransform: 'none'
+                          }}>Cancel</Button>
+                        </>
+                        :
+                        <Button {...buttonProps} type="button" onClick={() => { setIsEditable(true) }}
+                        sx={{
+                          width: '120px',
+                          height: '40px',
+                          fontSize: '16px',
+                          textTransform: 'none'
+                        }}>Edit</Button>
+                      }
+                    </>
+                    :
+                    (
+                      <Button {...buttonProps} disabled={true} type="button" onClick={() => { setIsEditable(true) }}>Edit</Button>
+                    )
+                    } */}
                 </Stack>
               </Stack>
               <Stack direction={'row'} >

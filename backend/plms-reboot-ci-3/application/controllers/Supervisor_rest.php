@@ -821,4 +821,24 @@ class Supervisor_rest extends MY_RestController
 			'payload' => $stu_logout,
 		], RestController::HTTP_OK);
 	}
+
+	public function getKeywordList_post()
+	{
+		$sourcecode = $this->post('sourcecode');
+		$directory_path = SUPERVISOR_CFILES_FOLDER;
+		$program = "python-files/keyword_list.py";
+
+		// create temp file with unique name at the direactory path
+		$tempfile = tempnam($directory_path, 'temp');
+
+		file_put_contents($tempfile, $sourcecode);
+
+		$command = escapeshellcmd("python3.12 $program $tempfile");
+		$output = shell_exec($command);
+
+		// delete temp file
+		unlink($tempfile);
+
+		$this->response(json_decode($output), RestController::HTTP_OK);
+	}
 }

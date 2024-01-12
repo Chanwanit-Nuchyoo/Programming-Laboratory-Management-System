@@ -1,5 +1,5 @@
 import { Box, Stack, Container, Grid, Skeleton } from '@mui/material'
-import folderIcon from '@/assets/images/foldericon.png'
+import chapterIcon from '@/assets/images/chaptericon.svg'
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs'
 import Header from '@/components/_shared/Header'
 import LabLevel from '@/components/ChapterPage/LabLevel'
@@ -29,7 +29,7 @@ const Chapter = () => {
             { label: isLoading ? "Loading..." : `Chapter ${chapterId} : ${labChapterInfo?.chapter_name}`, href: '#' },
           ]} />
 
-          <Header logoSrc={folderIcon} title={isLoading ? "Loading..." : `Chapter ${chapterId} : ${labChapterInfo?.chapter_name}`} />
+          <Header logoSrc={chapterIcon} title={isLoading ? "Loading..." : `Chapter ${chapterId} : ${labChapterInfo?.chapter_name}`} />
 
           <Grid container spacing={"10px"}>
             {isLoading && <>
