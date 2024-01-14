@@ -212,3 +212,20 @@ export const getKeywordList = async (formdata) => {
   );
   return data;
 }
+
+export const getStudentSubmissionList = async ($stu_id, $chapter_id, $item_id) => {
+  const { data } = await axios.get(
+    `${import.meta.env.VITE_BASE_URL}/index.php/student_rest/getStudentSubmissionList?stu_id=${$stu_id}&chapter_id=${$chapter_id}&item_id=${$item_id}`,
+    { withCredentials: true }
+  );
+  return data;
+}
+
+export const studentExerciseSubmit = async (formData) => {
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_BASE_URL}/index.php/student_rest/studentExerciseSubmit`,
+    formData,
+    { withCredentials: true }
+  );
+  return data;
+}

@@ -30,7 +30,7 @@ const Testcases = ({ hasSourceCode = false }) => {
         }
       } else if (data && Array.isArray(data)) {
         return false;
-      } {
+      } else {
         return 1000;
       }
     },

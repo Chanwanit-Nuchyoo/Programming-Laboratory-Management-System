@@ -1418,7 +1418,8 @@ class Lab_model_rest extends CI_Model
 	{
 		$this->db->where('stu_id', $stu_id)
 			->where('exercise_id', $exercise_id)
-			->from('exercise_submission');
+			->from('exercise_submission')
+			->order_by('time_submit', 'ASC');
 		$query = $this->db->get();
 		return $query->result_array();
 	}

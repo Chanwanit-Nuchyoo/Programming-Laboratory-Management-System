@@ -1,0 +1,21 @@
+{
+  "classes": [],
+  "imports": [],
+  "methods": [],
+  "functions": [
+    {
+      "type": "eq",
+      "limit": 2,
+      "active": true,
+      "keyword": "print"
+    },
+    {
+      "type": "eq",
+      "limit": 1,
+      "active": true,
+      "keyword": "input"
+    }
+  ],
+  "variables": [],
+  "reserved_words": []
+}

@@ -215,8 +215,9 @@ class Supervisor_rest extends MY_RestController
 		foreach ($group_exercise_chapter as $row) {
 			$item = $row['item_id'];
 			$exercises = $row['exercise_id_list'];
-			for ($i = 1; $i <= sizeof($exercises); $i++) {
-				$group_lab_list[$item][$i] = $exercises[$i - 1];
+			$group_lab_list[$item] = array();
+			for ($i = 0; $i < sizeof($exercises); $i++) {
+				array_push($group_lab_list[$item], $exercises[$i]);
 			}
 		}
 

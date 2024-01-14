@@ -79,8 +79,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50'
-          memory: 150M
+          cpus: '0.2'
+          memory: 100M
     depends_on:
       - db
       - rabbitmq

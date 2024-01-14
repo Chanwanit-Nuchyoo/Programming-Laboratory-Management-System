@@ -52,11 +52,7 @@ const Chapter = () => {
                 key={index}
                 lv={lv}
                 index={index}
-                selectedList={
-                  selectedList[index + 1] && Object.keys(selectedList[index + 1]).length - 1 > index
-                    ? Object.values(selectedList[index + 1])
-                    : []
-                }
+                selectedList={selectedList[String(index + 1)] || []}
               />
             ))}
           </Grid>

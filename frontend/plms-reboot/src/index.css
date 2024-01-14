@@ -123,7 +123,22 @@ body {
   text-transform: none !important;
   font-size: 14px !important;
   background: var(--mirage) !important;
-  border: 1px solid var(--divisor-rgba-25525525502, rgba(255, 255, 255, 0.20)) !important;
+  border: 1px solid var(--divisor-rgba-25525525502, rgba(255, 255, 255, 0.20));
+}
+
+.table-head-column2 button {
+  text-transform: none !important;
+  font-size: 14px !important;
+  background: #1D283A;
+}
+
+.table-body-column2 {
+  text-align: center;
+  height: 44px;
+}
+
+.table-body-column2 p, .table-body-column2 button {
+  font-size: 14px;
 }
 
 .table-head-column button:hover {

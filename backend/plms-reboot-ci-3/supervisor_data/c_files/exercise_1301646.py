@@ -1,10 +1,10 @@
 a = float(input("Enter a: "))
 b = float(input("Enter b: "))
 
-# i = 0
-# while True:
-#     print(i)
-#     i+=1
+i = 0
+while True:
+    # print(i)
+    i+=1
 
 # def create_large_list():
 #     # Each integer in Python takes up around 28 bytes (on a 64-bit system)

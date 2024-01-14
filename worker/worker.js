@@ -1,6 +1,6 @@
 import amqp from "amqplib";
 import mysql from "mysql";
-import { addAndUpdateTestcase } from "./utils.js";
+import { addAndUpdateTestcase, runSubmission } from "./utils.js";
 
 // Database configuration
 const DB_CONFIG = {
@@ -43,23 +43,23 @@ async function python_consumer() {
     console.log("Waiting for messages...")
 
     // Set prefetch count
-    channel.prefetch(3);
+    channel.prefetch(1);
 
     // Consume messages from the queue
     channel.consume(QUEUE_NAME, (msg) => {
       const msg_body = JSON.parse(msg.content.toString());
       const { job_type } = msg_body;
 
-      console.log("-----------------------------------------")
-      console.log("Received a message from the queue:", msg_body);
+      // console.log("-----------------------------------------")
+      // console.log("Received a message from the queue:", msg_body);
 
       if (job_type === "upsert-testcase") {
         addAndUpdateTestcase(channel, db_connection, msg, msg_body);
       } else if (job_type === "exercise-submit") {
-
+        runSubmission(channel, db_connection, msg, msg_body);
       }
 
-      console.log("-----------------------------------------")
+      // console.log("-----------------------------------------")
     });
   } catch (err) {
     console.error('Failed to connect to RabbitMQ. Retrying in 5 seconds...', err);
@@ -72,6 +72,6 @@ try {
   connectToDatabase();
   python_consumer();
 } catch (err) {
-  console.log(err);
+  console.log(err.message);
   process.exit(1);
 }

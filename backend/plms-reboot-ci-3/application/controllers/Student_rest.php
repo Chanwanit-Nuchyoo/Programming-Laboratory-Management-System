@@ -2,6 +2,8 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Message\AMQPMessage;
 
 require_once(APPPATH . "/controllers/MY_RestController.php");
 
@@ -157,5 +159,132 @@ class Student_rest extends MY_RestController
     ];
 
     $this->response($data, RestController::HTTP_OK);
+  }
+
+  public function getStudentSubmissionList_get()
+  {
+    $stu_id = $this->query('stu_id');
+    $chapter_id = $this->query('chapter_id');
+    $item_id = $this->query('item_id');
+
+    if (!isset($stu_id, $chapter_id, $item_id)) {
+      $this->response(['message' => 'Invalid data provided.'], RestController::HTTP_BAD_REQUEST);
+    }
+
+    $exercise_id = $this->student_model_rest->get_student_assigned_exercise_id($stu_id, $chapter_id, $item_id);
+
+    $this->load->model('lab_model_rest');
+
+    $submission_list = $this->lab_model_rest->get_student_submission($stu_id, $exercise_id);
+
+    foreach ($submission_list as &$submission) {
+      $file_path = STUDENT_CFILES_FOLDER . $submission['sourcecode_filename'];
+      if (file_exists($file_path)) {
+        $file_content = file_get_contents($file_path);
+        $submission['sourcecode_content'] = $file_content !== FALSE ? $file_content : "file not found";
+      } else {
+        $submission['sourcecode_content'] = "# file not found";
+      }
+
+      $submission['result'] = json_decode($submission['result']);
+    }
+
+    $this->response($submission_list, RestController::HTTP_OK);
+  }
+
+  public function studentExerciseSubmit_post()
+  {
+    $stu_id = $this->post('stu_id');
+    $chapter_id = $this->post('chapter_id');
+    $item_id = $this->post('item_id');
+    $sourcecode = $this->post('sourcecode');
+
+
+    if (!isset($chapter_id) || !isset($item_id) || !isset($stu_id) || !isset($sourcecode)) {
+      return $this->response(['message' => 'Invalid request body'], RestController::HTTP_BAD_REQUEST);
+    }
+
+    $exercise_id = $this->student_model_rest->get_student_assigned_exercise_id($stu_id, $chapter_id, $item_id);
+
+    // get all submitted exercise
+    $this->load->model('lab_model_rest');
+    $submission_list = $this->lab_model_rest->get_student_submission($stu_id, $exercise_id);
+
+    // get the attemps number as a string
+    $attemps = count($submission_list) + 1;
+
+    // if the digit of attemps is less than 4 then add 0 to the front
+    if (strlen($attemps) < 4) {
+      $attemps = str_pad($attemps, 4, "0", STR_PAD_LEFT);
+    }
+
+    $directory_path = STUDENT_CFILES_FOLDER;
+    $file_name = $stu_id . "_" . $chapter_id . "_" . $item_id . "_" . $attemps . ".py";
+
+    // write the sourcecode to the file at the directory
+    $writer = fopen($directory_path . $file_name, "w");
+    fwrite($writer, $sourcecode);
+    fclose($writer);
+
+    // insert the submission to the database
+    $submission = array(
+      'stu_id' => $stu_id,
+      'exercise_id' => $exercise_id,
+      'is_ready' => 'no',
+      'con_passed' => "no",
+      'sourcecode_filename' => $file_name,
+      'marking' => 0,
+      'time_submit' => date("Y-m-d H:i:s"),
+      'inf_loop' => 'No',
+      'output' => null,
+      'result' => null,
+    );
+
+    $this->db->trans_start();
+    $inserted_row = $this->lab_model_rest->exercise_submission_add($submission);
+
+    $testcase_list = $this->lab_model_rest->get_testcase_array($exercise_id);
+    $exercise =  $this->lab_model_rest->get_exercise_by_id($exercise_id);
+
+    try {
+      $connection = new AMQPStreamConnection('rabbitmq', 5672, 'plms', 'plmskmitl2023');
+      $channel = $connection->channel();
+      $channel->queue_declare('task-queue', false, true, false, false);
+
+      $job_id = uniqid();
+
+      $message = new AMQPMessage(json_encode(array(
+        'job_id' => $job_id,
+        'job_type' => 'exercise-submit',
+        'submission_id' => $inserted_row["submission_id"],
+        'sourcecode' => file_get_contents($directory_path . $file_name),
+        'testcase_list' => $testcase_list,
+        'keyword_constraints' => $exercise['user_defined_constraints'],
+      )));
+
+      $channel->basic_publish($message, '', 'task-queue');
+
+      $channel->close();
+      $connection->close();
+
+      // If the AMQP message was sent successfully, commit the transaction
+      $this->db->trans_commit();
+    } catch (Exception $e) {
+      // If an error occurred, roll back the transaction
+      $this->db->trans_rollback();
+
+      $this->response([
+        'status' => 'error',
+        'message' => 'An error occurred while running testcases',
+        'error' => $e->getMessage(),
+      ], RestController::HTTP_INTERNAL_ERROR);
+    }
+
+    $this->response([
+      'status' => 'success',
+      'message' => 'Submission are being run',
+      'job_id' => $job_id,
+      'submission_id' => $inserted_row,
+    ], RestController::HTTP_OK);
   }
 }

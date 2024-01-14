@@ -29,13 +29,13 @@ const Con = ({ title, list }) => {
     {list.length > 0 &&
       <>
         <Typography variant="h6" >{title}</Typography>
-        <Stack direction="row" spacing='20px' paddingLeft="10px" >
+        <Stack spacing='20px' paddingLeft="10px" >
           {list.map((item, index) => {
             return (
-              <>
-                <Typography key={index} >{item.keyword}</Typography>
+              <Stack direction='row' spacing='20px' key={index}>
+                <Typography  >{item.keyword}</Typography>
                 {renderInfo(item)}
-              </>
+              </Stack>
             )
           })}
         </Stack>
@@ -76,7 +76,7 @@ const Problem = ({ exercise }) => {
   const htmlString = exercise.lab_content;
 
   return (
-    <Stack spacing="10px" height={"calc(100% - 54px)"} marginTop={"54px"} width={"100%"} padding={"10px"} sx={{ overflowY: "auto", position: "absolute" }}>
+    <Stack spacing="10px">
       <Typography variant="h6" >{exercise.lab_name}</Typography>
 
       {/* Content */}
@@ -105,7 +105,7 @@ const Problem = ({ exercise }) => {
       {typeof exercise.testcase === 'string' ?
         <Typography sx={{ padding: "10px" }} >No Testcases</Typography>
         :
-        <TestcaseDisplay testcaseList={exercise.testcase} />
+        <TestcaseDisplay hug testcaseList={exercise.testcase} />
       }
     </Stack>
   )
