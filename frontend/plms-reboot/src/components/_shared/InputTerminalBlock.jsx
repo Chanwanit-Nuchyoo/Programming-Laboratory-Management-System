@@ -12,11 +12,12 @@ const InputTerminalBlock = ({ value, onChange, ...props }) => {
     outline: 'none', // Remove outline on focus
     resize: 'none', // Disable textarea resizing
     minHeight: '130px', // Set minimum height
-    fontSize: '13px', // Set font size
+    fontSize: '14px', // Set font size
     width: '100%', // Take up full width
     boxSizing: 'border-box', // Ensure the box size includes border and padding
     lineHeight: '1.5', // Increase line spacing a little
-    height: '100%',
+    borderRadius: '0px 0px 0px 8px',
+    height: '100%'
   };
 
   return (

@@ -12,8 +12,9 @@ const TerminalBlock = ({ text, error, hug, ...props }) => {
     tabSize: '4',
     minHeight: hug ? "" : '150px',
     overflowX: "auto",
-    fontSize: "13px",
-    borderRadius: "0px 0px 8px 8px",
+    minWidth: "0px",
+    fontSize: "14px",
+    borderRadius: '0px 0px 8px 0px'
   };
 
   return (

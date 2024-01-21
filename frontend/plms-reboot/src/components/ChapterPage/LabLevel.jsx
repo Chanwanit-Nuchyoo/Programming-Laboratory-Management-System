@@ -59,8 +59,8 @@ const TableContent = ({ lv, exerciseList, page, rowsPerPage, selected, setSelect
               component={Link}
               sx={{
                 color: "white",
-                ":hover": {
-                  color: "var(--blueRibbon)"
+                "&:hover": {
+                  color: "var(--blueRibbon)",
                 },
                 textOverflow: "ellipsis"
               }}>{ex.lab_name}</MuiLink>
@@ -109,7 +109,6 @@ const Actions = ({ groupId, chapterId, lv, selectedListFromAPI, selected, setSel
         onClick={handleUpdate}
         disabled={arraysAreEqual(selectedListFromAPI, selected)}
         sx={{
-          //paddingX: "26px",
           fontSize: '16px',
           width: '120px',
           paddingY: "8px",
@@ -124,7 +123,7 @@ const Actions = ({ groupId, chapterId, lv, selectedListFromAPI, selected, setSel
           <Button variant='outlined' size='medium' sx={{
             width: '140px',
             paddingY: "6px",
-            border: "1px solid",
+            border: "2px solid",
             fontSize: '16px',
             textTransform: "none"
           }} startIcon={<AddCircleIcon size="small" color="primary" />} >Add Lab</Button>
@@ -194,7 +193,7 @@ const LabLevel = ({ lv, index, selectedList }) => {
         {/* Filter UI */}
         <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} >
           <Typography>Level {index + 1} - Exercises Pool</Typography>
-          <Box width={"120px"}  >
+          <Box width={"140px"}  >
             <FormControl size="small" fullWidth>
               <InputLabel id="filter-rule">Filter</InputLabel>
               <Select

@@ -7,6 +7,7 @@ import { Controller } from "react-hook-form";
 import TerminalBlock from "@/components/_shared/TerminalBlock";
 import InputTerminalBlock from "@/components/_shared/InputTerminalBlock";
 import { useFormContext, useFieldArray } from "react-hook-form";
+import ToggleSwitch from "@/components/InsGroupPage/ToggleSwitch";
 
 const Testcase = ({ originalTestcase, realIndex, remove, editable, submitFn }) => {
   const { watch, control, handleSubmit } = useFormContext();
@@ -47,12 +48,12 @@ const Testcase = ({ originalTestcase, realIndex, remove, editable, submitFn }) =
         sx={{
           bgcolor: "rgba(25, 44, 91, 0.50)",
           width: "100%",
-          padding: "5px 10px",
-          borderRadius: "8px 8px 0px 0px",
+          padding: "5px 5px 5px 10px",
+          borderRadius: "8px 8px 0px 0px", 
           flexWrap: "wrap"
         }}
       >
-        <Stack direction={"row"} spacing={"10px"} alignItems={"center"} >
+        <Stack direction={"row"} spacing={"20px"} alignItems={"center"} >
           <Typography>Testcase {realIndex + 1} :</Typography>
           <Controller
             name={`testcase_list.${realIndex}.testcase_note`}
@@ -69,15 +70,20 @@ const Testcase = ({ originalTestcase, realIndex, remove, editable, submitFn }) =
               <FormControlLabel
                 value="show-to-student"
                 control={
-                  <IosStyleSwitch
-                    disabled={!editable || !!watchedTestcase.testcase_error}
-                    color="success"
-                    checked={field.value === "yes"}
-                    onChange={e => field.onChange(e.target.checked ? "yes" : "no")}
+                  <ToggleSwitch
+                    //disabled={!editable}
+                    //color="success"
+                    isChecked={field.value === "yes"}
+                    onToggle={() => field.onChange(field.value === "yes" ? "no" : "yes")}
                   />
                 }
                 label="Show to student :"
                 labelPlacement="start"
+                sx={{
+                  "& .MuiFormControlLabel-label": {
+                    marginRight: '5px',
+                  },
+                }}
               />
             )}
           />
@@ -89,29 +95,45 @@ const Testcase = ({ originalTestcase, realIndex, remove, editable, submitFn }) =
               <FormControlLabel
                 value="use-for-marking"
                 control={
-                  <IosStyleSwitch
-                    disabled={!editable || !!watchedTestcase.testcase_error}
-                    color="success"
-                    checked={field.value === "yes"}
-                    onChange={e => field.onChange(e.target.checked ? "yes" : "no")}
+                  <ToggleSwitch
+                    //disabled={!editable}
+                    //color="success"
+                    isChecked={field.value === "yes"}
+                    onToggle={() => field.onChange(field.value === "yes" ? "no" : "yes")}
                   />
                 }
                 label="Use for marking :"
                 labelPlacement="start"
+                sx={{
+                  "& .MuiFormControlLabel-label": {
+                    marginRight: '5px',
+                  },
+                }}
               />
             )}
           />
         </Stack>
         {editable &&
           <Stack direction='row' spacing="10px">
-            <Button onClick={handleSubmit((data) => submitFn(data, realIndex))} variant="contained" type="submit" disabled={watchedError ? false : !isDirty} >Run</Button>
+            <Button onClick={handleSubmit((data) => submitFn(data, realIndex))} variant="contained" size='midium' type="submit" disabled={watchedError ? false : !isDirty} 
+            sx={{
+              //paddingX: "5px",
+              borderRadius: "8px",
+              bgcolor: "var(--cerulean )",
+              textTransform: "none",
+              flexShrink: "0",
+              height: "40px",
+              width: "115px",
+              fontSize: "16px"
+            }}>Run</Button>
             <IconButton size="small" onClick={() => handleRemove(watchedTestcase.testcase_id)} >
               <RemoveCircleTwoToneIcon color="secondary" />
             </IconButton>
           </Stack>
         }
+        
       </Stack>
-      <Grid container spacing={"5px"} >
+      <Grid container spacing={"2px"} >
         <Grid item xs={12} md={6} >
           <Controller
             name={`testcase_list.${realIndex}.testcase_content`}

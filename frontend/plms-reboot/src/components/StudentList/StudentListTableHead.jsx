@@ -4,8 +4,8 @@ import { buttonStyle } from "@/utils";
 
 const buttonStyleExtended = { ...buttonStyle, minHeight: "36px" };
 const buttons = [
-  { label: "Avatar", boxProps: { flex: 1.5, width: 120 } },
-  { label: "Student ID", boxProps: { flex: 1, width: 150 } },
+  { label: "Avatar", boxProps: { width: 130 } },
+  { label: "Student ID", boxProps: { width: 150 } },
   { label: "Name", boxProps: { width: 250 } },
 ]
  
@@ -17,7 +17,7 @@ const commonStackStyle = {
 }
 const TableHeadButton = ({ label, boxProps }) => (
   <Box {...boxProps} className="table-head-column">
-    <Button fullWidth sx={buttonStyleExtended} >{label}</Button>
+    <Button fullWidth sx={{ ...buttonStyleExtended, pointerEvents: "none" }} >{label}</Button>
   </Box>
 )
 const StudentListTableHead = ({ isLoading, labInfo }) => {
@@ -25,7 +25,7 @@ const StudentListTableHead = ({ isLoading, labInfo }) => {
   return (
     <>
       <Stack direction="row" spacing="5px" width="fit-content" sx={{ ...commonStackStyle, top: "-1px" }} >
-        <Stack direction="row" spacing="5px" sx={{ ...commonStackStyle, left: "80px" }} >
+        <Stack direction="row" spacing="5px" sx={{ ...commonStackStyle, left: "0px" }} >
           {buttons.map((button, index) => (
             <TableHeadButton key={index} {...button} />
           ))}

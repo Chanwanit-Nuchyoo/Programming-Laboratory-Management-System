@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useRef, useEffect } from "react";
-import { Stack, Typography, Button, TextField, Box, Grid, Modal } from "@mui/material";
+import { Stack, Typography, Button, TextField, Box, Grid, Modal} from "@mui/material";
 import { defaultCon } from '@/store/store';
 import MyRte from '@/components/_shared/MyRte';
 import MyCodeEditor from '@/components/_shared/MyCodeEditor';
@@ -15,7 +15,6 @@ import levelIcon from '@/assets/images/levelicon.svg'
 import suggestedIcon from '@/assets/images/suggestedicon.svg'
 import addfileIcon from '@/assets/images/addfileicon.svg'
 import codingIcon from '@/assets/images/codingicon.svg'
-//import deleteIcon from '@/assets/images/deleteicon.svg'
 
 const defaultValues = {
   lab_name: '',
@@ -181,16 +180,6 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
       );
     } else {
       return (
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <Button variant="contained" color="error" size="medium"
-            sx={{
-              width: '120px',
-              height: '40px',
-              fontSize: '16px',
-              textTransform: 'none'
-            }}
-          //onClick={() => (true)}
-          >Delete</Button>
 
           <Button variant="contained" size="medium"
             sx={{
@@ -201,7 +190,6 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
             }}
             onClick={() => setEditable(true)}
           >Edit</Button>
-        </div>
 
       );
     }
@@ -215,11 +203,11 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} >
-
-      <Stack spacing={2} sx={{ padding: '20px', bgcolor: 'var(--biscay)', borderRadius: '8px' }}>
+      
+      <Stack sx={{ padding: '20px',bgcolor: 'var(--biscay)', borderRadius: '8px' }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography sx={{ color: '#0ca6e9', fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center' }} >
-            <img src={levelIcon} alt="Level Icon" style={{ marginRight: '8px' }} /> Level {lv}
+          <Typography sx={{color: '#0ca6e9', fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center'}} >
+            <img src={levelIcon} alt="Level Icon" style={{ marginRight: '10px'}}/> Level {lv}
           </Typography>
           {renderEditButtons()}
         </Stack>
@@ -228,7 +216,8 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
           control={control}
           rules={{ required: 'Lab name is required!' }}
           render={({ field }) => (
-            <TextField {...field} label="Lab name" disabled={!editable} InputLabelProps={{ shrink: !!field.value }} />
+            <TextField {...field} label="Lab name" disabled={!editable} InputLabelProps={{ shrink: !!field.value }}
+            sx={{ marginTop: 2, marginBottom: 2 }}/>
           )}
         />
 
@@ -240,14 +229,21 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
           }
         />
 
-        <Stack spacing="10px" >
+        <Stack spacing="10px" sx={{ marginTop: 2 }}>
           <Stack direction="row" justifyContent='space-between' alignItems="center" >
             <Stack direction="row" spacing="10px">
               <img src={codingIcon} alt="Addfile Icon" />
               <Typography>Source code :</Typography>
             </Stack>
             <Stack direction="row" spacing="10px">
-              <Button variant="contained" onClick={handleCodeChecking} >Code Checker</Button>
+              <Button variant="contained" 
+              sx={{
+                width: '150px',
+                height: '40px',
+                fontSize: '16px',
+                textTransform: 'none'
+              }}
+              onClick={handleCodeChecking} >Code Checker</Button>
             </Stack>
           </Stack>
 
@@ -267,10 +263,10 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
           </Box>
         </Stack>
 
-        <Grid container spacing={1}>
+        <Grid container spacing={1} sx={{ marginTop: 2 }}>
           <Grid item xs={12} md={6}>
-            <Box display="flex" alignItems="center" paddingBottom={2}>
-              <img src={suggestedIcon} alt="Suggested Icon" style={{ marginRight: '8px' }} />
+            <Box display="flex" alignItems="center" paddingBottom={2} sx={{ paddingLeft: 0 }}>
+              <img src={suggestedIcon} alt="Suggested Icon" style={{ marginRight: '10px' }} />
               <Typography>Suggested Keyword Constraints:</Typography>
             </Box>
             <Stack spacing={"5px"}>
@@ -279,7 +275,7 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
           </Grid>
           <Grid item xs={12} md={6}>
             <Box display="flex" alignItems="center" paddingBottom={2}>
-              <img src={addfileIcon} alt="Addfile Icon" style={{ marginRight: '8px' }} />
+              <img src={addfileIcon} alt="Addfile Icon" style={{ marginRight: '10px' }} />
               <Typography>User defined Keyword Constraints :</Typography>
             </Box>
             <Stack spacing={"5px"}>

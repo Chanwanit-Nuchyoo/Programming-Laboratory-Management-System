@@ -16,22 +16,22 @@ const ExerciseChapterList = ({ isLoading, data }) => {
   }
 
   return (
-    <Stack spacing={"10px"} >
+    <Stack spacing={"5px"} >
       <ChapterListTableHead />
       {/* Table Body */}
       {!isLoading && data && data.map((chapter, index) => (
         <ChapterListTableBody key={index} chapter={chapter} />
       ))}
       {!isLoading && data &&
-        <Stack direction={"row"} spacing={"5px"} >
+        <Stack direction={"row"} spacing="5px">
           <Stack padding={"20px"} justifyContent="center" flex={1} sx={{
             borderRadius: "8px",
             bgcolor: "var(--mirage)",
           }} >
-            <Typography variant="h5" >TotalScore</Typography>
+            <Typography variant="h6" >TotalScore</Typography>
           </Stack>
-          <Box alignItems={"center"} width={90} className={`outlined ${'row-info-box'}`} >
-            <Typography>คะแนน</Typography>
+          <Box alignItems={"center"} width={95} className={`outlined ${'row-info-box'}`} >
+            {/* <Typography>คะแนน</Typography> */}
             <Typography>{calculateTotalScore()}/{data.reduce((acc, object) => acc + parseInt(object?.chapter_fullmark), 0)}</Typography>
           </Box>
         </Stack>

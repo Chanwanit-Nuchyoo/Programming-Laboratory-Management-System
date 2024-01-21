@@ -15,7 +15,7 @@ const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
   const handleClose = (buttonType) => {
     if (buttonType === 'cancel') {
       reset();
-      open(false);
+      open(false); 
     } else if (buttonType === 'done') {
       open(false);
     }

@@ -61,7 +61,7 @@ const EditExercise = () => {
   let testcaseData = []
 
   // Render
-  return (
+  return ( 
     <Box>
       <Container>
         <Stack spacing={2}>

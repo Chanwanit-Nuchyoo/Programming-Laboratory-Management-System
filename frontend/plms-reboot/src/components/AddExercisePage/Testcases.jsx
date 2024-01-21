@@ -127,7 +127,8 @@ const Testcases = ({ hasSourceCode = false }) => {
       {
         <FormProvider {...methods} >
           <form onSubmit={(e) => e.preventDefault()}>
-            <Stack spacing={"20px"} sx={{
+            <Stack spacing={"12px"} sx={{
+              bgcolor: 'var(--biscay)',
               padding: "20px",
               //border: "1px solid #202739",
               borderRadius: "8px",
@@ -141,13 +142,29 @@ const Testcases = ({ hasSourceCode = false }) => {
                   <>
                     {isEditable ?
                       <>
-                        <Button {...buttonProps} disabled={!isDirty || !allTestcasesHaveInput} onClick={handleSubmit(handleSubmitEditedTestcase)} >Save</Button>
-                        <Button {...buttonProps} color="error" type="button" onClick={handleCancel}>Cancel</Button>
+                        <Button {...buttonProps} disabled={!isDirty || !allTestcasesHaveInput} onClick={handleSubmit(handleSubmitEditedTestcase)} 
+                        sx={{
+                          width: '120px',
+                          height: '40px',
+                          fontSize: '16px'}}>Save</Button>
+                        <Button {...buttonProps} color="error" type="button" onClick={handleCancel}
+                        sx={{
+                          width: '120px',
+                          height: '40px',
+                          fontSize: '16px'}}>Cancel</Button>
                       </>
                       :
                       <>
-                        <Button {...buttonProps} color={'error'} type="button" onClick={handleSubmit(handleSubmitedAll)}>Run All Testcase</Button>
-                        <Button {...buttonProps} type="button" onClick={() => { setIsEditable(true) }}>Edit</Button>
+                        <Button {...buttonProps} color={'error'} type="button" onClick={handleSubmit(handleSubmitedAll)}
+                        sx={{
+                          width: '160px',
+                          height: '40px',
+                          fontSize: '16px',}}>Run All Testcase</Button>
+                        <Button {...buttonProps} type="button" onClick={() => { setIsEditable(true) }}
+                        sx={{
+                          width: '120px',
+                          height: '40px',
+                          fontSize: '16px'}}>Edit</Button>
                       </>
                     }
                   </>
@@ -188,7 +205,14 @@ const Testcases = ({ hasSourceCode = false }) => {
                 </Stack>
               </Stack>
               <Stack direction={'row'} >
-                {isEditable && <Button {...buttonProps} type="submit" variant={"outlined"} startIcon={<AddCircleIcon size="small" />} onClick={handleAddNewTestcase} >Add New Testcase</Button>}
+                {isEditable && <Button {...buttonProps} type="submit" variant={"outlined"} startIcon={<AddCircleIcon size="small" />} onClick={handleAddNewTestcase} 
+                sx={{
+                  width: '220px',
+                  height: '40px',
+                  fontSize: '16px',
+                  borderRadius: '24px',
+                  border: 'solid 2px'
+                }}>Add New Testcase</Button>}
               </Stack>
               {!isLoading && data && [...testcaseData].reverse().map((item, reversedIndex) => {
                 const realIndex = testcaseData.length - 1 - reversedIndex;

@@ -16,14 +16,15 @@ const ExerciseInfoBox = () => {
       <Stack direction={'row'} justifyContent={"space-between"} alignItems="center" >
         <Typography>Level 4 - Expert</Typography>
         <Stack direction={"row"} spacing={"20px"}>
-          <Button variant="contained" color="success">2/2</Button>
-          <Button variant="contained" color="error">Deny this submission</Button>
+          <Button variant="contained" color="success"
+          sx={{ height: '40px', width: '120px', fontSize: '16px', pointerEvents: 'none'}}>2/2</Button>
+          {/* <Button variant="contained" color="error">Deny this submission</Button> */}
         </Stack>
       </Stack>
 
       <Stack>
-        <Typography>Lab Name</Typography>
-        <Stack direction={"row"} width={"100%"} height={40} bgcolor={"var(--biscay)"} borderRadius={"8px"} padding={"10px 15px"}>
+        <Typography>Lab name</Typography>
+        <Stack direction={"row"} width={"100%"} height={45} bgcolor={"var(--biscay)"} borderRadius={"8px"} padding={"10px 15px"}>
           <Typography>distance</Typography>
         </Stack>
       </Stack>

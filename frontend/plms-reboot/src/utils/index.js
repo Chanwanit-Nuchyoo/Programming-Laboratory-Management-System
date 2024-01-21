@@ -11,8 +11,10 @@ export const modalStyle = {
   transform: 'translate(-50%, -50%)',
   minWidth: "600px",
   width: "fit-content",
-  bgcolor: '#152343',
-  borderRadius: "8px",
+  bgcolor: 'rgba(25,44,91,0.7)',
+  backdropFilter: 'blur(25px)',
+  borderRadius: "16px",
+  border: '1px solid rgba(255, 255, 255, 0.20)',
   boxShadow: 24,
   p: 4,
 };

@@ -30,7 +30,7 @@ const SubmissionHistory = () => {
           />
 
           <Header logoSrc={chapterIcon} title="Group 401 (Student)" />
-
+          
           <ExerciseInfoBox />
 
           <SubmissionHistoryBox />

@@ -36,7 +36,7 @@ const StudentListTableBody = ({ isLoading, labInfo, students }) => {
                 bgcolor: "inherit",
               }}
             >
-              <Box width={120} className="table-body-column" paddingX="10px">
+              <Box sx={{ width: '130px' }} className="table-body-column" paddingLeft="10px">
                 <img
                   src={avatarPlaceHolder}
                   /* student.avatar

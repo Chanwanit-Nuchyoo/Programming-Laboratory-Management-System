@@ -74,8 +74,7 @@ const ChapterListTableBody = ({ chapter }) => {
           {chapter?.items && chapter.items.map(renderScoreBox)}
         </Stack>
       </Box>
-      <Box alignItems="center" width={90} className={`outlined ${'row-info-box'}`}>
-        <Typography>คะแนน</Typography>
+      <Box alignItems="center" width={95} className={`outlined ${'row-info-box'}`}>
         <Typography>{totalMarking}/{chapter.chapter_fullmark}</Typography>
       </Box>
     </Stack>
