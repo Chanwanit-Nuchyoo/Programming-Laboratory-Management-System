@@ -12,6 +12,8 @@ import { userAtom } from "@/store/store";
 import { useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { studentExerciseSubmit } from '@/utils/api'
+import codingIcon from '@/assets/images/codingicon.svg'
+import resultIcon from '@/assets/images/resulticon.svg'
 
 /* const expected = ` *** Distance *** 
 Enter Velocity Acceleration Time: 10,0,10
@@ -65,7 +67,7 @@ const WorkSpacePanel = ({ submissionList }) => {
       <Stack height={"calc(100vh - 140px)"} sx={{ borderRadius: "8px", position: "relative" }}>
         <PanelHeader display={"flex"} justifyContent={"space-between"} alignItems={"center"} >
           <Stack direction={"row"} spacing={"10px"} >
-            <CodeIcon />
+            <img src={codingIcon} alt="Coding Icon" />
             <Typography>Code editor</Typography>
           </Stack>
           <Stack>
@@ -102,7 +104,7 @@ const WorkSpacePanel = ({ submissionList }) => {
             <Stack borderRadius={"8px"} sx={{ overflowY: "hidden", position: "relative" }} >
               <PanelHeader display={"flex"} justifyContent={"space-between"} alignItems={"center"}>
                 <Stack onClick={handleCollapse} direction={"row"} spacing={"10px"} flex={1} sx={{ cursor: "pointer" }} >
-                  <CodeIcon />
+                  <img src={resultIcon} alt="Result Icon" />
                   <Typography>Result</Typography>
                   <ExpandLessIcon sx={{
                     transform: isCollapsed ? "rotate(180deg)" : "rotate(0deg)",
@@ -110,10 +112,10 @@ const WorkSpacePanel = ({ submissionList }) => {
                   }} />
                 </Stack>
                 <Stack>
-                  <Button onClick={handleSubmit(onSubmit)} color="primary" variant="contained" sx={{ textTransform: "none" }} >Submit</Button>
+                  <Button onClick={handleSubmit(onSubmit)} color="primary" variant="contained" sx={{ textTransform: "none", width: "120px" }} >Submit</Button>
                 </Stack>
               </PanelHeader>
-              <Stack spacing={"20px"} padding="10px" bgcolor="black" flex={1} sx={{ overflowY: "auto" }} >
+              <Stack spacing={"20px"} padding="10px" bgcolor="#0D1117" flex={1} sx={{ overflowY: "auto" }} >
                 {
                   !submissionList.isLoading && submissionList.latest && submissionList.latest.result?.length > 0 &&
                   submissionList.latest.result.map((item, index) => (

@@ -5,6 +5,7 @@ import { extensions } from "@/utils/tiptap-extensions"
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import TestcaseDisplay from "@/components/StuExercise/TestcaseDisplay";
 import he from 'he';
+import suggestedIcon from '@/assets/images/suggestedicon.svg'
 
 const typeMessages = {
   "na": "X Not appear",
@@ -91,7 +92,10 @@ const Problem = ({ exercise }) => {
             expandIcon={<ExpandMoreIcon />}
             sx={{ bgcolor: "var(--mirage)", borderRadius: "8px", overflow: "hidden" }}
           >
-            <Typography>Keyword Constraints:</Typography>
+            <Box display="flex" alignItems="center" gap={1}>
+              <img src={suggestedIcon} alt="Suggested Icon" />
+              <Typography>Keyword Constraints:</Typography>
+            </Box>
           </AccordionSummary>
           <AccordionDetails sx={{ bgcolor: "var(--biscay)", borderRadius: "8px" }} >
             {exercise.user_defined_constraints ?

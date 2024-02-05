@@ -2,15 +2,15 @@ import { useState } from "react";
 import { Stack, Typography, Button } from "@mui/material"
 import { buttonStyle } from "@/utils";
 import StyledButton from "@/components/_shared/StyledButton";
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-import EventIcon from '@mui/icons-material/Event';
-import EventAvailableIcon from '@mui/icons-material/EventAvailable';
-import EventBusyIcon from '@mui/icons-material/EventBusy';
+import assignmentIcon from '@/assets/images/assignmenticon.svg'
+import EventIcon from "@/assets/images/eventicon.svg"
+import EventAvailableIcon from '@/assets/images/eventavailableicon.svg';
+import EventBusyIcon from '@/assets/images/eventbusyicon.svg';
 
 const menus = [
-  { title: 'Upcoming', value: 'upcoming', icon: <EventIcon sx={{ color: "var(--cerulean)" }} /> },
-  { title: 'Completed', value: 'completed', icon: <EventAvailableIcon sx={{ color: "var(--emerald)" }} /> },
-  { title: 'Not Completed', value: 'not_completed', icon: <EventBusyIcon sx={{ color: "#F44336" }} /> },
+  { title: 'Upcoming', value: 'upcoming', icon: <img src={EventIcon} alt="Event Icon" /> },
+  { title: 'Completed', value: 'completed', icon: <img src={EventAvailableIcon} alt="Event AvailableIcon Icon" /> },
+  { title: 'Not Completed', value: 'not_completed', icon: <img src={EventBusyIcon} alt="Event Busy Icon" /> },
 ]
 
 const Assignments = () => {
@@ -24,10 +24,10 @@ const Assignments = () => {
   }
 
   return (
-    <Stack spacing="10px" padding="20px" bgcolor={"var(--biscay)"} borderRadius="8px" >
-      <Stack direction="row" spacing="10px" alignItems="center" >
-        <AssignmentTurnedInIcon />
-        <Typography variant="h6" >Assignments</Typography>
+    <Stack spacing="10px" padding="20px" bgcolor={"var(--biscay)"} borderRadius="16px" >
+      <Stack direction="row" spacing="10px" alignItems="center" style={{ marginBottom: '10px' }}>
+        <img src={assignmentIcon} alt="Assignment Icon" />
+        <Typography style={{ fontSize: '20px' }} >Assignments</Typography>
       </Stack>
       <Stack direction="row" spacing="10px">
         {menus.map((menu, index) => (
@@ -52,17 +52,17 @@ const Assignments = () => {
           <thead>
             <tr>
               <th style={{ width: "250px" }} className="table-head-column" >
-                <Button fullWidth sx={buttonStyle}>
+                <Button fullWidth sx={{ ...buttonStyle, pointerEvents: "none"}} >
                   <Typography>Chapter</Typography>
                 </Button>
               </th>
               <th style={{ width: "150px" }} className="table-head-column" >
-                <Button fullWidth sx={buttonStyle}>
+                <Button fullWidth sx={{ ...buttonStyle, pointerEvents: "none"}}>
                   <Typography>Allow submit</Typography>
                 </Button>
               </th>
               <th style={{ width: "50px" }} className="table-head-column" >
-                <Button fullWidth sx={buttonStyle}>
+                <Button fullWidth sx={{ ...buttonStyle, pointerEvents: "none"}}>
                   <Typography>Score</Typography>
                 </Button>
               </th>

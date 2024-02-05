@@ -11,7 +11,9 @@ import dialogBubbleFill from "@/assets/images/dialogbubblefill.svg";
 import slideShow from "@/assets/images/slideshowicon.svg";
 import slideShowFill from "@/assets/images/slideshowiconfill.svg";
 import homeIcon from "@/assets/images/homeicon.svg";
+import homeIconFill from "@/assets/images/homeiconfill.svg";
 import codingIcon from "@/assets/images/codingicon.svg";
+import codingIconFill from "@/assets/images/codingiconfill.svg";
 
 const base_items = [
   {
@@ -42,8 +44,8 @@ export const items = {
       id: "general_management",
       label: "General Management",
       children: [
-        { id: "stu_home", label: "Home", icon: homeIcon, href: ABS_STU_URL.STATIC.HOME },
-        { id: "stu_exercise_list", label: "Exercise", icon: codingIcon, href: ABS_STU_URL.STATIC.EXERCISE_LIST },
+        { id: "stu_home", label: "Home", icon: homeIcon, iconfill: homeIconFill, href: ABS_STU_URL.STATIC.HOME },
+        { id: "stu_exercise_list", label: "Exercise", icon: codingIcon, iconfill: codingIconFill, href: ABS_STU_URL.STATIC.EXERCISE_LIST },
       ],
     },
     ...base_items

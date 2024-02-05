@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Box, Stack, Avatar, Typography } from "@mui/material"
-import avatarPlaceholder from "@/assets/images/avatarplaceholder.png"
+import avatarPlaceholder from "@/assets/images/avatarplaceholder.svg"
 import { useQuery } from "@tanstack/react-query";
 import { getStudentCardInfo } from "@/utils/api"
 const StudentInfoCard = ({ user }) => {
@@ -24,45 +24,45 @@ const StudentInfoCard = ({ user }) => {
         <Stack spacing={"8px"} width={"70%"} >
           <Stack direction={"row"} spacing="20px" >
             <Stack direction="row">
-              <Typography color={"var(--cerulean)"} fontWeight={600} >Student info</Typography>
+              <Typography color={"var(--cerulean)"} >Student info</Typography>
               <Typography>&nbsp;</Typography>
               <Typography>{!isLoading && studentCard && `${studentCard.stu_id} ${studentCard.stu_firstname} ${studentCard.stu_lastname}`}</Typography>
             </Stack>
           </Stack>
           <Stack direction={"row"} spacing="20px" >
             <Stack direction={"row"} >
-              <Typography color={"var(--cerulean)"} fontWeight={600} >Group ID</Typography>
+              <Typography color={"var(--cerulean)"} >Group ID</Typography>
               <Typography>&nbsp;</Typography>
               <Typography>{!isLoading && studentCard && studentCard.group_id}</Typography>
             </Stack>
             <Stack direction={"row"} >
-              <Typography color={"var(--cerulean)"} fontWeight={600} >Group</Typography>
+              <Typography color={"var(--cerulean)"} >Group</Typography>
               <Typography>&nbsp;</Typography>
               <Typography>{!isLoading && studentCard && studentCard.group_no}</Typography>
             </Stack>
           </Stack>
           <Stack direction={"row"} spacing="20px" >
             <Stack direction={"row"} >
-              <Typography color={"var(--cerulean)"} fontWeight={600} >Class date</Typography>
+              <Typography color={"var(--cerulean)"} >Class date</Typography>
               <Typography>&nbsp;</Typography>
               <Typography>{!isLoading && studentCard && `${studentCard.day_of_week}, ${studentCard.time_start} - ${studentCard.time_end}`}</Typography>
             </Stack>
           </Stack>
           <Stack direction={"row"} spacing="20px" >
             <Stack direction={"row"} >
-              <Typography color={"var(--cerulean)"} fontWeight={600} >Year</Typography>
+              <Typography color={"var(--cerulean)"} >Year</Typography>
               <Typography>&nbsp;</Typography>
               <Typography>{!isLoading && studentCard && studentCard.year}</Typography>
             </Stack>
             <Stack direction={"row"} >
-              <Typography color={"var(--cerulean)"} fontWeight={600} >Semeseter</Typography>
+              <Typography color={"var(--cerulean)"} >Semeseter</Typography>
               <Typography>&nbsp;</Typography>
               <Typography>{!isLoading && studentCard && studentCard.semester}</Typography>
             </Stack>
           </Stack>
           <Stack direction={"row"} spacing="20px" >
             <Stack direction={"row"} >
-              <Typography color={"var(--cerulean)"} fontWeight={600} >Instructor</Typography>
+              <Typography color={"var(--cerulean)"} >Instructor</Typography>
               <Typography>&nbsp;</Typography>
               <Typography>{!isLoading && studentCard && studentCard.lecturer}</Typography>
             </Stack>
