@@ -30,169 +30,162 @@ class Student_rest extends MY_RestController
     $this->load->model('student_model_rest');
   }
 
-  private function handleError(Exception $e) {
-		return $this->response([
-			'status' => FALSE,
-			'message' => 'Error: ' . $e->getMessage(),
-			'payload' => null,
-		], $e->getCode()); // Use the provided HTTP status code
-	}
-
   /**
    * Retrieves data related to a student's lab work and returns it in a specific format.
    */
 
-   private function handleError(Exception $e) {
-		return $this->response([
-			'status' => FALSE,
-			'message' => 'Error: ' . $e->getMessage(),
-			'payload' => null,
-		], $e->getCode()); // Use the provided HTTP status code
-	}
+  private function handleError(Exception $e)
+  {
+    return $this->response([
+      'status' => FALSE,
+      'message' => 'Error: ' . $e->getMessage(),
+      'payload' => null,
+    ], $e->getCode()); // Use the provided HTTP status code
+  }
 
   public function getChapterList_get()
-{
+  {
     try {
-        $this->load->model("lab_model_rest");
+      $this->load->model("lab_model_rest");
 
-        $stu_id = $this->query('stu_id');
-        $stu_group = $this->student_model_rest->get_student_record($stu_id)['stu_group'];
+      $stu_id = $this->query('stu_id');
+      $stu_group = $this->student_model_rest->get_student_record($stu_id)['stu_group'];
 
-        $permission = $this->lab_model_rest->get_group_permission($stu_group);
-        $lab_data = $this->lab_model_rest->setup_student_lab_data($stu_id, $stu_group);
-        $student_marking_all_items = $this->lab_model_rest->get_a_student_marking_for_all_submitted_items($stu_id);
+      $permission = $this->lab_model_rest->get_group_permission($stu_group);
+      $lab_data = $this->lab_model_rest->setup_student_lab_data($stu_id, $stu_group);
+      $student_marking_all_items = $this->lab_model_rest->get_a_student_marking_for_all_submitted_items($stu_id);
 
-        foreach ($student_marking_all_items as $row) {
-            $marking = $row['max_marking'] ?? 0;
-            $chapter_id = $row['chapter_id'];
-            $item_id = $row['item_id'];
-            $lab_data[$chapter_id][$item_id]['stu_lab']['marking'] = $marking;
-        }
+      foreach ($student_marking_all_items as $row) {
+        $marking = $row['max_marking'] ?? 0;
+        $chapter_id = $row['chapter_id'];
+        $item_id = $row['item_id'];
+        $lab_data[$chapter_id][$item_id]['stu_lab']['marking'] = $marking;
+      }
 
-        $data = [];
+      $data = [];
 
-        for ($i = 1; $i < count($permission) + 1; $i++) {
-            $temp = $permission[$i];
-            $temp['chapter_id'] = $i;
-            $data[$i] = $temp;
-            $data[$i]['items'] = array_values($lab_data[$i]);
-        }
+      for ($i = 1; $i < count($permission) + 1; $i++) {
+        $temp = $permission[$i];
+        $temp['chapter_id'] = $i;
+        $data[$i] = $temp;
+        $data[$i]['items'] = array_values($lab_data[$i]);
+      }
 
-        return $this->response(array_values($data), RestController::HTTP_OK);
+      return $this->response(array_values($data), RestController::HTTP_OK);
     } catch (Exception $e) {
-        return $this->handleError($e);
+      return $this->handleError($e);
     }
-}
+  }
 
-
-public function getStudentAssignedExercise_get()
-{
+  public function getStudentAssignedExercise_get()
+  {
     try {
-        $this->db->trans_start(); // Start the transaction
+      $this->db->trans_start(); // Start the transaction
 
-        // Retrieve the student ID, chapter ID, and item ID from the query parameters
-        $stu_id = $this->query('stu_id');
-        $chapter_id = $this->query('chapter_id');
-        $item_id = $this->query('item_id');
+      // Retrieve the student ID, chapter ID, and item ID from the query parameters
+      $stu_id = $this->query('stu_id');
+      $chapter_id = $this->query('chapter_id');
+      $item_id = $this->query('item_id');
 
-        // Check if the provided data is valid
-        if (!isset($stu_id, $chapter_id, $item_id)) {
-            throw new Exception('Invalid data provided.', RestController::HTTP_BAD_REQUEST);
+      // Check if the provided data is valid
+      if (!isset($stu_id, $chapter_id, $item_id)) {
+        throw new Exception('Invalid data provided.', RestController::HTTP_BAD_REQUEST);
+      }
+
+      // Retrieve the exercise ID assigned to the student based on the provided IDs
+      $exercise_id = $this->student_model_rest->get_student_assigned_exercise_id($stu_id, $chapter_id, $item_id);
+
+      // Retrieve the group ID of the student
+      $group_id = $this->student_model_rest->get_student_record($stu_id)['stu_group'];
+
+      // Check if exercise_id is null
+      if (empty($exercise_id)) {
+        // Retrieve the exercise ID pool for the given group, chapter, and item
+        $exercise_random_pool = unserialize($this->student_model_rest->get_exercise_random_pool($group_id, $chapter_id, $item_id)['exercise_id_list']);
+
+        // Check if the exercise pool is empty
+        if (empty($exercise_random_pool)) {
+          throw new Exception('No exercise available.', RestController::HTTP_BAD_REQUEST);
         }
 
-        // Retrieve the exercise ID assigned to the student based on the provided IDs
-        $exercise_id = $this->student_model_rest->get_student_assigned_exercise_id($stu_id, $chapter_id, $item_id);
+        // Select a random exercise ID from the pool
+        $exercise_id = $exercise_random_pool[array_rand($exercise_random_pool)];
 
-        // Retrieve the group ID of the student
-        $group_id = $this->student_model_rest->get_student_record($stu_id)['stu_group'];
+        // Upsert the student's assigned chapter item with the selected exercise ID
+        $this->student_model_rest->upsert_student_assigned_chapter_item($stu_id, $chapter_id, $item_id, $exercise_id);
+      }
 
-        // Check if exercise_id is null
-        if (empty($exercise_id)) {
-            // Retrieve the exercise ID pool for the given group, chapter, and item
-            $exercise_random_pool = unserialize($this->student_model_rest->get_exercise_random_pool($group_id, $chapter_id, $item_id)['exercise_id_list']);
+      $this->load->model('lab_model_rest');
 
-            // Check if the exercise pool is empty
-            if (empty($exercise_random_pool)) {
-                throw new Exception('No exercise available.', RestController::HTTP_BAD_REQUEST);
-            }
+      // Retrieve the details of the assigned exercise using the exercise ID
+      $lab_exercise = $this->lab_model_rest->get_lab_exercise_by_id($exercise_id);
 
-            // Select a random exercise ID from the pool
-            $exercise_id = $exercise_random_pool[array_rand($exercise_random_pool)];
+      // Retrieve the name of the chapter using the chapter ID
+      $lab_exercise['chapter_name'] = $this->lab_model_rest->get_chapter_name($chapter_id);
 
-            // Upsert the student's assigned chapter item with the selected exercise ID
-            $this->student_model_rest->upsert_student_assigned_chapter_item($stu_id, $chapter_id, $item_id, $exercise_id);
-        }
+      $lab_exercise['user_defined_constraints'] = json_decode($lab_exercise['user_defined_constraints']);
+      $lab_exercise['suggested_constraints'] = json_decode($lab_exercise['suggested_constraints']);
 
-        $this->load->model('lab_model_rest');
+      // Remove sensitive information from the exercise details
+      unset($lab_exercise['sourcecode']);
+      unset($lab_exercise['sourcecode_content']);
 
-        // Retrieve the details of the assigned exercise using the exercise ID
-        $lab_exercise = $this->lab_model_rest->get_lab_exercise_by_id($exercise_id);
+      $this->db->trans_complete(); // Complete the transaction
 
-        // Retrieve the name of the chapter using the chapter ID
-        $lab_exercise['chapter_name'] = $this->lab_model_rest->get_chapter_name($chapter_id);
-
-        $lab_exercise['user_defined_constraints'] = json_decode($lab_exercise['user_defined_constraints']);
-        $lab_exercise['suggested_constraints'] = json_decode($lab_exercise['suggested_constraints']);
-
-        // Remove sensitive information from the exercise details
-        unset($lab_exercise['sourcecode']);
-        unset($lab_exercise['sourcecode_content']);
-
-        $this->db->trans_complete(); // Complete the transaction
-
-        // Check if the transaction failed
-        if ($this->db->trans_status() === FALSE) {
-            throw new Exception('Transaction failed.', RestController::HTTP_INTERNAL_ERROR);
-        } else {
-            // Return the exercise details
-            return $this->response($lab_exercise, RestController::HTTP_OK);
-        }
+      // Check if the transaction failed
+      if ($this->db->trans_status() === FALSE) {
+        throw new Exception('Transaction failed.', RestController::HTTP_INTERNAL_ERROR);
+      } else {
+        // Return the exercise details
+        return $this->response($lab_exercise, RestController::HTTP_OK);
+      }
     } catch (Exception $e) {
-        return $this->handleError($e);
+      return $this->handleError($e);
     }
-}
+  }
 
-public function getStudentCardInfo_get()
-{
+  public function getStudentCardInfo_get()
+  {
     try {
-        $stu_id = $this->query('stu_id');
+      $stu_id = $this->query('stu_id');
 
-        if (!isset($stu_id)) {
-            throw new Exception('Invalid data provided.', RestController::HTTP_BAD_REQUEST);
-        }
+      if (!isset($stu_id)) {
+        throw new Exception('Invalid data provided.', RestController::HTTP_BAD_REQUEST);
+      }
 
-        $student = $this->student_model_rest->get_student_record($stu_id);
+      $student = $this->student_model_rest->get_student_record($stu_id);
 
-        $this->load->model('lab_model_rest');
+      $this->load->model('lab_model_rest');
 
-        $group_data = $this->lab_model_rest->get_class_schedule_by_group_id($student['stu_group']);
+      $group_data = $this->lab_model_rest->get_class_schedule_by_group_id($student['stu_group']);
 
-        $this->load->model('supervisor_model_rest');
+      $this->load->model('supervisor_model_rest');
 
-        $lecturer = $this->supervisor_model_rest->get_supervisor_fullname_by_id($group_data['lecturer']);
+      $lecturer = $this->supervisor_model_rest->get_supervisor_fullname_by_id($group_data['lecturer']);
 
-        $ip_address = $this->input->ip_address();
+      $ip_address = $this->input->ip_address();
 
-        $data = [
-            'stu_id' => $student['stu_id'],
-            'stu_firstname' => $student['stu_firstname'],
-            'stu_lastname' => $student['stu_lastname'],
-            'mid_score' => $student['mid_score'],
-            'group_id' => $student['stu_group'],
-            'group_no' => $group_data['group_no'],
-            'day_of_week' => $group_data['day_of_week'],
-            'time_start' => $group_data['time_start'],
-            'time_end' => $group_data['time_end'],
-            'year' => $group_data['year'],
-            'semester' => $group_data['semester'],
-            'lecturer' => $lecturer,
-            'stu_ip' => $ip_address,
-        ];
+      $data = [
+        'stu_id' => $student['stu_id'],
+        'stu_firstname' => $student['stu_firstname'],
+        'stu_lastname' => $student['stu_lastname'],
+        'mid_score' => $student['mid_score'],
+        'group_id' => $student['stu_group'],
+        'group_no' => $group_data['group_no'],
+        'day_of_week' => $group_data['day_of_week'],
+        'time_start' => $group_data['time_start'],
+        'time_end' => $group_data['time_end'],
+        'year' => $group_data['year'],
+        'semester' => $group_data['semester'],
+        'lecturer' => $lecturer,
+        'stu_ip' => $ip_address,
+      ];
 
-        return $this->response($data, RestController::HTTP_OK);
+      return $this->response($data, RestController::HTTP_OK);
     } catch (Exception $e) {
-        return $this->handleError($e);
+      return $this->handleError($e);
     }
+  }
 
   public function studentExerciseSubmit_post()
   {
@@ -289,5 +282,4 @@ public function getStudentCardInfo_get()
       'submission_id' => $inserted_row,
     ], RestController::HTTP_OK);
   }
-}
 }
