@@ -11,6 +11,8 @@ class Auth_rest extends MY_RestController
     parent::__construct();
     $_SESSION['page_name'] = 'login';
 
+    $this->load->model('auth_model_rest', 'auth');
+    $this->auth->update_last_seen($this->session->userdata('id'));
     $this->load->helper('cookie');
   }
 
@@ -21,6 +23,17 @@ class Auth_rest extends MY_RestController
     $isLoggedIn = $this->isLoggedInCheck();
 
     if ($isLoggedIn) {
+      $row = $this->auth->get_user_row();
+      unset($row['password']);
+
+      $avatar = $this->auth->get_user_avatar($row);
+
+      foreach ($row as $key => $value) {
+        $_SESSION[$key] = $value;
+      }
+
+      $_SESSION['avatar'] = $avatar;
+
       $this->response([
         'status' => TRUE,
         'message' => "already logged in",
@@ -37,63 +50,78 @@ class Auth_rest extends MY_RestController
   public function login_post()
   {
     try {
+      // Logout if the session has expired
       $this->logout_after_time_limit();
 
+      // Get and sanitize the username and password
       $username = trim($this->post('username', TRUE), " ");
       $password = trim($this->post('password', TRUE), " ");
 
-      // form validation
-      if ($username == '' || $password == '') {
+      // Check if the username and password are not empty
+      if (empty($username) || empty($password)) {
         throw new Exception('Username and password cannot be empty.', RestController::HTTP_BAD_REQUEST);
       }
 
-      $this->load->model('auth_model_rest', 'auth');
-
-      // validate user
+      // Validate the user's credentials
       $status = $this->auth->validate($username, $password);
 
+      // Check if the username or password is invalid
       if ($status == ERR_INVALID_USERNAME || $status == ERR_INVALID_PASSWORD) {
         throw new Exception('Username or password is not correct.', RestController::HTTP_UNAUTHORIZED);
       }
 
+      // Check if the user is trying to log in from a different session
       if ($status == ERR_REPEAT_LOGIN || $status == ERR_UNMATCH_SESSION) {
+        // Get the user's data
         $row = $this->auth->get_user_row();
+
+        // Save the current and old session IDs
         $old_session_id = $row['session_id'];
         $current_session_id = session_id();
 
+        // Destroy the current session
         session_destroy();
 
+        // Start the old session
         session_id($old_session_id);
         session_start();
 
+        // Log the user out from the old session
         $this->auth->update_user_logout($row['id']);
+
+        // Set the session data
         $_SESSION['username'] = $row['username'];
         $_SESSION['role'] = $row['role'];
         $_SESSION['page_name'] = 'login';
+
+        // Log the logout event
         $this->createLogFile("log out");
 
+        // Unset the logged_in flag and destroy the session
         $this->session->unset_userdata("logged_in");
         $this->session->sess_destroy();
+
+        // Reset the access level
         $this->access = "*";
 
         // Resume the current session
         session_id($current_session_id);
         session_start();
 
+        // Throw an exception to indicate that the user needs to log in again
         throw new Exception('Repeat log in. Previous machine logged out. Please try again.', RestController::HTTP_UNAUTHORIZED);
       }
 
+      // Check if the user is not allowed to log in
       if ($status == ERR_CLASS_LOGIN_NOT_ALLOW) {
         throw new Exception('Login is not allowed by Instructor.', RestController::HTTP_UNAUTHORIZED);
       }
 
-      if ($status == ERR_UNMATCH_SESSION) {
-        throw new Exception('Unmatch session.', RestController::HTTP_UNAUTHORIZED);
-      }
-
+      // Set the session data
       $this->session->set_userdata($this->auth->get_data());
       $this->session->set_userdata("logged_in", true);
 
+      // Send a success response
       $this->response([
         'status' => TRUE,
         'message' => 'Login successful!',
@@ -116,7 +144,7 @@ class Auth_rest extends MY_RestController
   public function logout_post()
   {
     try {
-      $this->load->model('auth_model_rest', 'auth');
+
 
       if (isset($_SESSION['id'])) {
         $this->auth->update_user_logout($_SESSION['id']);

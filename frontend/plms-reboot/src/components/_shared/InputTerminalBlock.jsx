@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { TextareaAutosize } from "@mui/material";
 
-const InputTerminalBlock = ({ value, onChange, ...props }) => {
+const InputTerminalBlock = ({ value, onChange, style, ...props }) => {
   const inputStyle = {
     whiteSpace: 'pre', // Preserve whitespace and line breaks
     fontFamily: 'monospace', // Use a monospaced font
@@ -24,7 +24,7 @@ const InputTerminalBlock = ({ value, onChange, ...props }) => {
     <TextareaAutosize
       value={value}
       onChange={onChange}
-      style={inputStyle}
+      style={{ ...inputStyle, ...style }}
       {...props}
     />
   );

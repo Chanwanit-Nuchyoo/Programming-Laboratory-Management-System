@@ -1,5 +1,9 @@
 import { Box, Stack, Container } from "@mui/material";
 import chapterIcon from '@/assets/images/chaptericon.svg';
+import { useParams } from 'react-router-dom';
+import { getBreadCrumbs } from '@/utils/api'
+import { useQuery } from '@tanstack/react-query';
+import { getAssignedStudentExercise, getStudentSubmissionList } from '@/utils/api';
 
 // components
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs';
@@ -9,6 +13,28 @@ import ExerciseInfoBox from "@/components/SubmissionHistoryPage/ExerciseInfoBox"
 import SubmissionHistoryBox from "@/components/SubmissionHistoryPage/SubmissionHistoryBox";
 
 const SubmissionHistory = () => {
+  const { groupId, studentId, chapterId, itemId } = useParams();
+
+  const { data: breadCrumbsData, isLoading: isBreadcrumbLoading } = useQuery({
+    queryKey: ['breadCrumbs', groupId, chapterId],
+    queryFn: () => getBreadCrumbs({ "group_id": groupId, "chapter_id": chapterId }),
+  })
+
+  const { data: exercise, isLoading: isExerciseLoading } = useQuery({
+    queryKey: ['assignedStudentExercise', studentId, chapterId],
+    queryFn: () => getAssignedStudentExercise(studentId, chapterId, itemId).then(res => {
+      if (res.exercise) {
+        return res.exercise
+      } else {
+        return null
+      }
+    }),
+  })
+
+  const { data: subHistory, isLoading: isSubHistoryLoading } = useQuery({
+    queryKey: ['studentSubmissionList', studentId, chapterId, itemId],
+    queryFn: () => getStudentSubmissionList(studentId, chapterId, itemId),
+  })
 
   return (
     <Box>
@@ -16,24 +42,17 @@ const SubmissionHistory = () => {
         <Stack spacing={"20px"}>
           <MyBreadCrumbs items={[
             { label: 'My Groups', href: '#' },
-            { label: 'Group 401', href: '#' },
+            { label: isBreadcrumbLoading ? 'Group ...' : `Group ${breadCrumbsData.group_no}`, href: '#' },
             { label: 'Score(Individual)', href: '#' },
-            { label: 'Introduction', href: '#' },
           ]} />
 
-          <StudentBriefInfo
-            studentId="63010202"
-            studentName="ชรินดา สนธิดี"
-            studentNickName="แบม"
-            groupId="22020402"
-            groupNo={401}
-          />
+          <StudentBriefInfo studentId={studentId} />
 
-          <Header logoSrc={chapterIcon} title="Group 401 (Student)" />
-          
-          <ExerciseInfoBox />
+          <Header logoSrc={chapterIcon} title={isBreadcrumbLoading ? `Chapter ${chapterId}: ...` : `Chapter ${chapterId}: ${breadCrumbsData.chapter_name}`} />
 
-          <SubmissionHistoryBox />
+          <ExerciseInfoBox exercise={exercise} isExerciseLoading={isExerciseLoading} />
+
+          <SubmissionHistoryBox subHistory={subHistory} isSubHistoryLoading={isSubHistoryLoading} />
 
         </Stack>
       </Container>

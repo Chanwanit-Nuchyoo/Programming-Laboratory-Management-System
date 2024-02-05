@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useMemo, useState } from 'react';
-import { Stack, Typography, TextField, FormControlLabel, IconButton, Grid, Button } from "@mui/material"
+import { Stack, Typography, TextField, FormControlLabel, IconButton, Button } from "@mui/material"
+import Grid from '@mui/material/Unstable_Grid2';
 import RemoveCircleTwoToneIcon from '@mui/icons-material/RemoveCircleTwoTone';
 import IosStyleSwitch from "@/components/_shared/IosStyleSwitch";
 import { Controller } from "react-hook-form";
@@ -49,7 +50,7 @@ const Testcase = ({ originalTestcase, realIndex, remove, editable, submitFn }) =
           bgcolor: "rgba(25, 44, 91, 0.50)",
           width: "100%",
           padding: "5px 5px 5px 10px",
-          borderRadius: "8px 8px 0px 0px", 
+          borderRadius: "8px 8px 0px 0px",
           flexWrap: "wrap"
         }}
       >
@@ -71,7 +72,7 @@ const Testcase = ({ originalTestcase, realIndex, remove, editable, submitFn }) =
                 value="show-to-student"
                 control={
                   <ToggleSwitch
-                    //disabled={!editable}
+                    disabled={!editable}
                     //color="success"
                     isChecked={field.value === "yes"}
                     onToggle={() => field.onChange(field.value === "yes" ? "no" : "yes")}
@@ -96,7 +97,7 @@ const Testcase = ({ originalTestcase, realIndex, remove, editable, submitFn }) =
                 value="use-for-marking"
                 control={
                   <ToggleSwitch
-                    //disabled={!editable}
+                    disabled={!editable}
                     //color="success"
                     isChecked={field.value === "yes"}
                     onToggle={() => field.onChange(field.value === "yes" ? "no" : "yes")}
@@ -115,40 +116,41 @@ const Testcase = ({ originalTestcase, realIndex, remove, editable, submitFn }) =
         </Stack>
         {editable &&
           <Stack direction='row' spacing="10px">
-            <Button onClick={handleSubmit((data) => submitFn(data, realIndex))} variant="contained" size='midium' type="submit" disabled={watchedError ? false : !isDirty} 
-            sx={{
-              //paddingX: "5px",
-              borderRadius: "8px",
-              bgcolor: "var(--cerulean )",
-              textTransform: "none",
-              flexShrink: "0",
-              height: "40px",
-              width: "115px",
-              fontSize: "16px"
-            }}>Run</Button>
+            <Button onClick={handleSubmit((data) => submitFn(data, realIndex))} variant="contained" size='midium' type="submit" disabled={watchedError ? false : !isDirty}
+              sx={{
+                //paddingX: "5px",
+                borderRadius: "8px",
+                bgcolor: "var(--cerulean )",
+                textTransform: "none",
+                flexShrink: "0",
+                height: "40px",
+                width: "115px",
+                fontSize: "16px"
+              }}>Run</Button>
             <IconButton size="small" onClick={() => handleRemove(watchedTestcase.testcase_id)} >
               <RemoveCircleTwoToneIcon color="secondary" />
             </IconButton>
           </Stack>
         }
-        
+
       </Stack>
       <Grid container spacing={"2px"} >
-        <Grid item xs={12} md={6} >
+        {<Grid xs={12} md={6} >
           <Controller
             name={`testcase_list.${realIndex}.testcase_content`}
             control={control}
             render={({ field }) => (
-              <InputTerminalBlock disabled={!editable} value={field.value} onChange={field.onChange} />
+              <InputTerminalBlock disabled={!editable} value={field.value} onChange={field.onChange} style={{ borderRadius: "0px 0px 0px 8px" }} />
             )}
           />
-        </Grid>
-        <Grid item className="hide-cursor" xs={12} md={6}>
+        </Grid>}
+        <Grid className="hide-cursor" xs={12} md={6}>
           {watchedTestcase.is_ready === "no" && <TerminalBlock text="Testcase is running..." />}
-          {watchedTestcase.is_ready === "yes" && watchedTestcase.testcase_output ?
-            <TerminalBlock text={watchedTestcase.testcase_output} />
-            :
-            <TerminalBlock text={watchedTestcase.testcase_error} error />
+          {watchedTestcase.is_ready === "yes" && watchedTestcase.testcase_output &&
+            <TerminalBlock text={watchedTestcase.testcase_output} style={{ borderRadius: "0px 0px 8px 0px" }} />
+          }
+          {watchedTestcase.is_ready === "yes" && !watchedTestcase.testcase_output &&
+            <TerminalBlock text={watchedTestcase.testcase_error} error style={{ borderRadius: "0px 0px 8px 0px" }} />
           }
         </Grid>
       </Grid>

@@ -135,19 +135,33 @@ export default function MyRteMenus() {
       <MenuDivider />
 
       <MenuButtonImageUpload
-        onUploadFiles={(files) =>
-          // For the sake of a demo, we don't have a server to upload the files
-          // to, so we'll instead convert each one to a local "temporary" object
-          // URL. This will not persist properly in a production setting. You
-          // should instead upload the image files to your server, or perhaps
-          // convert the images to bas64 if you would like to encode the image
-          // data directly into the editor content, though that can make the
-          // editor content very large.
-          files.map((file) => ({
+        onUploadFiles={(files) => {
+          /* files.map((file) => {
+            const formData = new FormData();
+            formData.append('file', file);
+        
+            fetch('https://your-server.com/upload', {
+              method: 'POST',
+              body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+              // The response from the server should include the URL of the uploaded file
+              return {
+                src: data.url,
+                alt: file.name,
+              };
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            });
+          }) */
+
+          return files.map((file) => ({
             src: URL.createObjectURL(file),
             alt: file.name,
           }))
-        }
+        }}
       />
 
       <MenuDivider />

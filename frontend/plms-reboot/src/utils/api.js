@@ -128,7 +128,9 @@ export const getStudentAssignedExercise = async (stu_id, chapter_id, item_id) =>
   let { data } = await axios.get(
     `${import.meta.env.VITE_BASE_URL}/index.php/student_rest/getStudentAssignedExercise?stu_id=${stu_id}&chapter_id=${chapter_id}&item_id=${item_id}`,
     { withCredentials: true }
-  );
+  ).catch((error) => {
+    throw new Error(error.response.data.message);
+  });
 
   if (typeof data === 'string') {
     data = JSON.parse(stripBom(data));
@@ -206,7 +208,7 @@ export const sendRunTaskMessage = async (formData) => {
 
 export const getKeywordList = async (formdata) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/getKeywordList`,
+    `${import.meta.env.VITE_BASE_URL}/index.php/common_rest/getKeywordList`,
     formdata,
     { withCredentials: true }
   );
@@ -215,7 +217,7 @@ export const getKeywordList = async (formdata) => {
 
 export const getStudentSubmissionList = async ($stu_id, $chapter_id, $item_id) => {
   const { data } = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/index.php/student_rest/getStudentSubmissionList?stu_id=${$stu_id}&chapter_id=${$chapter_id}&item_id=${$item_id}`,
+    `${import.meta.env.VITE_BASE_URL}/index.php/common_rest/getStudentSubmissionList?stu_id=${$stu_id}&chapter_id=${$chapter_id}&item_id=${$item_id}`,
     { withCredentials: true }
   );
   return data;
@@ -224,6 +226,49 @@ export const getStudentSubmissionList = async ($stu_id, $chapter_id, $item_id) =
 export const studentExerciseSubmit = async (formData) => {
   const { data } = await axios.post(
     `${import.meta.env.VITE_BASE_URL}/index.php/student_rest/studentExerciseSubmit`,
+    formData,
+    { withCredentials: true }
+  );
+  return data;
+}
+
+export const checkKeyword = async (formData) => {
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_BASE_URL}/index.php/common_rest/checkKeyword`,
+    formData,
+    { withCredentials: true }
+  );
+  return data;
+}
+
+export const studentInfoCard = async (stu_id) => {
+  const { data } = await axios.get(
+    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/studentInfoCard?stu_id=${stu_id}`,
+    { withCredentials: true }
+  );
+  return data;
+}
+
+export const resetStudentPassword = async (formData) => {
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/resetStudentPassword`,
+    formData,
+    { withCredentials: true }
+  );
+  return data;
+}
+
+export const getAssignedStudentExercise = async (stu_id, chapter_id, item_id) => {
+  const { data } = await axios.get(
+    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/getAssignedStudentExercise?stu_id=${stu_id}&chapter_id=${chapter_id}&item_id=${item_id}`,
+    { withCredentials: true }
+  );
+  return data;
+}
+
+export const addStudent = async (formData) => {
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/addStudent`,
     formData,
     { withCredentials: true }
   );

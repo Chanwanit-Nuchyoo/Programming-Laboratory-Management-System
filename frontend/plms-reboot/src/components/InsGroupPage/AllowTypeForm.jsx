@@ -25,10 +25,37 @@ const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
     mutationFn: setChapterPermission,
     onSuccess: () => {
       queryClient.invalidateQueries(['labData', groupId]);
+      const ee = queryClient.getQueryData(['labData', groupId]);
+      //console.log(ee)
       handleClose('done');
     },
-    onError: (error) => {
+    // Adding optimistic update
+    onMutate: async (variables) => {
+      const snapshot = queryClient.getQueryData(['labData', groupId]);
+    
+      // Create a copy of the object and update the item with the matching chapter_id
+      const newData = { ...snapshot };
+      const item = newData[variables.chapter_id];
+    
+      if (item) {
+        newData[variables.chapter_id] = {
+          ...item,
+          ...(variables.prefix === 'access' ? { allow_access_type: variables.allow_access_type } : { allow_submit_type: variables.allow_submit_type }),
+        };
+      }
+    
+      // Optimistically update the query data
+      queryClient.setQueryData(['labData', groupId], newData);
+    
+      // Return a context object with the snapshot for backup plan
+      return { snapshot };
+    },
+    onError: (error, variables, context) => {
       console.log(error);
+      queryClient.setQueryData(['labData', groupId], () =>context?.snapshot);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(['labData', groupId]);
     }
   })
 

@@ -4,6 +4,8 @@ use chriskacerguis\RestServer\RestController;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 
+use function PHPSTORM_META\type;
+
 require_once(APPPATH . "/controllers/MY_RestController.php");
 
 class Common_rest extends MY_RestController
@@ -11,7 +13,10 @@ class Common_rest extends MY_RestController
   public function __construct()
   {
     parent::__construct();
-    // $this->protected();
+    $this->protected();
+
+    $this->load->model('auth_model_rest');
+    $this->auth_model_rest->update_last_seen($this->session->userdata('id'));
     $this->load->model('common_model_rest');
   }
 
@@ -122,10 +127,11 @@ class Common_rest extends MY_RestController
       }
     }
   }
+
   private function handleAvatarUpload($formData, $role)
   {
     $data = [];
-    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] == 0) {
+    if (!empty($_FILES['avatar']) && $_FILES['avatar']['error'] == 0) {
       $newFileName = "image_" . $_SESSION['id'] . "." . pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
       $folder = $role == "student" ? STUDENT_AVATAR_FOLDER : SUPERVISOR_AVATAR_FOLDER;
 
@@ -276,59 +282,138 @@ class Common_rest extends MY_RestController
     ], RestController::HTTP_OK);
   }
 
-  public function runPython($exercise_path, $input_path)
+  public function getRunTaskResult_get()
   {
-    // Set the time limit
-    $time_limit = 3;  // 1 second
-    $memory_limit = 100000; // 100 MB
+    $job_id = $this->get('job_id');
 
-    // Sanitize the input to prevent command injection
-    $exercise_path = escapeshellarg($exercise_path);
-    $input_path = escapeshellarg($input_path);
-    $runner_path = escapeshellarg("py-runner/runner.py");
-
-    // Run the Python file with the input file and return the output within time limit
-    $command = "timeout $time_limit /bin/bash -c \"ulimit -v $memory_limit; python3.12 $runner_path $exercise_path $input_path\" 2>&1";
-    $output = [];
-    $return_var = null;
-    exec($command, $output, $return_var);
-
-    // Prepare a result array
-    $result = array(
-      'output' => null,
-      'error' => null,
-      'command' => $command,
-      'return_var' => $return_var,
-    );
-
-    // Check if the command timed out
-    if ($return_var == 124) {
-      $result['error'] = "Time limit exceeded";
-      return $result;
+    if (!isset($job_id)) {
+      return $this->response(['message' => 'Invalid request body'], RestController::HTTP_BAD_REQUEST);
     }
 
-    // Check if the memory limit was exceeded
-    if ($return_var == 139) {
-      $result['error'] = "Memory limit exceeded";
-      return $result;
+    $this->load->model('lab_model_rest');
+
+    $result_list = $this->lab_model_rest->get_testcase_result_by_job_id($job_id);
+
+    $this->response([
+      'status' => 'success',
+      'message' => 'Testcases are being run',
+      'result_list' => $result_list,
+    ], RestController::HTTP_OK);
+  }
+
+  public function checkKeyword_post()
+  {
+    $sourcecode = $this->post('sourcecode');
+    $exercise_kw_list = $this->post('exercise_kw_list');
+
+    if (empty($sourcecode) || empty($exercise_kw_list)) {
+      return $this->response([
+        'status' => 'failed',
+        'message' => 'Invalid request body'
+      ], RestController::HTTP_BAD_REQUEST);
     }
 
-    // Check for other errors
-    if ($return_var != 0) {
-      if (!empty($output)) {
-        $result['error'] = implode("\n", $output);
-      } else {
-        $result['error'] = "An error occurred while executing the script";
+    $result = $this->kw_check($sourcecode, $exercise_kw_list);
+
+    if (empty($result)) {
+      return $this->response([
+        'status' => 'failed',
+        'message' => 'An error occurred while checking keywords'
+      ], RestController::HTTP_INTERNAL_ERROR);
+    }
+
+    $this->response($result, RestController::HTTP_OK);
+  }
+
+
+  public function get_kw_list($sourcecode)
+  {
+    $program = "python-files/keyword_list.py";
+
+    // create temp file with unique name at the directory path
+    $tempfile = tempnam("python-files", 'temp');
+
+    try {
+      file_put_contents($tempfile, $sourcecode);
+
+      $command = escapeshellcmd("python3.12 $program $tempfile");
+      $output = shell_exec($command);
+
+      return json_decode($output, true);
+    } finally {
+      // delete temp file
+      if (file_exists($tempfile)) {
+        unlink($tempfile);
       }
-      return $result;
+    }
+  }
+
+  public function kw_check($sourcecode, $exercise_kw_list)
+  {
+    $tempfile1 = tempnam("python-files", 'temp');
+    $tempfile2 = tempnam("python-files", 'temp');
+
+    try {
+      file_put_contents($tempfile1, $sourcecode);
+
+      if (gettype($exercise_kw_list) == "array") {
+        $exercise_kw_list = json_encode($exercise_kw_list);
+      }
+
+      file_put_contents($tempfile2, $exercise_kw_list);
+
+      $command = escapeshellcmd("python3.12 python-files/kw_checker.py '$tempfile1' '$tempfile2'");
+      $output = shell_exec($command);
+      return json_decode($output, true);
+    } finally {
+      // delete temp files
+      if (file_exists($tempfile1)) {
+        unlink($tempfile1);
+      }
+      if (file_exists($tempfile2)) {
+        unlink($tempfile2);
+      }
+    }
+  }
+
+  public function getKeywordList_post()
+  {
+    $sourcecode = $this->post('sourcecode');
+    $kw_list = $this->get_kw_list($sourcecode);
+
+    $this->response($kw_list, RestController::HTTP_OK);
+  }
+
+  public function getStudentSubmissionList_get()
+  {
+    $stu_id = $this->query('stu_id');
+    $chapter_id = $this->query('chapter_id');
+    $item_id = $this->query('item_id');
+
+    if (!isset($stu_id, $chapter_id, $item_id)) {
+      $this->response(['message' => 'Invalid data provided.'], RestController::HTTP_BAD_REQUEST);
     }
 
-    if (empty($output)) {
-      $result['error'] = "The script didn't produce any output";
-      return $result;
+    $this->load->model('lab_model_rest');
+    $this->load->model('student_model_rest');
+
+    $exercise_id = $this->student_model_rest->get_student_assigned_exercise_id($stu_id, $chapter_id, $item_id);
+
+
+    $submission_list = $this->lab_model_rest->get_student_submission($stu_id, $exercise_id);
+
+    foreach ($submission_list as &$submission) {
+      $file_path = STUDENT_CFILES_FOLDER . $submission['sourcecode_filename'];
+      if (file_exists($file_path)) {
+        $file_content = file_get_contents($file_path);
+        $submission['sourcecode_content'] = $file_content !== FALSE ? $file_content : "file not found";
+      } else {
+        $submission['sourcecode_content'] = "# file not found";
+      }
+
+      $submission['result'] = json_decode($submission['result']);
     }
 
-    $result['output'] = implode("\n", $output);
-    return $result;
+    $this->response($submission_list, RestController::HTTP_OK);
   }
 }

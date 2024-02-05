@@ -8,9 +8,8 @@ const Testcase = ({ testcase, index }) => {
     <Box padding={"10px"} bgcolor={"var(--biscay)"} borderRadius={"8px 8px 0px 0px"} >
       <Typography>Testcase {index + 1}:</Typography>
     </Box>
-    <Box borderRadius={"0px 0px 8px 8px"} >
-      <TerminalBlock text={testcase.show_to_student === 'yes' ? testcase.testcase_output : "Hidden testcase"} hug="true" />
-    </Box>
+
+    <TerminalBlock text={testcase.show_to_student === 'yes' ? testcase.testcase_output : "Hidden testcase"} hug="true" style={{ borderRadius: "0px 0px 8px 8px" }} />
   </Stack>
 }
 

@@ -27,6 +27,11 @@ class Student_model_rest extends CI_Model
 		}
 	}
 
+	public function student_reset_password($stu_id)
+	{
+		$this->update_student_password($stu_id, md5($stu_id));
+	}
+
 	public function get_student_record($stu_id)
 	{
 		$student_record = $this->db->select('*')
@@ -94,17 +99,50 @@ class Student_model_rest extends CI_Model
 
 	public function update_student_password($student_id, $new_password)
 	{
-		/*
-		echo '<h3>__FILE__ = '. __FILE__ .'</h3>';
-		echo '<h3>__METHOD__ = '. __METHOD__ .'</h3>';
-		echo '<h3> student ID : '.$student_id." :   password : ".$new_password.'</h3>';
-		*/
-		//UPDATE `user` SET `password` = MD5('123') WHERE `user`.`id` = 59112233;
 		$this->db->set("password", $new_password);
 		$this->db->where("id", $student_id);
 		$query = $this->db->update('user');
+	}
 
-		//echo $this->db->affected_rows();
+	public function check_or_add_student_to_user($stu_id) {
+		//echo '<h2>__METHOD__ = '. __METHOD__ .'</h2>';
+		$this->db->where("id",$stu_id);
+		$query = $this->db->get('user');
+		if ($query->num_rows() >= 1) {
+			//print_r($query->result_array());
+			//echo $stu_id." have previously been added to 'user' table.<br>";
+			return "cannot add";
+			
+		} else { 
+			//add new student to 'user' table
+			$data = array(
+						"id"		=> $stu_id,
+						"username"	=> $stu_id,
+						"password"	=> md5($stu_id),
+						"role"		=> 'student',
+						"active"	=> 'yes',
+						"added_by"	=> $_SESSION['username']
+						);
+			$this->db->insert('user',$data);
+			//echo "Insert : ".$data['id']." : num of row : ".$this->db->affected_rows();
+			return "OK";
+		}
+	}
 
+	public function check_or_add_student_to_user_student($student_data) {
+		// $table = 'user_student';
+	
+		// check first before add
+		$this->db->where("stu_id", $student_data['stu_id']);
+		$query = $this->db->get($this->table); // Fix: Change 'this->table' to '$this->table'
+		if ($query->num_rows() >= 1) {
+			//echo "Already exist : "; print_r($query->result_array());
+			return "Alreadyexist";
+		} else {
+			//add new student to 'user' table
+			$this->db->insert($this->table, $student_data); // Fix: Change 'this->table' to '$this->table'
+			//echo "Insert : " . $student_data['stu_id'] . " : num of row : " . $this->db->affected_rows();
+			return "OK";
+		}
 	}
 }//class Student_model

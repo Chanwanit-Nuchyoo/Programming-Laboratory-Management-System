@@ -11,6 +11,9 @@ export const ABS_INS_URL = {
   "STATIC": {
     "MY_GROUPS": `${PREFIX[USER_ROLES.SUPERVISOR]}`,
     "AVAILABLE_GROUPS": `${PREFIX[USER_ROLES.SUPERVISOR]}/available-groups`,
+    "INSTRUCTION": `${PREFIX[USER_ROLES.SUPERVISOR]}/instruction`,
+    "EXAMINATION": `${PREFIX[USER_ROLES.SUPERVISOR]}/examination`,
+    "FAQ": `${PREFIX[USER_ROLES.SUPERVISOR]}/faq`,
   },
   "DYNAMIC": {
     "GROUP": (groupId = ":groupId") =>
@@ -27,8 +30,10 @@ export const ABS_INS_URL = {
       `${PREFIX[USER_ROLES.SUPERVISOR]}/group/${groupId}/add-stu`,
     "STUDENT_SCORE": (groupId = ":groupId", studentId = ":studentId") =>
       `${PREFIX[USER_ROLES.SUPERVISOR]}/group/${groupId}/score/stu/${studentId}`,
-    "STUDENT_SUBMIT_HISTORY": (groupId = ":groupId", studentId = ":studentId", chapterId = ":chapterId", exerciseId = ":exerciseId") =>
-      `${PREFIX[USER_ROLES.SUPERVISOR]}/group/${groupId}/sub-his/stu/${studentId}/chapter/${chapterId}/exercise/${exerciseId}`,
+    "STUDENT_SUBMIT_HISTORY": (groupId = ":groupId", studentId = ":studentId", chapterId = ":chapterId", itemId = ":itemId") =>
+      `${PREFIX[USER_ROLES.SUPERVISOR]}/group/${groupId}/sub-his/stu/${studentId}/chapter/${chapterId}/item/${itemId}`,
+    "PROFILE": (userId = ":userId") =>
+      `${PREFIX[USER_ROLES.SUPERVISOR]}/profile/${userId}`,
   }
 }
 
@@ -37,6 +42,9 @@ export const REL_INS_URL = {
   "STATIC": {
     "MY_GROUPS": ``,
     "AVAILABLE_GROUPS": `available-groups`,
+    "INSTRUCTION": `instruction`,
+    "EXAMINATION": `examination`,
+    "FAQ": `faq`,
   },
   "DYNAMIC": {
     "GROUP": (groupId = ":groupId") =>
@@ -53,8 +61,10 @@ export const REL_INS_URL = {
       `group/${groupId}/add-stu`,
     "STUDENT_SCORE": (groupId = ":groupId", studentId = ":studentId") =>
       `group/${groupId}/score/stu/${studentId}`,
-    "STUDENT_SUBMIT_HISTORY": (groupId = ":groupId", studentId = ":studentId", chapterId = ":chapterId", exerciseId = ":exerciseId") =>
-      `group/${groupId}/sub-his/stu/${studentId}/chapter/${chapterId}/exercise/${exerciseId}`,
+    "STUDENT_SUBMIT_HISTORY": (groupId = ":groupId", studentId = ":studentId", chapterId = ":chapterId", itemId = ":itemId") =>
+      `group/${groupId}/sub-his/stu/${studentId}/chapter/${chapterId}/item/${itemId}`,
+    "PROFILE": (userId = ":userId") =>
+      `profile/${userId}`,
   }
 }
 
@@ -62,22 +72,32 @@ export const REL_INS_URL = {
 export const ABS_STU_URL = {
   "STATIC": {
     "HOME": `${PREFIX[USER_ROLES.STUDENT]}`,
-    "EXERCISE_LIST": `${PREFIX[USER_ROLES.STUDENT]}/exercise-list`
+    "EXERCISE_LIST": `${PREFIX[USER_ROLES.STUDENT]}/exercise-list`,
+    "INSTRUCTION": `${PREFIX[USER_ROLES.STUDENT]}/instruction`,
+    "EXAMINATION": `${PREFIX[USER_ROLES.STUDENT]}/examination`,
+    "FAQ": `${PREFIX[USER_ROLES.STUDENT]}/faq`,
   },
   "DYNAMIC": {
     "EXERCISE": (chapterId = ':chapterId', itemId = ":itemId") =>
       `${PREFIX[USER_ROLES.STUDENT]}/chapter/${chapterId}/item/${itemId}`,
+    "PROFILE": (userId = ":userId") =>
+      `${PREFIX[USER_ROLES.STUDENT]}/profile/${userId}`,
   }
 }
 
 export const REL_STU_URL = {
   "STATIC": {
     "HOME": ``,
-    "EXERCISE_LIST": `exercise-list`
+    "EXERCISE_LIST": `exercise-list`,
+    "INSTRUCTION": `instruction`,
+    "EXAMINATION": `examination`,
+    "FAQ": `faq`,
   },
   "DYNAMIC": {
     "EXERCISE": (chapterId = ':chapterId', itemId = ":itemId") =>
       `chapter/${chapterId}/item/${itemId}`,
+    "PROFILE": (userId = ":userId") =>
+      `profile/${userId}`,
   }
 }
 
@@ -85,12 +105,7 @@ export const REL_STU_URL = {
 export const COMMON_URL = {
   STATIC: {
     "SIGNIN": "/signin",
-    "INSTRUCTION": "/instruction",
-    "EXAMINATION": "/examination",
-    "FAQ": "/faq",
   },
   DYNAMIC: {
-    "PROFILE": (userId = ":userId") =>
-      `/profile/${userId}`,
   }
 }

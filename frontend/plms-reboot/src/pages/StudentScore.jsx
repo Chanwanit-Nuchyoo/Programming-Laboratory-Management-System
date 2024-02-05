@@ -2,7 +2,7 @@ import { Box, Container, Stack } from "@mui/material"
 import ExerciseChapterList from "@/components/_shared/ExerciseChapterList"
 import folderIcon from '@/assets/images/foldericon.svg'
 import avatarPlaceHolder from "@/assets/images/avatarplaceholder.svg"
-import { getChapterList } from "@/utils/api"
+import { getChapterList, getBreadCrumbs } from "@/utils/api"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "react-router-dom"
 
@@ -13,32 +13,33 @@ import StudentBriefInfo from "@/components/_shared/StudentBriefInfo"
 
 
 const StudentScore = () => {
-  const { studentId } = useParams();
-  
+  const { studentId, groupId } = useParams();
+
   const { data: chapterList, isLoading: isChapterListLoading } = useQuery({
     queryKey: ["chapterList", studentId],
     queryFn: () => getChapterList(studentId),
   })
 
+  const { data: breadCrumbsData, isLoading: isBreadcrumbLoading } = useQuery({
+    queryKey: ['breadCrumbs', groupId],
+    queryFn: () => getBreadCrumbs({ "group_id": groupId }),
+  })
+
+
   return (
     <Box>
       <Container>
         <Stack spacing={"20px"} >
-        <MyBreadCrumbs
+          <MyBreadCrumbs
             items={[
               { label: "My Groups", href: "/ins" },
             ]}
           />
 
-          <Header logoSrc={folderIcon} title="Group 401 (Student)" />
+          <Header logoSrc={folderIcon} title={isBreadcrumbLoading ? "Group ... (Student)" : `Group ${breadCrumbsData.group_no} (Student)`} />
 
           <StudentBriefInfo
-            imgSrc={avatarPlaceHolder}
-            studentId="63010202"
-            studentName="ชรินดา สนธิดี"
-            studentNickName="แบม"
-            groupId="22020402"
-            groupNo={401}
+            studentId={studentId}
           />
 
           <ExerciseChapterList isLoading={isChapterListLoading} data={chapterList} />

@@ -24,8 +24,8 @@ const UserDefinedRule = ({ editable, index, control, name, remove, getValues }) 
                 },
                 height: "40px"
               }}
-            // disabled={() => { }}
-            /> 
+              disabled={!editable}
+            />
           )}
         />
 

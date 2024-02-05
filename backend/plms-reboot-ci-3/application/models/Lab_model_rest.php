@@ -1333,19 +1333,14 @@ class Lab_model_rest extends CI_Model
 
 	public function get_student_info($stu_id)
 	{
-		echo '<h2>__METHOD__ = ' . __METHOD__ . '</h2>';
 		$this->db->select('*');
 		$this->db->from('user_student');
 		$this->db->where('stu_id', $stu_id);
-		//->order_by('group_chapter_permission.chapter_id')
 		$this->db->join('class_schedule', 'class_schedule.group_id = user_student.stu_group');
 		$query = $this->db->get();
-		$query = $query->result_array();
+		$query = $query->first_row('array');
 
-		echo "query: <pre>";
-		print_r($query);
-		echo "</pre>";
-		//return $group_permission;
+		return $query;
 	}
 
 	public function get_group_exercise_chapter($group_id, $chapter_id)
@@ -1393,6 +1388,7 @@ class Lab_model_rest extends CI_Model
 		$query = $this->db->get();
 		return $query->result_array();
 	}
+
 	public function get_lab_exercise_by_id($exercise_id)
 	{
 		//echo '$exercise_id : '.$exercise_id.'<br/>';

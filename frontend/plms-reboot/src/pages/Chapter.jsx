@@ -1,4 +1,5 @@
-import { Box, Stack, Container, Grid, Skeleton } from '@mui/material'
+import { Box, Stack, Container, Skeleton } from '@mui/material'
+import Grid from '@mui/material/Unstable_Grid2';
 import chapterIcon from '@/assets/images/chaptericon.svg'
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs'
 import Header from '@/components/_shared/Header'
@@ -33,16 +34,16 @@ const Chapter = () => {
 
           <Grid container spacing={"10px"}>
             {isLoading && <>
-              <Grid item xs={12} md={6}>
+              <Grid xs={12} md={6}>
                 <Skeleton variant='rounded' height={524} />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid xs={12} md={6}>
                 <Skeleton variant='rounded' height={524} />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid xs={12} md={6}>
                 <Skeleton variant='rounded' height={524} />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid xs={12} md={6}>
                 <Skeleton variant='rounded' height={524} />
               </Grid>
             </>}

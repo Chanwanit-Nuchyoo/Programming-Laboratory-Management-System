@@ -3,19 +3,25 @@ import { EditorState } from '@codemirror/state';
 import CodeMirrorMerge from 'react-codemirror-merge';
 import { githubDark } from "@uiw/codemirror-theme-github"
 import { Box, Stack, Typography } from '@mui/material';
+import correct from "@/assets/images/correct.svg"
+import incorrect from "@/assets/images/incorrect.svg"
 
 const Original = CodeMirrorMerge.Original;
 const Modified = CodeMirrorMerge.Modified;
 
 
-const MyDiff = ({ expected, actual, testcaseNo }) => {
-  return (
-    <Stack width={"100%"} boxShadow="0px 2px 4px rgba(0, 0, 0, 0.25)" border="3px solid white" borderRadius="8px" >
-      <Box bgcolor={"var(--biscay)"} padding={1} borderRadius={"8px 8px 0px 0px"} >
-        <Typography variant={"h6"}>Testcase {testcaseNo}</Typography>
-      </Box>
+const MyDiff = ({ isPassed, expected, actual, testcaseNo }) => {
+  const iconPath = isPassed ? correct : incorrect;
+  const alt = isPassed ? "correct" : "incorrect";
 
-      <Box flex={1} padding={2} bgcolor={"black"} borderRadius={"0px 0px 8px 8px"} >
+  return (
+    <Stack width={"100%"} boxShadow="0px 2px 4px rgba(0, 0, 0, 0.25)" borderRadius="8px">
+      <Stack direction="row" justifyContent="baseline" spacing="5px" bgcolor={"var(--biscay)"} padding={1} borderRadius={"8px 8px 0px 0px"} >
+        <img src={iconPath} alt={alt} />
+        <Typography>Testcase {testcaseNo}</Typography>
+      </Stack>
+
+      <Box flex={1} padding={2} bgcolor={"#1e1e1e"} borderRadius={"0px 0px 8px 8px"} >
         <Stack direction={"row"} spacing={"5px"} marginBottom={1} >
           <Typography sx={{ flex: 1 }}>Actual output</Typography>
           <Typography sx={{ flex: 1 }}>Expected output</Typography>
@@ -24,10 +30,10 @@ const MyDiff = ({ expected, actual, testcaseNo }) => {
           style={{
             fontSize: "14px",
             fontFamily: "monospace",
-            borderRadius: "8px 8px 8px 8px",
             overflow: "hidden",
           }}
           orientation="b-a"
+          /* className='my-diff' */
           theme={githubDark}
         >
           {/* Left side the actual output from user sourcecode */}

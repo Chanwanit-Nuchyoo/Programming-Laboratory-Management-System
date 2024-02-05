@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
-import { Avatar, Box, FormControl, FormControlLabel, FormLabel, Grid, IconButton, Radio, RadioGroup, Stack, TextField, Typography } from "@mui/material";
+import { Avatar, Box, FormControl, FormControlLabel, FormLabel, IconButton, Radio, RadioGroup, Stack, TextField, Typography } from "@mui/material";
+import Grid from '@mui/material/Unstable_Grid2';
 import { Controller, useFormContext } from "react-hook-form";
 import Section from "@/components/EditProfilePage/Section";
 import { styled } from "@mui/system"
@@ -40,7 +41,7 @@ const PersonalInfoForm = ({ formData }) => {
   );
 
   return (
-    <Grid item xs={12} md={6}>
+    <Grid xs={12} md={6}>
       <Section height="100%">
         <Stack className="flex-center">
           <Box position='relative'>

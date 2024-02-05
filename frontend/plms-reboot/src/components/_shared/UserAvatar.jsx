@@ -14,7 +14,7 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { logout } from "@/utils/api";
 import { useNavigate } from "react-router-dom";
-import { COMMON_URL } from "@/utils/constants/routeConst";
+import { ABS_STU_URL, ABS_INS_URL, COMMON_URL } from "@/utils/constants/routeConst";
 
 const UserAvatar = () => {
   const [user, setUser] = useAtom(userAtom);
@@ -36,7 +36,7 @@ const UserAvatar = () => {
 
   const handleProfileClicked = () => {
     userMenuState.close();
-    navigate(COMMON_URL.DYNAMIC.PROFILE(user.id));
+    navigate(user.role === "supervisor" ? ABS_INS_URL.DYNAMIC.PROFILE(user.id) : ABS_STU_URL.DYNAMIC.PROFILE(user.id));
   }
 
   return (

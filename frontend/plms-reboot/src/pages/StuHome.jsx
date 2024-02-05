@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { Container, Typography, Grid, Box, Stack, Button } from "@mui/material"
+import { Container, Typography, Box, Stack, Button } from "@mui/material"
+import Grid from '@mui/material/Unstable_Grid2';
 import StudentInfoCard from "@/components/Home/StudentInfoCard"
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import Assignments from "@/components/Home/Assignments"
@@ -21,7 +22,7 @@ const StuHome = () => {
       <Stack spacing={"20px"} >
         <Box padding={"30px"} bgcolor={"var(--mirage)"} borderRadius={"16px"} >
           <Grid container spacing={1} >
-            <Grid item xs={12} md={8} >
+            <Grid xs={12} md={8} >
               <Stack spacing={"20px"} >
                 <Box>
                   <Typography style={{ fontSize: '24px'}} >Wellcome to,</Typography>
@@ -30,7 +31,7 @@ const StuHome = () => {
                 <StudentInfoCard user={user} />
               </Stack>
             </Grid>
-            <Grid item md={4} sx={{ display: { xs: 'none', md: 'block' } }} >
+            <Grid md={4} sx={{ display: { xs: 'none', md: 'block' } }} >
               <Stack justifyContent={"center"} alignItems={"center"} height={"100%"} >
                 <img width={"240px"} height={"240px"} src={ComputerEng} alt="Computer Engineer" />
               </Stack>

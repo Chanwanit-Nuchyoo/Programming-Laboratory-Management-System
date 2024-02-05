@@ -126,21 +126,6 @@ body {
   border: 1px solid var(--divisor-rgba-25525525502, rgba(255, 255, 255, 0.20));
 }
 
-.table-head-column2 button {
-  text-transform: none !important;
-  font-size: 14px !important;
-  background: #1D283A;
-}
-
-.table-body-column2 {
-  text-align: center;
-  height: 44px;
-}
-
-.table-body-column2 p, .table-body-column2 button {
-  font-size: 14px;
-}
-
 .table-head-column button:hover {
   background-color: var(--hover) !important;
 }
@@ -206,6 +191,16 @@ body {
   overflow-y: auto;
 }
 
+.MuiTiptap-RichTextContent-root:has(.my-rte[contenteditable="false"]), .my-rte[contenteditable="false"] {
+  background-color: #2f3955;
+  border-radius: 0px 0px 8px 8px;
+}
+
+.MuiTiptap-RichTextContent-root:has(.my-rte[contenteditable="true"]), .my-rte[contenteditable="true"] {
+  background-color: #0e1117;
+  border-radius: 0px 0px 8px 8px;
+}
+
 .ProseMirror ol {
   padding: 0 1rem;
   list-style: decimal !important;
@@ -246,8 +241,17 @@ body {
   overflow: hidden;
 }
 
+.cm-mergeViewEditor {
+  border-radius: 8px;
+}
+
 .cm-editor, .cm-theme {
-  height: 100% !important;
+  height: 100% ;
+  border-radius: 8px 8px 8px 8px ;
+}
+
+.cm-content[contenteditable="false"] {
+  padding: 10px;
 }
 
 .cm-mergeViewEditors {
@@ -272,6 +276,7 @@ body {
 
 ::-webkit-scrollbar{
   width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -356,4 +361,12 @@ body {
 
 .switch-toggle.checked .switch-handle {
   left: 31px;
+}
+
+.submission-history-box .cm-mergeViewEditor {
+  border-radius: 0px;
+}
+
+.submission-history-box .cm-editor {
+  border-radius: 0px;
 }

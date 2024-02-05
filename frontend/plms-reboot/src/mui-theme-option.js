@@ -96,5 +96,12 @@ export const themeOptions = {
         }
       }
     },
+    "MuiSkeleton": {
+      "styleOverrides": {
+        root: {
+          borderRadius: "8px",
+        }
+      }
+    },
   }
 };

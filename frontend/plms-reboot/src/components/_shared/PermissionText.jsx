@@ -7,6 +7,7 @@ import PlayCircleFilledWhiteOutlinedIcon from '@mui/icons-material/PlayCircleFil
 import { setChapterPermission } from "@/utils/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import moment from 'moment';
+import React, { useState } from 'react';
 
 const StyledBox = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -22,6 +23,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
 const PermissionText = ({ prefix, type, lab, isInsPage }) => {
   const currentTime = useCurrentTime();
   const queryClient = useQueryClient();
+  const [pausedTime, setPausedTime] = useState(null);
 
   const { mutate } = useMutation({
     mutationFn: setChapterPermission,
@@ -30,17 +32,62 @@ const PermissionText = ({ prefix, type, lab, isInsPage }) => {
     },
     onError: (error) => {
       console.log(error);
-    }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(['labData', lab.class_id]);
+    },
+    onMutate: async (variables) => {
+      const prevLab = queryClient.getQueryData(['labData', lab.class_id]);
+
+      const newData = { ...prevLab };
+      const item = newData[variables.chapter_id];
+
+      if (item) {
+        newData[variables.chapter_id] = {
+          ...item,
+          [`allow_${prefix}_type`]: variables[`allow_${prefix}_type`],
+          [`${prefix}_time_start`]: variables[`${prefix}_time_start`],
+          [`${prefix}_time_end`]: variables[`${prefix}_time_end`],
+        };
+      }
+      queryClient.setQueryData(['labData', lab.class_id], newData);
+
+      return { prevLab };
+    },
   })
 
   const handlePaused = () => {
-    mutate({
+    const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
+    setPausedTime(currentTime); // Update the paused time state
+  
+    const newData = {
       class_id: lab.class_id,
       chapter_id: lab.chapter_id,
       prefix: prefix,
       [`allow_${prefix}_type`]: 'timer-paused',
-      [`${prefix}_time_start`]: moment().format('YYYY-MM-DD HH:mm:ss'),
-    })
+      [`${prefix}_time_start`]: currentTime,
+    };
+  
+      // Optimistically update the cache
+    const prevLab = queryClient.getQueryData(['labData', lab.class_id]);
+    const updatedData = { ...prevLab };
+    const item = updatedData[newData.chapter_id];
+    if (item) {
+      updatedData[newData.chapter_id] = {
+        ...item,
+        [`allow_${prefix}_type`]: newData[`allow_${prefix}_type`],
+        [`${prefix}_time_start`]: newData[`${prefix}_time_start`],
+      };
+    }
+    queryClient.setQueryData(['labData', lab.class_id], updatedData);
+
+    // Perform the mutation
+    mutate(newData, {
+      onError: () => {
+        // Rollback on error
+        queryClient.setQueryData(['labData', lab.class_id], prevLab);
+      },
+    });
   }
 
   const handleResume = () => {
@@ -91,7 +138,7 @@ const PermissionText = ({ prefix, type, lab, isInsPage }) => {
   }
   else if (type === 'timer-paused') {
     const timeEnd = moment(lab[`${prefix}_time_end`]);
-    const timeStart = moment(lab[`${prefix}_time_start`]);
+    const timeStart = pausedTime ? moment(pausedTime) : moment(lab[`${prefix}_time_start`]);
     const timeLeft = moment.duration(timeEnd.diff(timeStart));
 
     return (

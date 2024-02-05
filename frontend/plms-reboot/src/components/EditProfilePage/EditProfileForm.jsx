@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Box, Grid, Stack, TextField, Button } from "@mui/material";
+import { Box, Stack, TextField, Button } from "@mui/material";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,6 +8,7 @@ import { getAllDepartment } from "@/utils/api";
 import PersonalInfoForm from "@/components/EditProfilePage/PersonalInfoForm";
 import ContactForm from "./ContactForm";
 import ResetPasswordForm from "./ResetPasswordForm";
+import Grid from '@mui/material/Unstable_Grid2';
 
 const defaultValue = {
   "avatar": "",
@@ -69,12 +70,20 @@ const EditProfileForm = ({ formData = defaultValue, userId }) => {
       delete data.avatar;
     }
     for (const key in data) {
-      if (data[key] === "") {
+      if (!data[key]) {
         data[key] = null;
       }
     }
-    console.log(data);
-    mutateProfile(data);
+
+    // Convert data object to FormData
+    const formData = new FormData();
+    for (const key in data) {
+      if (data[key] !== null) { // Skip null values
+        formData.append(key, data[key]);
+      }
+    }
+
+    mutateProfile(formData);
   }
 
   return (
@@ -83,7 +92,7 @@ const EditProfileForm = ({ formData = defaultValue, userId }) => {
         <Grid container spacing={"10px"} >
           <PersonalInfoForm control={control} formData={formData} errors={errors} />
 
-          <Grid item xs={12} md={6}>
+          <Grid xs={12} md={6}>
             <Stack spacing="10px">
 
               <ContactForm isDepLoading={isDepLoading} departments={departments} />

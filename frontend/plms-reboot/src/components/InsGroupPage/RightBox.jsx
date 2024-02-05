@@ -18,9 +18,25 @@ const RightBox = ({ groupData }) => {
     onSuccess: () => {
       queryClient.invalidateQueries(['groupData', groupId])
     },
-    onError: (error) => {
-      console.log(error)
-    }
+    // Adding optimistic update
+    onMutate: async (variables) => {
+      const snapshot = queryClient.getQueryData(['groupData', groupId]);
+      // Optimistically update
+      queryClient.setQueryData(['groupData', groupId],  
+      {
+        ...snapshot,
+        allow_login: snapshot.allow_login === "yes" ? "no" : "yes",
+      });
+      // Return a context object with the snapshot for backup plan
+      return { snapshot };
+    },
+    onError: (error, variables, context) => {
+      console.log(error);
+      queryClient.setQueryData(['groupData', groupId], () =>context?.snapshot);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(['groupData', groupId]);
+    },
   })
 
   const { mutate: mutateAllowUploadPicture } = useMutation({
@@ -28,9 +44,25 @@ const RightBox = ({ groupData }) => {
     onSuccess: () => {
       queryClient.invalidateQueries(['groupData', groupId])
     },
-    onError: (error) => {
-      console.log(error)
-    }
+    // Adding optimistic update
+    onMutate: async (variables) => {
+      const snapshot = queryClient.getQueryData(['groupData', groupId]);
+      // Optimistically update
+      queryClient.setQueryData(['groupData', groupId],  
+      {
+        ...snapshot,
+        allow_upload_pic: snapshot.allow_upload_pic === "yes" ? "no" : "yes",
+      });
+      // Return a context object with the snapshot for backup plan
+      return { snapshot };
+    },
+    onError: (error, variables, context) => {
+      console.log(error);
+      queryClient.setQueryData(['groupData', groupId], () =>context?.snapshot);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(['groupData', groupId]);
+    },
   })
 
   const toggleAllowLogin = () => {

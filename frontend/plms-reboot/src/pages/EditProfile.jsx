@@ -35,7 +35,7 @@ const EditProfile = () => {
     "firstname": formData.firstname || "",
     "lastName": formData.lastname || "",
     "nickname": formData.nickname || "",
-    "dob": formData.dob === '0000-00-00' ? null : moment(formData.dob),
+    "dob": formData.dob === '0000-00-00' || formData.dob === null ? null : moment(formData.dob),
     "gender": formData.gender || "",
     "department": formData.department || "",
     "email": formData.email || "",

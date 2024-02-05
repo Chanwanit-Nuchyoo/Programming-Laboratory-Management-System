@@ -15,77 +15,99 @@ class Supervisor_rest extends MY_RestController
 		header('Content-Type: application/json; charset=utf-8');
 		$this->protected();
 
-		if ($this->session->userdata('role') != 'supervisor') {
-			$this->response([
-				'status' => FALSE,
-				'message' => 'You are not allowed to access this page',
-			], RestController::HTTP_FORBIDDEN);
-		}
+		// if ($this->session->userdata('role') != 'supervisor') {
+		// 	$this->response([
+		// 		'status' => FALSE,
+		// 		'message' => 'You are not allowed to access this page',
+		// 	], RestController::HTTP_FORBIDDEN);
+		// }
+
+		$this->load->model('auth_model_rest');
+		$this->auth_model_rest->update_last_seen($this->session->userdata('id'));
 
 		$this->load->model('lab_model_rest');
 		$this->load->model('supervisor_model_rest');
 		$this->load->model('student_model_rest');
 	}
-
-	public function getAllAvailableGroups_get()
-	{
-		$this->logout_after_time_limit();
-		$this->update_last_seen();
-		$year = $this->query('year');
-
-		$class_schedule = $this->supervisor_model_rest->get_class_schedule($year);
-		for ($i = 0; $i < sizeof($class_schedule); $i++) {
-			$group_id = $class_schedule[$i]['group_id'];
-			$lecturer_id = $class_schedule[$i]['lecturer'];
-			$students_in_group = $this->lab_model_rest->get_count_of_students($group_id);
-			$lecturer = $this->supervisor_model_rest->get_supervisor_fullname_by_id($lecturer_id);
-			$class_schedule[$i]['num_students'] = $students_in_group;
-			$class_schedule[$i]['lecturer_name'] = $lecturer;
-		}
-		$data = $class_schedule;
-
+	private function handleError(Exception $e) {
 		return $this->response([
-			'status' => TRUE,
-			'message' => 'successfully fetch available groups',
-			'payload' => $data,
-		], RestController::HTTP_OK);
+			'status' => FALSE,
+			'message' => 'Error: ' . $e->getMessage(),
+			'payload' => null,
+		], $e->getCode()); // Use the provided HTTP status code
+	}
+	public function getAllAvailableGroups_get() {
+		try {
+			$this->logout_after_time_limit();
+			$this->update_last_seen();
+			$year = $this->query('year');
+			$class_schedule = $this->supervisor_model_rest->get_class_schedule($year);
+	
+			if (empty($class_schedule)) {
+				throw new Exception('No data found', RestController::HTTP_NOT_FOUND);
+			}
+	
+			for ($i = 0; $i < sizeof($class_schedule); $i++) {
+				$group_id = $class_schedule[$i]['group_id'];
+				$lecturer_id = $class_schedule[$i]['lecturer'];
+				$students_in_group = $this->lab_model_rest->get_count_of_students($group_id);
+				$lecturer = $this->supervisor_model_rest->get_supervisor_fullname_by_id($lecturer_id);
+				$class_schedule[$i]['num_students'] = $students_in_group;
+				$class_schedule[$i]['lecturer_name'] = $lecturer;
+			}
+	
+			$data = $class_schedule;
+	
+			return $this->response([
+				'status' => TRUE,
+				'message' => 'Successfully fetched available groups',
+				'payload' => $data,
+			], RestController::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
+		}
 	}
 
-	public function getGroupListById_get()
-	{
-		$this->logout_after_time_limit();
-		$this->update_last_seen();
-
-		$user_id = $_SESSION['id'];
-		$year = $this->query('year');
-
-		$supervised_groups_sem1 = $this->lab_model_rest->get_supervise_group($user_id, $year, 1);
-		$supervised_groups_sem2 = $this->lab_model_rest->get_supervise_group($user_id, $year, 2);
-		$assisted_groups = $this->lab_model_rest->get_staff_group($user_id);
-		$groups = array_merge($supervised_groups_sem1, $supervised_groups_sem2, $assisted_groups);
-
-		$group_list = array();
-		for ($i = 0; $i < sizeof($groups); $i++) {
-			if (!empty($groups[$i]['class_id'])) {
-				$group_id = $groups[$i]['class_id'];
-			} else {
-				$group_id = $groups[$i]['group_id'];
+	public function getGroupListById_get() {
+		try {
+			$this->logout_after_time_limit();
+			$this->update_last_seen();
+			$user_id = $_SESSION['id'];
+			$year = $this->query('year');
+			$supervised_groups_sem1 = $this->lab_model_rest->get_supervise_group($user_id, $year, 1);
+			$supervised_groups_sem2 = $this->lab_model_rest->get_supervise_group($user_id, $year, 2);
+			$assisted_groups = $this->lab_model_rest->get_staff_group($user_id);
+			$groups = array_merge($supervised_groups_sem1, $supervised_groups_sem2, $assisted_groups);
+	
+			if (empty($groups)) {
+				throw new Exception('No groups found', RestController::HTTP_NOT_FOUND);
 			}
-
-			$group_list[$i] = $this->lab_model_rest->get_class_schedule_by_group_id($group_id);
-			$students_in_group = $this->lab_model_rest->get_count_of_students($group_id);
-			$group_list[$i]['students_in_group'] = $students_in_group;
+	
+			$group_list = array();
+			for ($i = 0; $i < sizeof($groups); $i++) {
+				if (!empty($groups[$i]['class_id'])) {
+					$group_id = $groups[$i]['class_id'];
+				} else {
+					$group_id = $groups[$i]['group_id'];
+				}
+	
+				$group_list[$i] = $this->lab_model_rest->get_class_schedule_by_group_id($group_id);
+				$students_in_group = $this->lab_model_rest->get_count_of_students($group_id);
+				$group_list[$i]['students_in_group'] = $students_in_group;
+			}
+	
+			$data = array(
+				'group_list' => $group_list,
+			);
+	
+			$this->response([
+				'status' => TRUE,
+				'message' => 'Successfully fetch supervisor group list',
+				'payload' => $data,
+			], RestController::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
 		}
-
-		$data = array(
-			'group_list'	=>	$group_list,
-		);
-
-		$this->response([
-			'status' => TRUE,
-			'message' => 'successfully fetch supervisor group list',
-			'payload' => $data,
-		], RestController::HTTP_OK);
 	}
 
 	private function set_default_for_group_permission($group_id)
@@ -97,114 +119,140 @@ class Supervisor_rest extends MY_RestController
 		$this->lab_model_rest->set_default_for_group_permission($group_id, $number_of_chapters, $class_schedule);
 	}
 
-	public function getGroupDataById_get()
-	{
-		$this->logout_after_time_limit();
-		$this->update_last_seen();
-
-		$group_id = $this->query('group_id');
-
-		$this->set_default_for_group_permission($group_id);
-
-		$class_schedule = $this->lab_model_rest->get_class_schedule_by_group_id($group_id);
-		$students_data = $this->lab_model_rest->get_students_by_group_id($group_id); // array
-		// $assigned_group_item = $this->lab_model_rest->assign_group_item($group_id); // array
-		$midterm_scores = $this->lab_model_rest->get_midterm_score($group_id);
-		$_SESSION['mid_score'] = $midterm_scores;
-
-		//create placeholder for selected exercise for the group in group_assigned_exercise table
-		$this->lab_model_rest->create_selected_exercise_for_group($group_id);
-
-
-		// create placeholder to store marking for each chapter for each student
-		// $number_of_chapters = $this->lab_model_rest->get_number_of_chapters();
-		// for ($i = 0; $i < sizeof($students_data); $i++) {
-		// 	for ($chapter = 1; $chapter <= $number_of_chapters; $chapter++) {
-		// 		$students_data[$i][$chapter] = 0;
-		// 	}
-		// }
-
-		$marking_data = $this->lab_model_rest->get_group_data($group_id);
-
-		// add lab marking to $students_data		
-		// for ($i = 0, $m = 0; $m < sizeof($marking_data); $m++) {
-		// 	for ($i = 0; $i < sizeof($students_data); $i++) {
-		// 		if ($marking_data[$m]['stu_id'] == $students_data[$i]['stu_id']) {
-		// 			$ch_id = $marking_data[$m]['chapter_id'];
-		// 			$students_data[$i][$ch_id] += $marking_data[$m]['max_marking'];
-		// 		}
-		// 	}
-		// }
-
-		// $lab_info = $this->lab_model_rest->get_lab_info();
-		$group_permission = $this->lab_model_rest->get_group_permission($group_id);
-
-		$class_schedule['student_no'] = sizeof($students_data);
-
-		$data = array(
-			'class_schedule'	=>	$class_schedule,
-			// 'lab_info'			=>	$lab_info,
-			// 'assigned_group_item'	=>	$assigned_group_item,
-			'group_permission'	=> $group_permission
-		);
-
-		$this->response([
-			'status' => TRUE,
-			'message' => 'successfully fetch group data',
-			'payload' => $data,
-		], RestController::HTTP_OK);
+	public function getGroupDataById_get() {
+		try {
+			$this->logout_after_time_limit();
+			$this->update_last_seen();
+	
+			$group_id = $this->query('group_id');
+	
+			// Check if the group_id is valid or exists
+			if (empty($group_id)) {
+				throw new Exception('Invalid group ID', RestController::HTTP_BAD_REQUEST);
+			}
+	
+			// Check if the group exists or handle accordingly
+			// Example: if (!$this->lab_model_rest->groupExists($group_id)) {
+			//    throw new Exception('Group not found', RestController::HTTP_NOT_FOUND);
+			// }
+	
+			$this->set_default_for_group_permission($group_id);
+	
+			$class_schedule = $this->lab_model_rest->get_class_schedule_by_group_id($group_id);
+			$students_data = $this->lab_model_rest->get_students_by_group_id($group_id);
+	
+			// Check if there is any class schedule or students data
+			if (empty($class_schedule) || empty($students_data)) {
+				throw new Exception('No data found for the group', RestController::HTTP_NOT_FOUND);
+			}
+	
+			$midterm_scores = $this->lab_model_rest->get_midterm_score($group_id);
+			$_SESSION['mid_score'] = $midterm_scores;
+	
+			// Create a placeholder for selected exercise for the group in group_assigned_exercise table
+			$this->lab_model_rest->create_selected_exercise_for_group($group_id);
+	
+			$marking_data = $this->lab_model_rest->get_group_data($group_id);
+	
+			// Add lab marking to $students_data
+			// Example: Adjust the logic based on your requirements
+			// for ($i = 0, $m = 0; $m < sizeof($marking_data); $m++) {
+			//     for ($i = 0; $i < sizeof($students_data); $i++) {
+			//         if ($marking_data[$m]['stu_id'] == $students_data[$i]['stu_id']) {
+			//             $ch_id = $marking_data[$m]['chapter_id'];
+			//             $students_data[$i][$ch_id] += $marking_data[$m]['max_marking'];
+			//         }
+			//     }
+			// }
+	
+			$group_permission = $this->lab_model_rest->get_group_permission($group_id);
+	
+			$class_schedule['student_no'] = sizeof($students_data);
+	
+			$data = array(
+				'class_schedule' => $class_schedule,
+				'group_permission' => $group_permission
+			);
+	
+			$this->response([
+				'status' => TRUE,
+				'message' => 'Successfully fetch group data',
+				'payload' => $data,
+			], RestController::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
+		}
 	}
 
-	public function getStudentListInGroupWithLabScore_get()
-	{
-		$this->logout_after_time_limit();
-		$this->update_last_seen();
-
-		$group_id = $this->query('group_id');
-
-		$this->set_default_for_group_permission($group_id);
-
-		$this->load->model('student_model');
-		$this->load->model('lab_model_rest');
-		$group_no = $this->lab_model_rest->get_group_no($group_id);
-		$students_data = $this->lab_model_rest->get_students_by_group_id($group_id);
-
-		// Get the number of chapters
-		$number_of_chapters = $this->lab_model_rest->get_number_of_chapters();
-
-		// Initialize chapter scores for each student
-		foreach ($students_data as &$student) {
-			$student['chapter_score'] = array_fill(1, $number_of_chapters, 0);
-		}
-
-		// Get the lab marking data
-		$marking_data = $this->lab_model_rest->get_group_data($group_id);
-
-		// Add lab marking to $students_data
-		foreach ($marking_data as $mark) {
+	public function getStudentListInGroupWithLabScore_get() {
+		try {
+			$this->logout_after_time_limit();
+			$this->update_last_seen();
+	
+			$group_id = $this->query('group_id');
+	
+			// Check if the group_id is valid or exists
+			if (empty($group_id)) {
+				throw new Exception('Invalid group ID', RestController::HTTP_BAD_REQUEST);
+			}
+	
+			// Check if the group exists or handle accordingly
+			// Example: if (!$this->lab_model_rest->groupExists($group_id)) {
+			//    throw new Exception('Group not found', RestController::HTTP_NOT_FOUND);
+			// }
+	
+			$this->set_default_for_group_permission($group_id);
+	
+			$this->load->model('student_model');
+			$this->load->model('lab_model_rest');
+			$group_no = $this->lab_model_rest->get_group_no($group_id);
+			$students_data = $this->lab_model_rest->get_students_by_group_id($group_id);
+	
+			// Check if there are any students in the group
+			if (empty($students_data)) {
+				throw new Exception('No students found in the group', RestController::HTTP_NOT_FOUND);
+			}
+	
+			// Get the number of chapters
+			$number_of_chapters = $this->lab_model_rest->get_number_of_chapters();
+	
+			// Initialize chapter scores for each student
 			foreach ($students_data as &$student) {
-				if ($mark['stu_id'] == $student['stu_id']) {
-					$student['chapter_score'][$mark['chapter_id']] += $mark['max_marking'];
+				$student['chapter_score'] = array_fill(1, $number_of_chapters, 0);
+			}
+	
+			// Get the lab marking data
+			$marking_data = $this->lab_model_rest->get_group_data($group_id);
+	
+			// Add lab marking to $students_data
+			foreach ($marking_data as $mark) {
+				foreach ($students_data as &$student) {
+					if ($mark['stu_id'] == $student['stu_id']) {
+						$student['chapter_score'][$mark['chapter_id']] += $mark['max_marking'];
+					}
 				}
 			}
+	
+			$lab_info = $this->lab_model_rest->get_lab_info();
+	
+			$data = array(
+				'group_no' => $group_no,
+				'lab_info' => $lab_info,
+				'student_list' => $students_data,
+			);
+	
+			$this->response([
+				'status' => TRUE,
+				'message' => 'Successfully fetch student list data',
+				'payload' => $data,
+			], RestController::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
 		}
-
-		$lab_info = $this->lab_model_rest->get_lab_info();
-
-		$data = array(
-			'group_no'			=>	$group_no,
-			'lab_info'			=>	$lab_info,
-			'student_list'	=> $students_data,
-		);
-
-		$this->response([
-			'status' => TRUE,
-			'message' => 'successfully fetch student list data',
-			'payload' => $data,
-		], RestController::HTTP_OK);
 	}
 
 	public function getLabChapterInfo_get()
+	//ทำ config มีโอกาสพัง
 	{
 		$group_id = $this->query('group_id');
 		$chapter_id = $this->query('lab_no');
@@ -219,9 +267,8 @@ class Supervisor_rest extends MY_RestController
 			for ($i = 0; $i < sizeof($exercises); $i++) {
 				array_push($group_lab_list[$item], $exercises[$i]);
 			}
-		}
-
-		$lab_exercise = $this->lab_model_rest->get_lab_exercise_by_chapter($chapter_id);
+        }
+			$lab_exercise = $this->lab_model_rest->get_lab_exercise_by_chapter($chapter_id);
 
 		$lab_list = array();
 		$level_index = array();
@@ -263,134 +310,139 @@ class Supervisor_rest extends MY_RestController
 
 	public function setChapterPermission_post()
 	{
-		$postdata = $this->post();
+		try{ 
+			$postdata = $this->post();
+			
+			 // Check if necessary data is present
+			if (!isset($postdata['class_id'], $postdata['chapter_id'], $postdata['prefix'])) {
+				throw new Exception('Missing required data', RestController::HTTP_BAD_REQUEST);
+			}
 
-		// Check if necessary data is present
-		if (!isset($postdata['class_id'], $postdata['chapter_id'], $postdata['prefix'])) {
-			// Send an error response
-			$this->response(array(
-				'message' => 'Missing required data',
-			), RestController::HTTP_BAD_REQUEST);
-			return;
-		}
-
-		$class_id = $postdata['class_id'];
-		$chapter_id = $postdata['chapter_id'];
-		$prefix = $postdata['prefix'];
-
-		// Validate the type
-		$type = $postdata['allow_' . $prefix . '_type'];
-		if (!in_array($type, ['always', 'deny', 'timer', 'timer-paused', 'datetime'])) {
-			// Send an error response
-			$this->response(array(
-				'message' => 'Invalid type',
-			), RestController::HTTP_BAD_REQUEST);
-			return;
-		}
-
-		$permission = array();
-		$permission['allow_' . $prefix . "_type"] = $type;
-
-
-		if ($type == 'always' || $type == 'deny') {
-			$permission[$prefix . '_time_start'] = null;
-			$permission[$prefix . '_time_end'] = null;
-		} else if ($type == 'timer-paused') {
-			if (!isset($postdata[$prefix . '_time_start'])) {
+			// Check if necessary data is present
+			if (!isset($postdata['class_id'], $postdata['chapter_id'], $postdata['prefix'])) {
 				// Send an error response
 				$this->response(array(
-					'message' => 'Missing start or end date',
+					'message' => 'Missing required data',
 				), RestController::HTTP_BAD_REQUEST);
 				return;
 			}
 
-			$permission[$prefix . '_time_start'] = $postdata[$prefix . '_time_start'];
-		} else {
-			// Validate the dates
-			if (!isset($postdata[$prefix . '_time_start'], $postdata[$prefix . '_time_end'])) {
+			$class_id = $postdata['class_id'];
+			$chapter_id = $postdata['chapter_id'];
+			$prefix = $postdata['prefix'];
+
+			// Validate the type
+			$type = $postdata['allow_' . $prefix . '_type'];
+			if (!in_array($type, ['always', 'deny', 'timer', 'timer-paused', 'datetime'])) {
 				// Send an error response
 				$this->response(array(
-					'message' => 'Missing start or end date',
+					'message' => 'Invalid type',
 				), RestController::HTTP_BAD_REQUEST);
 				return;
 			}
 
-			$permission[$prefix . '_time_start'] = $postdata[$prefix . '_time_start'];
-			$permission[$prefix . '_time_end'] = $postdata[$prefix . '_time_end'];
-		}
+			$permission = array();
+			$permission['allow_' . $prefix . "_type"] = $type;
 
-		$update_row = $this->lab_model_rest->set_chapter_permission($class_id, $chapter_id, $permission);
-		$this->response(array(
-			'message' => 'permission updated successfully',
-			'update_row' => $update_row,
-		), RestController::HTTP_OK);
+
+			if ($type == 'always' || $type == 'deny') {
+				$permission[$prefix . '_time_start'] = null;
+				$permission[$prefix . '_time_end'] = null;
+			} else if ($type == 'timer-paused') {
+				if (!isset($postdata[$prefix . '_time_start'])) {
+					// Send an error response
+					$this->response(array(
+						'message' => 'Missing start or end date',
+					), RestController::HTTP_BAD_REQUEST);
+					return;
+				}
+
+				$permission[$prefix . '_time_start'] = $postdata[$prefix . '_time_start'];
+			} else {
+				// Validate the dates
+				if (!isset($postdata[$prefix . '_time_start'], $postdata[$prefix . '_time_end'])) {
+					// Send an error response
+					$this->response(array(
+						'message' => 'Missing start or end date',
+					), RestController::HTTP_BAD_REQUEST);
+					return;
+				}
+
+				$permission[$prefix . '_time_start'] = $postdata[$prefix . '_time_start'];
+				$permission[$prefix . '_time_end'] = $postdata[$prefix . '_time_end'];
+			}
+
+			$update_row = $this->lab_model_rest->set_chapter_permission($class_id, $chapter_id, $permission);
+			$this->response(array(
+				'message' => 'permission updated successfully',
+				'update_row' => $update_row,
+			), RestController::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
+		}
 	}
 
 	public function setAllowGroupLogin_post()
-	{
-		$group_id = $this->post('group_id');
-		$allow_login = $this->post('allow_login');
-		$user_id = $this->session->userdata('id');
+{
+    try {
+        $group_id = $this->post('group_id');
+        $allow_login = $this->post('allow_login');
+        $user_id = $this->session->userdata('id');
 
-		if (!in_array($allow_login, ['yes', 'no'])) {
-			// Send an error response
-			$this->response(array(
-				'message' => 'Invalid data provided.',
-			), RestController::HTTP_BAD_REQUEST);
-			return;
-		}
+        if (!in_array($allow_login, ['yes', 'no'])) {
+            throw new Exception('Invalid data provided.', RestController::HTTP_BAD_REQUEST);
+        }
 
-		// Validate the data
-		if (!isset($group_id, $allow_login, $user_id)) {
-			$this->response(['message' => 'Invalid data provided.'], RestController::HTTP_BAD_REQUEST);
-			return;
-		}
+        // Validate the data
+        if (!isset($group_id, $allow_login, $user_id)) {
+            throw new Exception('Invalid data provided.', RestController::HTTP_BAD_REQUEST);
+        }
 
-		$staff_id_list = $this->lab_model_rest->get_group_staffs($group_id);
+        $staff_id_list = $this->lab_model_rest->get_group_staffs($group_id);
 
-		// Check if the user_id is in the staff_id_list
-		if (!in_array($user_id, $staff_id_list)) {
-			$this->response(['message' => 'You are not allowed to change this setting.'], RestController::HTTP_FORBIDDEN);
-			return;
-		}
+        // Check if the user_id is in the staff_id_list
+        if (!in_array($user_id, $staff_id_list)) {
+            throw new Exception('You are not allowed to change this setting.', RestController::HTTP_FORBIDDEN);
+        }
 
-		$this->lab_model_rest->set_allow_class_login($group_id, $allow_login);
+        $this->lab_model_rest->set_allow_class_login($group_id, $allow_login);
 
-		$this->response(['message' => 'Setting updated successfully.'], RestController::HTTP_OK);
-	}
+        return $this->response(['message' => 'Setting updated successfully.'], RestController::HTTP_OK);
+    } catch (Exception $e) {
+        return $this->handleError($e);
+    }
+}
 
-	public function setAllowGroupUploadPicture_post()
-	{
-		$group_id = $this->post('group_id');
-		$allow_upload_pic = $this->post('allow_upload_pic');
-		$user_id = $this->session->userdata('id');
+public function setAllowGroupUploadPicture_post()
+{
+    try {
+        $group_id = $this->post('group_id');
+        $allow_upload_pic = $this->post('allow_upload_pic');
+        $user_id = $this->session->userdata('id');
 
-		if (!in_array($allow_upload_pic, ['yes', 'no'])) {
-			// Send an error response
-			$this->response(array(
-				'message' => 'Invalid data provided.',
-			), RestController::HTTP_BAD_REQUEST);
-			return;
-		}
+        if (!in_array($allow_upload_pic, ['yes', 'no'])) {
+            throw new Exception('Invalid data provided.', RestController::HTTP_BAD_REQUEST);
+        }
 
-		// Validate the data
-		if (!isset($group_id, $allow_upload_pic, $user_id)) {
-			$this->response(['message' => 'Invalid data provided.'], RestController::HTTP_BAD_REQUEST);
-			return;
-		}
+        // Validate the data
+        if (!isset($group_id, $allow_upload_pic, $user_id)) {
+            throw new Exception('Invalid data provided.', RestController::HTTP_BAD_REQUEST);
+        }
 
-		$staff_id_list = $this->lab_model_rest->get_group_staffs($group_id);
+        $staff_id_list = $this->lab_model_rest->get_group_staffs($group_id);
 
-		// Check if the user_id is in the staff_id_list
-		if (!in_array($user_id, $staff_id_list)) {
-			$this->response(['message' => 'You are not allowed to change this setting.'], RestController::HTTP_FORBIDDEN);
-			return;
-		}
+        // Check if the user_id is in the staff_id_list
+        if (!in_array($user_id, $staff_id_list)) {
+            throw new Exception('You are not allowed to change this setting.', RestController::HTTP_FORBIDDEN);
+        }
 
-		$this->lab_model_rest->set_allow_class_upload_pic($group_id, $allow_upload_pic);
+        $this->lab_model_rest->set_allow_class_upload_pic($group_id, $allow_upload_pic);
 
-		$this->response(['message' => 'Setting updated successfully.'], RestController::HTTP_OK);
-	}
+        return $this->response(['message' => 'Setting updated successfully.'], RestController::HTTP_OK);
+    } catch (Exception $e) {
+        return $this->handleError($e);
+    }
+}
 	public function exercise_add_chapter_item_python()
 	{
 		//echo "<h3>". __METHOD__ ." : _SESSION :</h3><pre>"; print_r($_SESSION); echo "</pre>";
@@ -410,46 +462,48 @@ class Supervisor_rest extends MY_RestController
 
 	public function update_selected_exercise_post()
 	{
-		$group_id = $this->post('group_id');
-		$user_id = $this->post('user_id');
-		$chapter = $this->post('chapter');
-		$level = $this->post('level');
-
-
-		$postData = $this->post();
-		unset($postData['group_id']);
-		unset($postData['user_id']);
-		unset($postData['chapter']);
-		unset($postData['level']);
-
-		if (empty($postData)) {
-			$this->response(['message' => 'You must select at least ONE.'], REST_Controller::HTTP_BAD_REQUEST);
-			return;
+		try {
+			$group_id = $this->post('group_id');
+			$user_id = $this->post('user_id');
+			$chapter = $this->post('chapter');
+			$level = $this->post('level');
+	
+			$postData = $this->post();
+			unset($postData['group_id']);
+			unset($postData['user_id']);
+			unset($postData['chapter']);
+			unset($postData['level']);
+	
+			if (empty($postData)) {
+				throw new Exception('You must select at least ONE.', REST_Controller::HTTP_BAD_REQUEST);
+			}
+	
+			// Check permission here (implement your own logic)
+			$class_schedule = $this->lab_model_rest->get_class_schedule_by_group_id($group_id);
+			$previledge = $this->check_previledge($group_id);
+	
+			if ($previledge == "none") {
+				throw new Exception("You are not allowed to select Exercises for student group: " . $class_schedule['group_no'], REST_Controller::HTTP_FORBIDDEN);
+			}
+	
+			$list = array_values($postData);
+			sort($list);
+	
+			// Call your model's update method here
+			$this->lab_model_rest->update_lab_class_item($group_id, $chapter, $level, $list);
+	
+			$response_data = [
+				'message' => 'Exercise selection updated successfully',
+				'group_id' => $group_id,
+				'lab_no' => $chapter
+			];
+	
+			return $this->response($response_data, REST_Controller::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
 		}
-
-		// Check permission here (implement your own logic)
-		$class_schedule = $this->lab_model_rest->get_class_schedule_by_group_id($group_id);
-		$previledge = $this->check_previledge($group_id);
-
-		if ($previledge == "none") {
-			$this->response(['message' => "You are not allowed to select Exercises for student group: " . $class_schedule['group_no']], REST_Controller::HTTP_FORBIDDEN);
-			return;
-		}
-
-		$list = array_values($postData);
-		sort($list);
-
-		// Call your model's update method here
-		$this->lab_model_rest->update_lab_class_item($group_id, $chapter, $level, $list);
-
-		$response_data = [
-			'message' => 'Exercise selection updated successfully',
-			'group_id' => $group_id,
-			'lab_no' => $chapter
-		];
-
-		$this->response($response_data, RestController::HTTP_OK);
 	}
+
 	private function check_previledge($group_id)
 	{
 		$user_id = $_SESSION['id'];
@@ -473,82 +527,98 @@ class Supervisor_rest extends MY_RestController
 
 	public function updateGroupAssignedChapterItem_post()
 	{
-		$group_id = $this->post('group_id');
-		$chapter_id = $this->post('chapter_id');
-		$item_id = $this->post('item_id');
-		$exercise_id_list = $this->post('exercise_id_list');
-
-		if (!isset($group_id, $chapter_id, $item_id, $exercise_id_list)) {
-			$this->response(['message' => 'Invalid data provided.'], RestController::HTTP_BAD_REQUEST);
-			return;
+		try {
+			$group_id = $this->post('group_id');
+			$chapter_id = $this->post('chapter_id');
+			$item_id = $this->post('item_id');
+			$exercise_id_list = $this->post('exercise_id_list');
+	
+			if (!isset($group_id, $chapter_id, $item_id, $exercise_id_list)) {
+				throw new Exception('Invalid data provided.', RestController::HTTP_BAD_REQUEST);
+			}
+	
+			$previledge = $this->check_previledge($group_id);
+	
+			if ($previledge == "none") {
+				throw new Exception("You are not allowed to select Exercises for student group:", RestController::HTTP_FORBIDDEN);
+			}
+	
+			$strval_exercise_id_list = array_map('strval', $exercise_id_list);
+	
+			$this->lab_model_rest->update_lab_class_item($group_id, $chapter_id, $item_id, $strval_exercise_id_list);
+	
+			return $this->response([
+				'message' => 'Exercise selection updated successfully',
+			], RestController::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
 		}
-
-		$previledge = $this->check_previledge($group_id);
-
-		if ($previledge == "none") {
-			$this->response(['message' => "You are not allowed to select Exercises for student group: "], RestController::HTTP_FORBIDDEN);
-			return;
-		}
-
-		$strval_exercise_id_list = array_map('strval', $exercise_id_list);
-
-		$this->lab_model_rest->update_lab_class_item($group_id, $chapter_id, $item_id, $strval_exercise_id_list);
-
-		$this->response([
-			'message' => 'Exercise selection updated successfully',
-		], RestController::HTTP_OK);
 	}
+	
 
-	// V HERE V
 	public function getEditExercisePageInfo_get()
-	{
-		$exercise_id = $this->query("exercise_id");
-		$chapter_id = $this->query("chapter_id");
-		$group_id = $this->query("group_id");
+{
+    try {
+        $exercise_id = $this->query("exercise_id");
+        $chapter_id = $this->query("chapter_id");
+        $group_id = $this->query("group_id");
 
-		$group_no = $this->lab_model_rest->get_group_no($group_id);
-		$lab_exercise = $this->lab_model_rest->get_lab_exercise_by_id($exercise_id);
-		$chapter_name = $this->lab_model_rest->get_chapter_name($chapter_id);
-		$sourcecode_filename = $lab_exercise['sourcecode'];
+        $group_no = $this->lab_model_rest->get_group_no($group_id);
+        $lab_exercise = $this->lab_model_rest->get_lab_exercise_by_id($exercise_id);
+        $chapter_name = $this->lab_model_rest->get_chapter_name($chapter_id);
+        $sourcecode_filename = $lab_exercise['sourcecode'];
 
-		// Get sourcecode_content file from harddisk
-		if (file_exists(SUPERVISOR_CFILES_FOLDER . $sourcecode_filename)) {
-			$sourcecode_content = file_get_contents(SUPERVISOR_CFILES_FOLDER . $sourcecode_filename);
+        // Get sourcecode_content file from harddisk
+        if (file_exists(SUPERVISOR_CFILES_FOLDER . $sourcecode_filename)) {
+            $sourcecode_content = file_get_contents(SUPERVISOR_CFILES_FOLDER . $sourcecode_filename);
 
-			// Remove BOM if it exists
-			$sourcecode_content = preg_replace('/\x{FEFF}/u', '', $sourcecode_content);
+            // Remove BOM if it exists
+            $sourcecode_content = preg_replace('/\x{FEFF}/u', '', $sourcecode_content);
 
-			$lab_exercise['sourcecode_content'] = $sourcecode_content;
-		} else {
-			$lab_exercise['sourcecode_content'] = "Cannot find the file . . .";
-		}
+            $lab_exercise['sourcecode_content'] = $sourcecode_content;
+        } else {
+            $lab_exercise['sourcecode_content'] = "Cannot find the file . . .";
+        }
 
-		$lab_exercise['sourcecode_output'] = $this->get_sourcecode_output_no_testcase($exercise_id);
-		$testcase_array = $this->lab_model_rest->get_testcase_array($exercise_id);
-		$num_of_testcase = $this->lab_model_rest->get_num_testcase($exercise_id);
+        $lab_exercise['sourcecode_output'] = $this->get_sourcecode_output_no_testcase($exercise_id);
+        $testcase_array = $this->lab_model_rest->get_testcase_array($exercise_id);
+        $num_of_testcase = $this->lab_model_rest->get_num_testcase($exercise_id);
 
-		$data = array(
-			'group_no' => $group_no,
-			'chapter_name' => $chapter_name,
-			'lab_exercise' => $lab_exercise,
-		);
+        $data = array(
+            'group_no' => $group_no,
+            'chapter_name' => $chapter_name,
+            'lab_exercise' => $lab_exercise,
+        );
 
-		$this->response($data, RestController::HTTP_OK);
-	}
+        return $this->response($data, RestController::HTTP_OK);
+    } catch (Exception $e) {
+        return $this->handleError($e);
+    }
+}
 
-	public function getExerciseTestcases_get()
-	{
-		$exercise_id = $this->query("exercise_id");
+public function getExerciseTestcases_get()
+{
+    try {
+        $exercise_id = $this->query("exercise_id");
 
-		if (!isset($exercise_id)) {
-			$this->response(['message' => 'Invalid data provided.'], RestController::HTTP_BAD_REQUEST);
-			return;
-		}
+        if (!isset($exercise_id)) {
+            throw new Exception('Invalid data provided.', RestController::HTTP_BAD_REQUEST);
+        }
 
-		$testcase_array = $this->lab_model_rest->get_testcase_array($exercise_id);
+        $testcase_array = $this->lab_model_rest->get_testcase_array($exercise_id);
 
-		$this->response($testcase_array, RestController::HTTP_OK);
-	}
+        if ($testcase_array === false || empty($testcase_array)) {
+            throw new Exception('No testcases found for the given exercise.', RestController::HTTP_NOT_FOUND);
+        }
+
+        // Additional validation or checks on $testcase_array if needed
+
+        return $this->response($testcase_array, RestController::HTTP_OK);
+    } catch (Exception $e) {
+        return $this->handleError($e);
+    }
+}
+
 
 	public function get_sourcecode_output_no_testcase($exercise_id)
 	{
@@ -612,43 +682,51 @@ class Supervisor_rest extends MY_RestController
 
 	public function getExerciseFormData_get()
 	{
-		$exercise_id = $this->query("exercise_id");
-		$formdata = $this->lab_model_rest->get_exercise_form($exercise_id);
-
-		$sourcecode_filename = $formdata['sourcecode'];
-
-		// Get sourcecode_content file from harddisk
-		if (file_exists(SUPERVISOR_CFILES_FOLDER . $sourcecode_filename)) {
-			$sourcecode_content = file_get_contents(SUPERVISOR_CFILES_FOLDER . $sourcecode_filename);
-
-			// Remove BOM if it exists
-			$sourcecode_content = preg_replace('/\x{FEFF}/u', '', $sourcecode_content);
-
-			$formdata['sourcecode_content'] = $sourcecode_content;
-		} else {
-			$formdata['sourcecode_content'] = "Cannot find the file . . .";
+		try {
+			$exercise_id = $this->query("exercise_id");
+			$formdata = $this->lab_model_rest->get_exercise_form($exercise_id);
+	
+			if (!$formdata) {
+				throw new Exception('Exercise form data not found.', RestController::HTTP_NOT_FOUND);
+			}
+	
+			$sourcecode_filename = $formdata['sourcecode'];
+	
+			// Get sourcecode_content file from harddisk
+			if (file_exists(SUPERVISOR_CFILES_FOLDER . $sourcecode_filename)) {
+				$sourcecode_content = file_get_contents(SUPERVISOR_CFILES_FOLDER . $sourcecode_filename);
+	
+				// Remove BOM if it exists
+				$sourcecode_content = preg_replace('/\x{FEFF}/u', '', $sourcecode_content);
+	
+				$formdata['sourcecode_content'] = $sourcecode_content;
+			} else {
+				$formdata['sourcecode_content'] = "Cannot find the file . . .";
+			}
+	
+			$default_constraints = array(
+				'reserved_words' => array(),
+				'functions' => array(),
+				'methods' => array(),
+				'variables'	=> array(),
+				'imports' => array(),
+				'classes' => array(),
+			);
+	
+			$data = array(
+				'lab_name' => $formdata['lab_name'],
+				'lab_content' => $formdata['lab_content'],
+				'sourcecode_content' => $formdata['sourcecode_content'],
+				'keyword_constraints' => array(
+					'suggested_constraints' => $formdata['suggested_constraints'] == null ? $default_constraints : json_decode($formdata['suggested_constraints'], true),
+					'user_defined_constraints' => $formdata['user_defined_constraints'] == null ? $default_constraints : json_decode($formdata['user_defined_constraints'], true),
+				)
+			);
+	
+			return $this->response($data, RestController::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
 		}
-
-		$default_constraints = array(
-			'reserved_words' => array(),
-			'functions' => array(),
-			'methods' => array(),
-			'variables'	=> array(),
-			'imports' => array(),
-			'classes' => array(),
-		);
-
-		$data = array(
-			'lab_name' => $formdata['lab_name'],
-			'lab_content' => $formdata['lab_content'],
-			'sourcecode_content' => $formdata['sourcecode_content'],
-			'keyword_constraints' => array(
-				'suggested_constraints' => $formdata['suggested_constraints'] == null ? $default_constraints : json_decode($formdata['suggested_constraints'], true),
-				'user_defined_constraints' => $formdata['user_defined_constraints'] == null ? $default_constraints : json_decode($formdata['user_defined_constraints'], true),
-			)
-		);
-
-		$this->response($data, RestController::HTTP_OK);
 	}
 
 	public function getTestcases_get()
@@ -659,38 +737,47 @@ class Supervisor_rest extends MY_RestController
 	}
 
 	public function updateExercise_post()
-	{
-		$updated_data = $this->post();
-		$exercise_id = $updated_data['exercise_id'];
-		unset($updated_data['exercise_id']);
-		$user_id = $this->session->userdata('id');
+{
+    try {
+        $updated_data = $this->post();
+        $exercise_id = $updated_data['exercise_id'];
+        unset($updated_data['exercise_id']);
+        $user_id = $this->session->userdata('id');
 
-		$lab = $this->lab_model_rest->get_lab_exercise_by_id($exercise_id);
+        $lab = $this->lab_model_rest->get_lab_exercise_by_id($exercise_id);
 
-		if (!($user_id == $lab['created_by'] || $this->session->userdata('username') == 'kanut')) {
-			$this->response(['message' => 'You are not allowed to edit this exercise.'], 403);
-		}
+        if (!($user_id == $lab['created_by'] || $this->session->userdata('username') == 'kanut')) {
+            throw new Exception('You are not allowed to edit this exercise.', 403);
+        }
 
-		$updated_data['user_defined_constraints'] = json_encode($updated_data['keyword_constraints']['user_defined_constraints']);
-		$updated_data['suggested_constraints'] = json_encode($updated_data['keyword_constraints']['suggested_constraints']);
+        $updated_data['user_defined_constraints'] = json_encode($updated_data['keyword_constraints']['user_defined_constraints']);
+        $updated_data['suggested_constraints'] = json_encode($updated_data['keyword_constraints']['suggested_constraints']);
 
-		unset($updated_data['keyword_constraints']);
+        unset($updated_data['keyword_constraints']);
 
-		$sourcecode_content = $updated_data['sourcecode_content'];
-		$sourcecode_filename = $lab['sourcecode'];
+        $sourcecode_content = $updated_data['sourcecode_content'];
+        $sourcecode_filename = $lab['sourcecode'];
 
-		// Write content to the hard disk
-		file_put_contents(SUPERVISOR_CFILES_FOLDER . $sourcecode_filename, $sourcecode_content);
+        // Write content to the hard disk
+        if (file_put_contents(SUPERVISOR_CFILES_FOLDER . $sourcecode_filename, $sourcecode_content) === false) {
+            throw new Exception('Failed to write source code content to disk.', RestController::HTTP_BAD_REQUEST);
+        }
 
-		$updated_data['sourcecode'] = $sourcecode_filename;
-		unset($updated_data['sourcecode_content']);
+        $updated_data['sourcecode'] = $sourcecode_filename;
+        unset($updated_data['sourcecode_content']);
 
-		// update the exercise and return the updated exercise
-		$updated_exercise = $this->lab_model_rest->update_exercise($exercise_id, $updated_data);
+        // update the exercise and return the updated exercise
+        $updated_exercise = $this->lab_model_rest->update_exercise($exercise_id, $updated_data);
 
-		$this->response($updated_exercise, RestController::HTTP_OK);
-	}
+        if (!$updated_exercise) {
+            throw new Exception('Failed to update exercise.', RestController::HTTP_BAD_REQUEST);
+        }
 
+        return $this->response($updated_exercise, RestController::HTTP_OK);
+    } catch (Exception $e) {
+        return $this->handleError($e);
+    }
+}
 	public function createConstraintRows($constraints, $constraint_group, $exercise_id)
 	{
 		$constraint_rows = array();
@@ -781,6 +868,11 @@ class Supervisor_rest extends MY_RestController
 		$chapter_id = $this->query("chapter_id");
 		$group_id = $this->query("group_id");
 
+		if (empty($chapter_id) || empty($group_id)) {
+			$this->response(['message' => 'Invalid data provided.'], RestController::HTTP_BAD_REQUEST);
+			return;
+		}
+
 		$group_no = $this->lab_model_rest->get_group_no($group_id);
 		$chapter_name = $this->lab_model_rest->get_chapter_name($chapter_id);
 
@@ -798,7 +890,7 @@ class Supervisor_rest extends MY_RestController
 		$user_id = $this->session->userdata('id');
 
 		// Validate the data
-		if (!isset($group_id, $user_id)) {
+		if (empty($group_id) || empty($user_id)) {
 			$this->response(['message' => 'Invalid data provided.'], RestController::HTTP_BAD_REQUEST);
 			return;
 		}
@@ -823,23 +915,157 @@ class Supervisor_rest extends MY_RestController
 		], RestController::HTTP_OK);
 	}
 
-	public function getKeywordList_post()
+	public function uploadExerciseContentPic_post()
 	{
-		$sourcecode = $this->post('sourcecode');
-		$directory_path = SUPERVISOR_CFILES_FOLDER;
-		$program = "python-files/keyword_list.py";
+		// check if $_FILES is empty or not
+		if (empty($_FILES)) {
+			$this->response(['message' => 'No file uploaded.'], RestController::HTTP_BAD_REQUEST);
+			return;
+		}
 
-		// create temp file with unique name at the direactory path
-		$tempfile = tempnam($directory_path, 'temp');
+		// check if the file is uploaded successfully
+	}
 
-		file_put_contents($tempfile, $sourcecode);
+	public function studentInfoCard_get()
+	{
+		$stu_id = $this->query('stu_id');
 
-		$command = escapeshellcmd("python3.12 $program $tempfile");
-		$output = shell_exec($command);
+		if (empty($stu_id)) {
+			$this->response(['message' => 'Invalid data provided.'], RestController::HTTP_BAD_REQUEST);
+			return;
+		}
 
-		// delete temp file
-		unlink($tempfile);
+		$student_info = $this->lab_model_rest->get_student_info($stu_id);
 
-		$this->response(json_decode($output), RestController::HTTP_OK);
+		$avatar = empty($student_info['stu_avatar']) ? null : STUDENT_AVATAR_FOLDER . $student_info['stu_avatar'];
+
+		$data = array(
+			'stu_id' => $student_info['stu_id'],
+			'stu_firstname' => $student_info['stu_firstname'],
+			'stu_lastname' => $student_info['stu_lastname'],
+			'stu_nickname' => $student_info['stu_nickname'],
+			'stu_avatar' => $avatar,
+			'group_id' => $student_info['group_id'],
+			'group_no' => $student_info['group_no'],
+		);
+
+		$this->response($data, RestController::HTTP_OK);
+	}
+
+	public function resetStudentPassword_post()
+	{
+		$stu_id = $this->post('stu_id');
+
+		if (empty($stu_id)) {
+			$this->response(['message' => 'Invalid data provided.'], RestController::HTTP_BAD_REQUEST);
+			return;
+		}
+
+		$this->student_model_rest->student_reset_password($stu_id);
+		$this->response(['message' => 'Password reset successfully.'], RestController::HTTP_OK);
+	}
+
+	public function getAssignedStudentExercise_get()
+	{
+		$stu_id = $this->query('stu_id');
+		$chapter_id = $this->query('chapter_id');
+		$item_id = $this->query('item_id');
+
+		$exercise_id = $this->student_model_rest->get_student_assigned_exercise_id($stu_id, $chapter_id, $item_id);
+
+		if (empty($exercise_id)) {
+			$this->response([
+				'message' => 'No exercise assigned to this student.',
+				'exercise' => null,
+			], RestController::HTTP_OK);
+			return;
+		}
+
+		$exercise = $this->lab_model_rest->get_lab_exercise_by_id($exercise_id);
+
+		$this->response([
+			'message' => 'Exercise found.',
+			'exercise' => $exercise,
+		], RestController::HTTP_OK);
+	}
+
+	public function addStudent_post() {
+		$stu_data = $this->post('student_data');
+        $stu_group_id = $this->post('group_id');
+		$string = $stu_data;
+		$tok = strtok($string, " \n\t");
+		$count = 0;
+		$student_data = array();
+		while ($tok !== false) {			
+			$stu_no = $tok;
+			$tok = strtok(" \n\t");
+			$stu_id = $tok;
+			$tok = strtok(" \n\t");
+			$stu_name = $tok;
+			$tok = strtok(" \n\t");
+			$stu_surname = $tok;
+			$tok = strtok(" \n\t");
+			$row['stu_no']=$stu_no;
+			$row['stu_id']=$stu_id;
+			$row['stu_name']=$stu_name;
+			$row['stu_surname']=$stu_surname;
+			$student_data[$count]=$row;
+			$count++;
+		}
+		$this->load->model('student_model');
+		foreach($student_data as $row) {
+			$stu_id = $row['stu_id'];
+			$stu_name = $row['stu_name'];
+			$stu_surname = $row['stu_surname'];
+			// echo $row['stu_no']." ".$row['stu_id']." ".$row['stu_name']." ".$row['stu_surname']."<br />";
+			if ( strlen($row['stu_id']) == 8) {
+				// echo "add will be performed.<br />";
+				$message = $this->student_model_rest->check_or_add_student_to_user($stu_id);
+				if ($message=='OK') {
+					$this->createLogfile(__METHOD__." : $stu_id is added to user table. ==> ".$message);
+					// echo " ==> Added.<br />";
+					$stu_gender = 'other';
+					if(substr($stu_name,0,9) == 'นาย') {
+						$stu_gender = 'male';
+						$stu_firstname = substr($stu_name,9,strlen($stu_name));
+						$stu_lastname = $stu_surname;
+					} else if(substr($stu_name,0,18) == 'นางสาว') {
+						$stu_gender = 'female';
+						$stu_firstname = substr($stu_name,18,strlen($stu_name));
+						$stu_lastname = $stu_surname;
+					} else {
+						$stu_gender = 'other';
+						$stu_firstname = $stu_name;
+						$stu_lastname = $stu_surname;
+					}
+					
+					$student_data = array( 'stu_id'	=> $stu_id,
+											'stu_firstname'	=> $stu_firstname,
+											'stu_lastname'	=> $stu_lastname,
+											'stu_group'		=> $stu_group_id,
+											'stu_gender'	=> $stu_gender
+						);
+					$message = $this->student_model_rest->check_or_add_student_to_user_student($student_data);
+					
+					
+				$this->response([
+							'status' => TRUE,
+							'message' => 'Student added successfully'
+						], RestController::HTTP_OK);
+					
+				}
+				else if($message == 'cannot add') {
+					$this->response([
+						'status' => TRUE,
+						'message' => 'Student Already exist'
+					], RestController::HTTP_OK);
+				}else {	
+					$this->response([
+						'status' => FALSE,
+						'message' => 'Failed to add student'
+					], RestController::HTTP_BAD_REQUEST);
+				}
+			}
+		}
 	}
 }

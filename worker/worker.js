@@ -1,6 +1,7 @@
 import amqp from "amqplib";
 import mysql from "mysql";
-import { addAndUpdateTestcase, runSubmission } from "./utils.js";
+import { addAndUpdateTestcase } from "./runTestcase.js";
+import { runSubmission } from "./runSubmission.js";
 
 // Database configuration
 const DB_CONFIG = {

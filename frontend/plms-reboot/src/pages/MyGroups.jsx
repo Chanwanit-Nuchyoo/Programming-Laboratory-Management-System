@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs';
 import Header from '@/components/_shared/Header';
 import GroupCard from "@/components/MyGroupsPage/GroupCard";
-import { getGroupListById } from "../utils/api";  
+import { getGroupListById } from "../utils/api";
 
 function MyGroups() {
   const setSelected = useSetAtom(sidebarSelectedAtom);
@@ -30,9 +30,9 @@ function MyGroups() {
       <Stack spacing="20px">
         <MyBreadCrumbs items={items} />
         <Header logoSrc={slideShow} title="My Groups" />
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap:"10px", width: '100%',flexDirection: "row", justifyContent: "flex-start" }}>
-          
-          
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: "10px", width: '100%', flexDirection: "row", justifyContent: "flex-start" }}>
+
+
           {isLoading &&
             <>
               <div style={{ flex: '0 0 calc(100% / 3)', marginBottom: '20px' }}>
@@ -67,7 +67,7 @@ function MyGroups() {
               department={group.department}
             />
           ))}
-</div>
+        </div>
       </Stack>
     </Container>
   );

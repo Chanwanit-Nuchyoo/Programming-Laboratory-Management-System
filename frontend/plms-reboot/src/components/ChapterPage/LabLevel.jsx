@@ -1,9 +1,10 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
 import {
-  Grid, Select, Stack, Typography, FormControl, MenuItem, InputLabel, Box,
+  Select, Stack, Typography, FormControl, MenuItem, InputLabel, Box,
   TableContainer, Table, TableRow, TableCell, TableBody, Paper, Checkbox, Button, TablePagination, Link as MuiLink
 } from '@mui/material';
+import Grid from '@mui/material/Unstable_Grid2';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { ABS_INS_URL } from '@/utils/constants/routeConst';
 import { Link, useParams } from 'react-router-dom';
@@ -184,7 +185,7 @@ const LabLevel = ({ lv, index, selectedList }) => {
   };
 
   return (
-    <Grid item xs={12} md={6}>
+    <Grid xs={12} md={6}>
       <Stack spacing={"15px"} sx={{
         bgcolor: "var(--biscay)",
         borderRadius: "8px",

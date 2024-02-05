@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Box } from "@mui/material";
 
-const TerminalBlock = ({ text, error, hug, ...props }) => {
+const TerminalBlock = ({ text, error, hug, style, ...props }) => {
 
   const terminalStyle = {
     whiteSpace: 'pre', // Preserve whitespace and line breaks
@@ -14,11 +14,11 @@ const TerminalBlock = ({ text, error, hug, ...props }) => {
     overflowX: "auto",
     minWidth: "0px",
     fontSize: "14px",
-    borderRadius: '0px 0px 8px 0px'
+    borderRadius: '8px'
   };
 
   return (
-    <Box sx={terminalStyle} {...props} >
+    <Box sx={{ ...terminalStyle, ...style }} {...props} >
       {text}
     </Box>
   );

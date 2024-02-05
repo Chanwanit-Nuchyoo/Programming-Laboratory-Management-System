@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
-import { Typography, Button, Menu, MenuItem, FormControlLabel, FormGroup, Checkbox, Link, Grid } from "@mui/material"
+import { Typography, Button, Menu, MenuItem, FormControlLabel, FormGroup, Checkbox, Link } from "@mui/material"
+import Grid from '@mui/material/Unstable_Grid2';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import {
   usePopupState,
@@ -51,16 +52,16 @@ const AvgTableHead = ({
       top: "0px",
       bgcolor: "var(--ebony)"
     }} >
-      <Grid item lg={1.5} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
+      <Grid lg={1.5} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
         <Button fullWidth variant="outlined" sx={{ color: "white" }} >Group ID</Button>
       </Grid>
-      <Grid item md={1.5} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
+      <Grid md={1.5} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
         <Button fullWidth variant="outlined" sx={{ color: "white" }}  >Group</Button>
       </Grid>
-      <Grid item md={1.5} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
+      <Grid md={1.5} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
         <Button fullWidth variant="outlined" sx={{ color: "white" }}  >Year</Button>
       </Grid>
-      <Grid item md={1.5} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
+      <Grid md={1.5} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
         <Button fullWidth variant="outlined" sx={{ color: "white" }}  {...bindTrigger(semesterPopupState)} endIcon={<UnfoldMoreIcon />} >Semester</Button>
         <Menu {...bindMenu(semesterPopupState)} slotProps={{ paper: { style: menuStyle } }} >
           <FormGroup padding={"10px"} sx={{ width: "100%" }} >
@@ -84,7 +85,7 @@ const AvgTableHead = ({
           </FormGroup>
         </Menu>
       </Grid>
-      <Grid item md={3} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
+      <Grid md={3} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
         <Button fullWidth variant="outlined" sx={{ color: "white" }}  {...bindTrigger(classDatePopupState)} endIcon={<UnfoldMoreIcon />} >Class date</Button>
         <Menu {...bindMenu(classDatePopupState)} slotProps={{ paper: { style: menuStyle } }} >
           <FormGroup sx={{ width: "100%" }}>
@@ -117,10 +118,10 @@ const AvgTableHead = ({
           </FormGroup>
         </Menu>
       </Grid>
-      <Grid item md={1} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
+      <Grid md={1} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
         <Button fullWidth variant="outlined" sx={{ color: "white" }}  >Students</Button>
       </Grid>
-      <Grid item md={2} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
+      <Grid md={2} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
         <Button fullWidth variant="contained" {...bindTrigger(instructorPopupState)} endIcon={<UnfoldMoreIcon />} >Instructor</Button>
         <Menu {...bindMenu(instructorPopupState)} slotProps={{ paper: { style: menuStyle } }} >
           <FormGroup sx={{ width: "100%" }}>

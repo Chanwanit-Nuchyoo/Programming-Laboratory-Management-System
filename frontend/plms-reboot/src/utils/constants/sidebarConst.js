@@ -15,17 +15,21 @@ import homeIconFill from "@/assets/images/homeiconfill.svg";
 import codingIcon from "@/assets/images/codingicon.svg";
 import codingIconFill from "@/assets/images/codingiconfill.svg";
 
-const base_items = [
-  {
-    id: "instructions",
-    label: "Instructions",
-    children: [
-      { id: "instruction", label: "Instructions", icon: newspaperIcon, iconfill: newspaperIconFill, href: COMMON_URL.STATIC.INSTRUCTION },
-      { id: "examination", label: "Examination", icon: bookIcon, iconfill: bookIconFill, href: COMMON_URL.STATIC.EXAMINATION },
-      { id: "faq", label: "FAQ", icon: dialogBubble, iconfill: dialogBubbleFill, href: COMMON_URL.STATIC.FAQ },
-    ],
-  },
-]
+const base_items = (role) => {
+  const URL = role === USER_ROLES.SUPERVISOR ? ABS_INS_URL : ABS_STU_URL
+
+  return [
+    {
+      id: "instructions",
+      label: "Instructions",
+      children: [
+        { id: "instruction", label: "Instructions", icon: newspaperIcon, iconfill: newspaperIconFill, href: URL.STATIC.INSTRUCTION },
+        { id: "examination", label: "Examination", icon: bookIcon, iconfill: bookIconFill, href: URL.STATIC.EXAMINATION },
+        { id: "faq", label: "FAQ", icon: dialogBubble, iconfill: dialogBubbleFill, href: URL.STATIC.FAQ },
+      ],
+    },
+  ]
+}
 
 export const items = {
   [USER_ROLES.SUPERVISOR]: [
@@ -37,7 +41,7 @@ export const items = {
         { id: "available_groups", label: "Available Groups", icon: peopleIcon, iconfill: peopleIconFill, href: ABS_INS_URL.STATIC.AVAILABLE_GROUPS },
       ],
     },
-    ...base_items,
+    ...base_items(USER_ROLES.SUPERVISOR),
   ],
   [USER_ROLES.STUDENT]: [
     {
@@ -48,7 +52,8 @@ export const items = {
         { id: "stu_exercise_list", label: "Exercise", icon: codingIcon, iconfill: codingIconFill, href: ABS_STU_URL.STATIC.EXERCISE_LIST },
       ],
     },
-    ...base_items
+    ...base_items(USER_ROLES.STUDENT)
   ]
 }
+
 export const getSidebarItemsByRole = (role) => items[role]

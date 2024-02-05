@@ -14,7 +14,7 @@ import StudentListTableHead from "@/components/StudentList/StudentListTableHead"
 import StudentListTableBody from "@/components/StudentList/StudentListTableBody";
 
 
- 
+
 const StudentList = () => {
   const [labInfo, setLabInfo] = useState([]);
   const [students, setStudents] = useState([]);
@@ -46,29 +46,26 @@ const StudentList = () => {
 
         <Header logoSrc={folderIcon} title={`Group ${studentList.group_no}`} />
 
-        <Stack spacing={"10px"} width="calc(100vw-256px)" sx={{ overflowX: "auto", position: "relative" }} >
-          <Box>
-            <Link to={ABS_INS_URL.DYNAMIC.ADD_STUDENT(groupId)} >
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{
-                  height:'40px', 
-                  width: '200px', 
-                  fontSize: '16px',
-                  textTransform: 'none',
-                }}
-                startIcon={<AddCircleIcon />}
-              >
-                Add Student
-              </Button>
-            </Link>
-          </Box>
-
+        <Box sx={{ position: "sticky", top: 0, left: 0 }} >
+          <Link to={ABS_INS_URL.DYNAMIC.ADD_STUDENT(groupId)} >
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{
+                height: '40px',
+                width: '200px',
+                fontSize: '16px',
+                textTransform: 'none',
+              }}
+              startIcon={<AddCircleIcon />}
+            >
+              Add Student
+            </Button>
+          </Link>
+        </Box>
+        <Stack spacing={"10px"} width="calc(100vw-256px)" height="800px" sx={{ overflowX: "auto", position: "relative" }} >
           <StudentListTableHead isLoading={isLoading} labInfo={labInfo} />
-
           <StudentListTableBody isLoading={isLoading} labInfo={labInfo} students={students} />
-
         </Stack>
       </Stack>
     </Box >

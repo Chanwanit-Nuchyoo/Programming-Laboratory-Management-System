@@ -90,14 +90,14 @@ const Problem = ({ exercise }) => {
         <Accordion sx={{ bgcolor: "transparent" }} >
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
-            sx={{ bgcolor: "var(--mirage)", borderRadius: "8px", overflow: "hidden" }}
+            sx={{ bgcolor: "var(--mirage)", borderRadius: "8px 8px 0px 0px", overflow: "hidden" }}
           >
             <Box display="flex" alignItems="center" gap={1}>
               <img src={suggestedIcon} alt="Suggested Icon" />
               <Typography>Keyword Constraints:</Typography>
             </Box>
           </AccordionSummary>
-          <AccordionDetails sx={{ bgcolor: "var(--biscay)", borderRadius: "8px" }} >
+          <AccordionDetails sx={{ bgcolor: "var(--biscay)", borderRadius: "0px 0px 8px 8px" }} >
             {exercise.user_defined_constraints ?
               <KeywordConstraint constraint={exercise.user_defined_constraints} /> : <Typography>No Keyword Constraints</Typography>
             }

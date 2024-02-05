@@ -117,6 +117,7 @@ const MyRte = ({ rteRef, editable = false, contentValue, ...props }) => {
           handleDrop,
           handlePaste,
         }}
+        className="abc"
       >
         {() => (
           <>
