@@ -17,11 +17,19 @@ const typeMessages = {
 const Con = ({ title, list }) => {
   const renderInfo = (item) => {
     if (item.type === "na") {
-      return <Typography variant="body2" color="error" >{typeMessages[item.type]}</Typography>
+      return (
+        <Stack direction="row" justifyContent="center" alignItems="center" height="34px" minWidth="250px" sx={{ padding: "10px", bgcolor: "red", borderRadius: "8px" }}>
+          <Typography >{typeMessages[item.type]}</Typography>
+        </Stack>
+      )
     } else {
       return <>
-        <Typography>{typeMessages[item.type]}</Typography>
-        <Typography>{item.limit}</Typography>
+        <Stack direction="row" justifyContent="center" alignItems="center" height="34px" minWidth="250px" sx={{ padding: "10px", bgcolor: "var(--chathamBlue)", borderRadius: "8px" }}>
+          <Typography>{typeMessages[item.type]}</Typography>
+        </Stack>
+        <Stack direction="row" justifyContent="center" alignItems="center" height="34px" minWidth="80px" sx={{ padding: "10px", bgcolor: "var(--chathamBlue)", borderRadius: "8px" }}>
+          <Typography>{item.limit}</Typography>
+        </Stack>
       </>
     }
   }
@@ -34,7 +42,9 @@ const Con = ({ title, list }) => {
           {list.map((item, index) => {
             return (
               <Stack direction='row' spacing='20px' key={index}>
-                <Typography  >{item.keyword}</Typography>
+                <Stack direction="row" justifyContent="flex-start" alignItems="center" height="34px" minWidth="100px" sx={{ padding: "10px", bgcolor: "var(--chathamBlue)", borderRadius: "8px" }}>
+                  <Typography  >{item.keyword}</Typography>
+                </Stack>
                 {renderInfo(item)}
               </Stack>
             )
