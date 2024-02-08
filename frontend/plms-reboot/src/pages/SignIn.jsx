@@ -29,7 +29,7 @@ const SignIn = () => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(import.meta.env.VITE_BASE_URL + "/index.php/auth_rest/login", {
+      const response = await axios.post(import.meta.env.VITE_BACKEND_BASE_URL + "/index.php/auth_rest/login", {
         ...data
       }, { withCredentials: true });
 
@@ -118,7 +118,7 @@ const SignIn = () => {
             </Stack>
             <Box className="flex-center">
               <Button type="submit" variant="contained" color="primary"
-              sx={{ height: '40px', width: '400px', fontSize: '16px', borderRadius: '24px'}}>Sign in</Button>
+                sx={{ height: '40px', width: '400px', fontSize: '16px', borderRadius: '24px' }}>Sign in</Button>
             </Box>
           </Stack>
         </form>

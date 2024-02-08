@@ -16,7 +16,7 @@ const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     const performLoginCheck = async () => {
       try {
-        const response = await axios.get(import.meta.env.VITE_BASE_URL + "/index.php/auth_rest/logged_in_check", { withCredentials: true });
+        const response = await axios.get(import.meta.env.VITE_BACKEND_BASE_URL + "/index.php/auth_rest/logged_in_check", { withCredentials: true });
         if (response.data.status) {
           /* setUser(response.data.payload);
           localStorage.setItem('user', JSON.stringify(response.data.payload)); */

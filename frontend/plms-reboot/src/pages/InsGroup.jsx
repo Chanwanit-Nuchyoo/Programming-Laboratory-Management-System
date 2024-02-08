@@ -12,14 +12,14 @@ import LabRow from "@/components/InsGroupPage/LabRow"
 import RightBox from "../components/InsGroupPage/RightBox";
 
 const InsGroup = () => {
-const { groupId } = useParams();
+  const { groupId } = useParams();
 
 
   // TODO: Do something with this later
   const { data: groupData, isLoading: isClassLoading } = useQuery({
     queryKey: ['groupData', groupId],
     queryFn: async () => {
-      const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/getGroupDataById?group_id=${groupId}`, { withCredentials: true })
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getGroupDataById?group_id=${groupId}`, { withCredentials: true })
       return res.data.payload.class_schedule;
     }
   });
@@ -27,7 +27,7 @@ const { groupId } = useParams();
   const { data: labData, isLoading: isLabChapterLoading } = useQuery({
     queryKey: ['labData', groupId],
     queryFn: async () => {
-      const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/getGroupDataById?group_id=${groupId}`, { withCredentials: true })
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getGroupDataById?group_id=${groupId}`, { withCredentials: true })
       return res.data.payload.group_permission;
     }
   });
@@ -56,13 +56,13 @@ const { groupId } = useParams();
                 <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none" }} >Chapter</Button>
               </Box>
               <Box width={100} className="table-head-column">
-                <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none"  }} >Score</Button>
+                <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none" }} >Score</Button>
               </Box>
               <Box width={300} className="table-head-column">
-                <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none"  }} >Access exercise</Button>
+                <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none" }} >Access exercise</Button>
               </Box>
               <Box width={300} className="table-head-column">
-                <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none"  }} >Allow submit</Button>
+                <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none" }} >Allow submit</Button>
               </Box>
             </Stack>
 

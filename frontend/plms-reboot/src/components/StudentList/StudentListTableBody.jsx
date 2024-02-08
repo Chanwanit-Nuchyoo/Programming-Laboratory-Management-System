@@ -40,12 +40,12 @@ const StudentListTableBody = ({ isLoading, labInfo, students }) => {
                 <img
                   src={avatarPlaceHolder}
                   /* student.avatar
-                    ? `${import.meta.env.VITE_BASE_URL}/${student.avatar}`
+                    ? `${import.meta.env.VITE_BACKEND_BASE_URL}/${student.avatar}`
                     : avatarPlaceHolder */
 
                   alt="user avatar"
                   className="image"
-                  //style={{ width: '120px', height: '120px' }}
+                //style={{ width: '120px', height: '120px' }}
                 />
               </Box>
               <Stack
@@ -55,7 +55,7 @@ const StudentListTableBody = ({ isLoading, labInfo, students }) => {
                 paddingX="10px"
               >
                 {student.stu_id}
-                
+
               </Stack>
               <Box
                 width={250}

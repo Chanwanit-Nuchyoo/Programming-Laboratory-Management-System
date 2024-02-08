@@ -6,14 +6,14 @@ import { runSubmission } from "./runSubmission.js";
 // Database configuration
 const DB_CONFIG = {
   host: "db",
-  user: "root",
-  password: "plmskmitl2023",
-  database: "plms-php",
+  user: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_NAME,
 };
 
 // RabbitMQ configuration
-const RABBITMQ_URL = "amqp://plms:plmskmitl2023@rabbitmq";
-const QUEUE_NAME = "task-queue";
+const RABBITMQ_URL = `amqp://${process.env.RMQ_USER}:${process.env.DATABASE_PASSWORD}@rabbitmq`;
+const QUEUE_NAME = process.env.RMQ_QUEUE_NAME;
 
 // Create and connect to the database
 const db_connection = mysql.createConnection(DB_CONFIG);

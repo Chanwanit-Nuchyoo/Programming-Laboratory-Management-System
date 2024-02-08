@@ -11,14 +11,24 @@ services:
       - /app/node_modules
     environment:
       CHOKIDAR_USEPOLLING: true
-      VITE_BASE_URL: http://localhost:3000
+      VITE_BACKEND_BASE_URL: ${BACKEND_URL}
       VITE_YEAR: 2022
 
   backend:
     build: ./backend/plms-reboot-ci-3
     container_name: backend-container
     ports:
-      - 3000:80
+      - 3000:80 
+    environment:
+      BASE_URL: ${BACKEND_URL}
+      FRONTEND_URL: ${FRONTEND_URL}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      RMQ_USER: ${RMQ_USER}
+      RMQ_PASSWORD: ${RMQ_PASSWORD}
+      RMQ_QUEUE_NAME: ${RMQ_QUEUE_NAME}
+      RMQ_PORT: 5672
     volumes:
       - ./backend/plms-reboot-ci-3:/var/www/html
       - ./config/apache.conf:/etc/apache2/sites-enabled
@@ -29,10 +39,10 @@ services:
   db:
     image: mysql:8.0.31
     container_name: db-container
-    command: --default-authentication-plugin=mysql_native_password
+    command: --default-authentication-plugin=mysql_native_password      
     environment:
-      MYSQL_ROOT_PASSWORD: plmskmitl2023
-      MYSQL_DATABASE: plms-php
+      MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_NAME}
     ports:
       - 3306:3306
     volumes:
@@ -44,20 +54,12 @@ services:
     container_name: phpmyadmin-container
     environment:
       PMA_HOST: db
-      PMA_USER: root
-      PMA_PASSWORD: plmskmitl2023
+      PMA_USER: ${DATABASE_USER}
+      PMA_PASSWORD: ${DATABASE_PASSWORD}
     ports:
       - 8080:80
     depends_on:
       - db
-
-  # redis: 
-  #   image: redis:7.2.3
-  #   container_name: redis-container
-  #   ports:
-  #     - 6379:6379
-  #   volumes:
-  #     - ./redis:/data
 
   rabbitmq:
     image: rabbitmq:3.12.11-management-alpine
@@ -67,8 +69,8 @@ services:
       - 5672:5672
       - 15672:15672
     environment:
-      RABBITMQ_DEFAULT_USER: "plms" # Set default RabbitMQ user
-      RABBITMQ_DEFAULT_PASS: "plmskmitl2023" # Set default RabbitMQ password
+      RABBITMQ_DEFAULT_USER: ${RMQ_USER} # Set default RabbitMQ user
+      RABBITMQ_DEFAULT_PASS: ${RMQ_PASSWORD} # Set default RabbitMQ password
     volumes:
       - ./rabbitmq:/var/lib/rabbitmq
 
@@ -81,6 +83,13 @@ services:
         limits:
           cpus: '0.5'
           memory: 100M
+    environment:
+      RMQ_USER: ${RMQ_USER}
+      RMQ_PASSWORD: ${RMQ_PASSWORD}
+      RMQ_QUEUE_NAME: ${RMQ_QUEUE_NAME}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
     depends_on:
       - db
       - rabbitmq

@@ -242,9 +242,9 @@ class Student_rest extends MY_RestController
     $exercise =  $this->lab_model_rest->get_exercise_by_id($exercise_id);
 
     try {
-      $connection = new AMQPStreamConnection('rabbitmq', 5672, 'plms', 'plmskmitl2023');
+      $connection = new AMQPStreamConnection('rabbitmq', getenv('RMQ_PORT'), getenv('RMQ_USER'), getenv('RMQ_PASSWORD'));
       $channel = $connection->channel();
-      $channel->queue_declare('task-queue', false, true, false, false);
+      $channel->queue_declare(getenv('RMQ_QUEUE_NAME'), false, true, false, false);
 
       $job_id = uniqid();
 

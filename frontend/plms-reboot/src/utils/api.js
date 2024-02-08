@@ -3,23 +3,23 @@ import stripBom from 'strip-bom';
 import qs from 'qs'
 
 export const getLabChapterInfo = async (groupId, labNo) => {
-  const { data } = await axios.get(`${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/getLabChapterInfo?group_id=${groupId}&lab_no=${labNo}`, { withCredentials: true })
+  const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getLabChapterInfo?group_id=${groupId}&lab_no=${labNo}`, { withCredentials: true })
   return data.payload
 }
 
 export const getAllAvailableGroups = async () => {
-  const { data } = await axios.get(`${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/getAllAvailableGroups?year=${import.meta.env.VITE_YEAR}`, { withCredentials: true });
+  const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getAllAvailableGroups?year=${import.meta.env.VITE_YEAR}`, { withCredentials: true });
   return data.payload
 }
 
 export const getGroupListById = async () => {
-  const { data } = await axios.get(`${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/getGroupListById?year=${import.meta.env.VITE_YEAR}`, { withCredentials: true });
+  const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getGroupListById?year=${import.meta.env.VITE_YEAR}`, { withCredentials: true });
   return data.payload.group_list
 }
 
 export const getStudentListInGroupWithLabScore = async (groupId) => {
   const { data } = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/getStudentListInGroupWithLabScore?group_id=${groupId}`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getStudentListInGroupWithLabScore?group_id=${groupId}`,
     { withCredentials: true }
   );
   return data.payload;
@@ -27,7 +27,7 @@ export const getStudentListInGroupWithLabScore = async (groupId) => {
 
 export const getAddExercisePageInfo = async (groupId, chapterId) => {
   const { data } = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/getAddExercisePageInfo?group_id=${groupId}&chapter_id=${chapterId}`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getAddExercisePageInfo?group_id=${groupId}&chapter_id=${chapterId}`,
     { withCredentials: true }
   );
   return data;
@@ -35,7 +35,7 @@ export const getAddExercisePageInfo = async (groupId, chapterId) => {
 
 export const getEditExercisePageInfo = async (groupId, exercise_id, chapter_id) => {
   let { data } = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/getEditExercisePageInfo?group_id=${groupId}&exercise_id=${exercise_id}&chapter_id=${chapter_id}`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getEditExercisePageInfo?group_id=${groupId}&exercise_id=${exercise_id}&chapter_id=${chapter_id}`,
     { withCredentials: true }
   );
 
@@ -49,7 +49,7 @@ export const getEditExercisePageInfo = async (groupId, exercise_id, chapter_id) 
 export const getBreadCrumbs = async (params) => {
   const query = qs.stringify(params);
   const { data } = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/index.php/common_rest/getBreadCrumbs?${query}`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/common_rest/getBreadCrumbs?${query}`,
     { withCredentials: true }
   );
   return data;
@@ -57,7 +57,7 @@ export const getBreadCrumbs = async (params) => {
 
 export const createExercise = async (newExercise) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/createExercise`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/createExercise`,
     newExercise,
     { withCredentials: true }
   );
@@ -66,7 +66,7 @@ export const createExercise = async (newExercise) => {
 
 export const getExerciseFormData = async (exerciseId) => {
   const { data } = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/getExerciseFormData?exercise_id=${exerciseId}`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getExerciseFormData?exercise_id=${exerciseId}`,
     { withCredentials: true }
   );
   return data;
@@ -74,7 +74,7 @@ export const getExerciseFormData = async (exerciseId) => {
 
 export const updateExercise = async (updatedExercise) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/updateExercise`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/updateExercise`,
     updatedExercise,
     { withCredentials: true }
   );
@@ -83,7 +83,7 @@ export const updateExercise = async (updatedExercise) => {
 
 export const logout = async () => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/auth_rest/logout`, {},
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/auth_rest/logout`, {},
     { withCredentials: true }
   );
   return data;
@@ -91,7 +91,7 @@ export const logout = async () => {
 
 export const getChapterList = async (stu_id) => {
   const { data } = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/index.php/student_rest/getChapterList?stu_id=${stu_id}`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/student_rest/getChapterList?stu_id=${stu_id}`,
     { withCredentials: true }
   );
   return data;
@@ -99,7 +99,7 @@ export const getChapterList = async (stu_id) => {
 
 export const setChapterPermission = async (formData) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/setChapterPermission`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/setChapterPermission`,
     formData,
     { withCredentials: true }
   );
@@ -108,7 +108,7 @@ export const setChapterPermission = async (formData) => {
 
 export const setAllowGroupLogin = async (body) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/setAllowGroupLogin`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/setAllowGroupLogin`,
     body,
     { withCredentials: true }
   );
@@ -117,7 +117,7 @@ export const setAllowGroupLogin = async (body) => {
 
 export const setAllowGroupUploadPicture = async (body) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/setAllowGroupUploadPicture`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/setAllowGroupUploadPicture`,
     body,
     { withCredentials: true }
   );
@@ -126,7 +126,7 @@ export const setAllowGroupUploadPicture = async (body) => {
 
 export const getStudentAssignedExercise = async (stu_id, chapter_id, item_id) => {
   let { data } = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/index.php/student_rest/getStudentAssignedExercise?stu_id=${stu_id}&chapter_id=${chapter_id}&item_id=${item_id}`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/student_rest/getStudentAssignedExercise?stu_id=${stu_id}&chapter_id=${chapter_id}&item_id=${item_id}`,
     { withCredentials: true }
   ).catch((error) => {
     throw new Error(error.response.data.message);
@@ -141,7 +141,7 @@ export const getStudentAssignedExercise = async (stu_id, chapter_id, item_id) =>
 
 export const getStudentCardInfo = async (stu_id) => {
   const { data } = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/index.php/student_rest/getStudentCardInfo?stu_id=${stu_id}`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/student_rest/getStudentCardInfo?stu_id=${stu_id}`,
     { withCredentials: true }
   );
   return data;
@@ -149,7 +149,7 @@ export const getStudentCardInfo = async (stu_id) => {
 
 export const logoutAllStudentInGroup = async (group_id) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/logoutAllStudentInGroup`, { group_id: group_id },
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/logoutAllStudentInGroup`, { group_id: group_id },
     { withCredentials: true }
   );
   return data;
@@ -157,7 +157,7 @@ export const logoutAllStudentInGroup = async (group_id) => {
 
 export const getProfileFormData = async () => {
   const { data } = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/index.php/common_rest/getProfileFormData`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/common_rest/getProfileFormData`,
     { withCredentials: true }
   );
   return data;
@@ -165,7 +165,7 @@ export const getProfileFormData = async () => {
 
 export const getAllDepartment = async () => {
   const { data } = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/index.php/common_rest/getAllDepartment`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/common_rest/getAllDepartment`,
     { withCredentials: true }
   );
   return data;
@@ -173,7 +173,7 @@ export const getAllDepartment = async () => {
 
 export const updateProfile = async (formData) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/common_rest/updateProfile`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/common_rest/updateProfile`,
     formData,
     { withCredentials: true }
   );
@@ -182,7 +182,7 @@ export const updateProfile = async (formData) => {
 
 export const getExerciseTestcases = async (exercise_id) => {
   const { data } = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/getExerciseTestcases?exercise_id=${exercise_id}`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getExerciseTestcases?exercise_id=${exercise_id}`,
     { withCredentials: true }
   );
   return data;
@@ -190,7 +190,7 @@ export const getExerciseTestcases = async (exercise_id) => {
 
 export const updateGroupAssignedChapterItem = async (formData) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/updateGroupAssignedChapterItem`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/updateGroupAssignedChapterItem`,
     formData,
     { withCredentials: true }
   );
@@ -199,7 +199,7 @@ export const updateGroupAssignedChapterItem = async (formData) => {
 
 export const sendRunTaskMessage = async (formData) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/common_rest/sendRunTaskMessage`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/common_rest/sendRunTaskMessage`,
     formData,
     { withCredentials: true }
   );
@@ -208,7 +208,7 @@ export const sendRunTaskMessage = async (formData) => {
 
 export const getKeywordList = async (formdata) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/common_rest/getKeywordList`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/common_rest/getKeywordList`,
     formdata,
     { withCredentials: true }
   );
@@ -217,7 +217,7 @@ export const getKeywordList = async (formdata) => {
 
 export const getStudentSubmissionList = async ($stu_id, $chapter_id, $item_id) => {
   const { data } = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/index.php/common_rest/getStudentSubmissionList?stu_id=${$stu_id}&chapter_id=${$chapter_id}&item_id=${$item_id}`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/common_rest/getStudentSubmissionList?stu_id=${$stu_id}&chapter_id=${$chapter_id}&item_id=${$item_id}`,
     { withCredentials: true }
   );
   return data;
@@ -225,7 +225,7 @@ export const getStudentSubmissionList = async ($stu_id, $chapter_id, $item_id) =
 
 export const studentExerciseSubmit = async (formData) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/student_rest/studentExerciseSubmit`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/student_rest/studentExerciseSubmit`,
     formData,
     { withCredentials: true }
   );
@@ -234,7 +234,7 @@ export const studentExerciseSubmit = async (formData) => {
 
 export const checkKeyword = async (formData) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/common_rest/checkKeyword`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/common_rest/checkKeyword`,
     formData,
     { withCredentials: true }
   );
@@ -243,7 +243,7 @@ export const checkKeyword = async (formData) => {
 
 export const studentInfoCard = async (stu_id) => {
   const { data } = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/studentInfoCard?stu_id=${stu_id}`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/studentInfoCard?stu_id=${stu_id}`,
     { withCredentials: true }
   );
   return data;
@@ -251,7 +251,7 @@ export const studentInfoCard = async (stu_id) => {
 
 export const resetStudentPassword = async (formData) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/resetStudentPassword`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/resetStudentPassword`,
     formData,
     { withCredentials: true }
   );
@@ -260,7 +260,7 @@ export const resetStudentPassword = async (formData) => {
 
 export const getAssignedStudentExercise = async (stu_id, chapter_id, item_id) => {
   const { data } = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/getAssignedStudentExercise?stu_id=${stu_id}&chapter_id=${chapter_id}&item_id=${item_id}`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getAssignedStudentExercise?stu_id=${stu_id}&chapter_id=${chapter_id}&item_id=${item_id}`,
     { withCredentials: true }
   );
   return data;
@@ -268,7 +268,7 @@ export const getAssignedStudentExercise = async (stu_id, chapter_id, item_id) =>
 
 export const addStudent = async (formData) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BASE_URL}/index.php/supervisor_rest/addStudent`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/addStudent`,
     formData,
     { withCredentials: true }
   );

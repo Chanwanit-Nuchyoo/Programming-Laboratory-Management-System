@@ -243,9 +243,9 @@ class Common_rest extends MY_RestController
     $result_list = array();
 
     try {
-      $connection = new AMQPStreamConnection('rabbitmq', 5672, 'plms', 'plmskmitl2023');
+      $connection = new AMQPStreamConnection('rabbitmq', getenv('RMQ_PORT'), getenv('RMQ_USER'), getenv('RMQ_PASSWORD'));
       $channel = $connection->channel();
-      $channel->queue_declare('task-queue', false, true, false, false);
+      $channel->queue_declare(getenv('RMQ_QUEUE_NAME'), false, true, false, false);
 
       $job_id = uniqid();
 

@@ -33,7 +33,7 @@ const StudentBriefInfo = ({ studentId }) => {
       {/* Avatar */}
       {!isStudentInfoCardLoading &&
         <Box width={80} height={80} borderRadius={"8px"} overflow={"hidden"} >
-          <img className="image-contain" src={!isStudentInfoCardLoading && studentInfoCardData?.stu_avatar ? `${import.meta.env.VITE_BASE_URL}/${studentInfoCardData["stu_avatar"]}` : avatarPlaceholder} alt="user avatar image" />
+          <img className="image-contain" src={!isStudentInfoCardLoading && studentInfoCardData?.stu_avatar ? `${import.meta.env.VITE_BACKEND_BASE_URL}/${studentInfoCardData["stu_avatar"]}` : avatarPlaceholder} alt="user avatar image" />
         </Box>
       }
 
