@@ -54,8 +54,6 @@ services:
     container_name: phpmyadmin-container
     environment:
       PMA_HOST: db
-      PMA_USER: ${DATABASE_USER}
-      PMA_PASSWORD: ${DATABASE_PASSWORD}
     ports:
       - 8080:80
     depends_on:
