@@ -7,8 +7,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getExerciseTestcases } from "@/utils/api";
 import { useEffect, useState } from "react";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { sendRunTaskMessage } from "@/utils/api"
+import { saveExerciseTestcase } from "@/utils/api"
 import testcaseIcon from '@/assets/images/testcaseicon.svg'
+import { v4 as uuidv4 } from 'uuid';
 
 const buttonProps = {
   size: 'medium',
@@ -18,10 +19,11 @@ const buttonProps = {
 
 const Testcases = ({ hasSourceCode = false }) => {
   const { exerciseId } = useParams();
-  const { data, isLoading, status } = useQuery({
+
+  const { data, isLoading, status, refetch: refetchTestcaseData } = useQuery({
     queryKey: ['testcaseData', exerciseId],
     queryFn: () => getExerciseTestcases(exerciseId),
-    refetchInterval: ({ state: { data } }) => {
+    /* refetchInterval: ({ state: { data } }) => {
       if (data && Array.isArray(data) && data.length !== 0) {
         if (data.every(testcase => testcase.is_ready === "yes")) {
           return false;
@@ -33,13 +35,11 @@ const Testcases = ({ hasSourceCode = false }) => {
       } else {
         return 1000;
       }
-    },
+    }, */
   })
-
   const queryClient = useQueryClient();
-
   const { mutate: saveTestcases } = useMutation({
-    mutationFn: sendRunTaskMessage,
+    mutationFn: saveExerciseTestcase,
     onSuccess: () => {
       queryClient.invalidateQueries(['testcaseData', exerciseId])
     }
@@ -47,42 +47,46 @@ const Testcases = ({ hasSourceCode = false }) => {
 
   const [isEditable, setIsEditable] = useState(false);
   const [originalTestcases, setOriginalTestcases] = useState([]);
-
   const methods = useForm({ defaultValues: { testcase_list: [], removedList: [] }, shouldUnregister: false });
-
   const { reset, control, handleSubmit, watch, formState: { isDirty } } = methods
   const { fields: testcaseData, append: appendTestcaseList, remove } = useFieldArray({ control, name: "testcase_list" });
-
   const watchedTestcaseData = watch("testcase_list");
   const watchedRemovedList = watch("removedList");
   const allTestcasesHaveInput = watchedTestcaseData.every(testcase => !!testcase.testcase_content);
 
-  useEffect(() => {
-    if (!isLoading && data) {
-      reset({ testcase_list: data })
-      setOriginalTestcases(data);
-    }
-  }, [data, isLoading, reset])
-
   const handleCancel = () => {
-    reset({ testcase_list: data || [] })
+    reset({ testcase_list: data || [], removedList: [] })
     setIsEditable(false)
   }
 
+  const subscribeForResult = (jobId) => {
+    const eventSource = new EventSource(`${import.meta.env.VITE_REALTIME_BASE_URL}/subscribe/testcase-result/${jobId}`);
+
+    eventSource.onmessage = (event) => {
+      refetchTestcaseData();
+      eventSource.close();
+    }
+  }
+
   const handleSubmitedAll = (formData) => {
+    const jobId = uuidv4();
     const requestBody = {
       "exercise_id": exerciseId,
       "testcase_list": formData.testcase_list,
-      "removed_list": watchedRemovedList
+      "removed_list": watchedRemovedList,
+      "job_id": jobId,
     }
+    subscribeForResult(jobId);
     saveTestcases(requestBody);
   }
 
   const handleSubmitEditedTestcase = (formData) => {
+    const jobId = uuidv4();
     const requestBody = {
       "exercise_id": exerciseId,
       "testcase_list": [],
-      "removed_list": watchedRemovedList
+      "removed_list": watchedRemovedList,
+      "job_id": jobId
     }
 
     const editedOrAddedTestcases = formData.testcase_list.filter((testcase, index) => {
@@ -91,19 +95,22 @@ const Testcases = ({ hasSourceCode = false }) => {
 
     requestBody["testcase_list"] = editedOrAddedTestcases;
 
+    subscribeForResult(jobId);
     setIsEditable(false);
     saveTestcases(requestBody);
   }
 
   const handleSubmitSingle = (formData, testcaseIndex) => {
+    const jobId = uuidv4();
     const requestBody = {
       "exercise_id": exerciseId,
       "testcase_list": [],
-      "removed_list": watchedRemovedList
+      "removed_list": watchedRemovedList,
+      "job_id": jobId
     }
     const testcase = formData.testcase_list[testcaseIndex];
-
     requestBody["testcase_list"].push(testcase);
+    subscribeForResult(jobId);
     saveTestcases(requestBody);
     return
   }
@@ -118,9 +125,17 @@ const Testcases = ({ hasSourceCode = false }) => {
       "show_to_student": "no",
       "testcase_content": "",
       "testcase_error": "",
-      "testcase_output": ""
+      "testcase_output": "",
+      "is_ready": "no"
     })
   }
+
+  useEffect(() => {
+    if (!isLoading && data) {
+      reset({ testcase_list: data, removedList: [] })
+      setOriginalTestcases(data);
+    }
+  }, [data, isLoading, reset])
 
   return (
     <>
@@ -172,40 +187,6 @@ const Testcases = ({ hasSourceCode = false }) => {
                       </>
                     }
                   </>
-                  {/* {hasSourceCode ?
-                    <>
-                      {isEditable ?
-                        <>
-                          <Button {...buttonProps} disabled={!isDirty} type="submit"
-                          sx={{
-                            width: '120px',
-                            height: '40px',
-                            fontSize: '16px',
-                            textTransform: 'none'
-                          }}>Save</Button>
-                          <Button {...buttonProps} color="error" type="button" onClick={handleCancel}
-                          sx={{
-                            width: '120px',
-                            height: '40px',
-                            fontSize: '16px',
-                            textTransform: 'none'
-                          }}>Cancel</Button>
-                        </>
-                        :
-                        <Button {...buttonProps} type="button" onClick={() => { setIsEditable(true) }}
-                        sx={{
-                          width: '120px',
-                          height: '40px',
-                          fontSize: '16px',
-                          textTransform: 'none'
-                        }}>Edit</Button>
-                      }
-                    </>
-                    :
-                    (
-                      <Button {...buttonProps} disabled={true} type="button" onClick={() => { setIsEditable(true) }}>Edit</Button>
-                    )
-                    } */}
                 </Stack>
               </Stack>
               <Stack direction={'row'} >
@@ -218,11 +199,21 @@ const Testcases = ({ hasSourceCode = false }) => {
                     border: 'solid 2px'
                   }}>Add New Testcase</Button>}
               </Stack>
-              {!isLoading && data && [...testcaseData].reverse().map((item, reversedIndex) => {
-                const realIndex = testcaseData.length - 1 - reversedIndex;
-                const originalTestcase = item.testcase_id === null ? null : originalTestcases.filter(testcase => testcase.testcase_id === item.testcase_id)[0];
-                return <Testcase key={item.id} realIndex={realIndex} originalTestcase={originalTestcase} testcase={item} remove={remove} editable={isEditable} submitFn={handleSubmitSingle} />
-              })}
+              {!isLoading &&
+                <>
+                  {Array.isArray(testcaseData) && testcaseData.length > 0 ?
+                    [...testcaseData].reverse().map((item, reversedIndex) => {
+                      const realIndex = testcaseData.length - 1 - reversedIndex;
+                      const originalTestcase = item.testcase_id === null ? null : originalTestcases.filter(testcase => testcase.testcase_id === item.testcase_id)[0];
+                      return <Testcase key={item.id} realIndex={realIndex} originalTestcase={originalTestcase} testcase={item} remove={remove} editable={isEditable} submitFn={handleSubmitSingle} />
+                    })
+                    :
+                    <Stack direction="row" justifyContent="center" alignItems="center" sx={{ borderRadius: "8px", bgcolor: "var(--mirage)", padding: "20px" }} >
+                      <Typography sx={{ color: 'var(--text-color)', fontSize: '16px' }} >No test case available</Typography>
+                    </Stack>
+                  }
+                </>
+              }
             </Stack >
           </form>
         </FormProvider>

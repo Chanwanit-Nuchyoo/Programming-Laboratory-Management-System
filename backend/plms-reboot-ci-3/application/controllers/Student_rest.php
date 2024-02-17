@@ -26,22 +26,12 @@ class Student_rest extends MY_RestController
 
     $this->load->model('auth_model_rest');
     $this->auth_model_rest->update_last_seen($this->session->userdata('id'));
-
     $this->load->model('student_model_rest');
   }
 
   /**
    * Retrieves data related to a student's lab work and returns it in a specific format.
    */
-
-  private function handleError(Exception $e)
-  {
-    return $this->response([
-      'status' => FALSE,
-      'message' => 'Error: ' . $e->getMessage(),
-      'payload' => null,
-    ], $e->getCode()); // Use the provided HTTP status code
-  }
 
   public function getChapterList_get()
   {
@@ -98,6 +88,8 @@ class Student_rest extends MY_RestController
       // Retrieve the group ID of the student
       $group_id = $this->student_model_rest->get_student_record($stu_id)['stu_group'];
 
+      $this->load->model('lab_model_rest');
+
       // Check if exercise_id is null
       if (empty($exercise_id)) {
         // Retrieve the exercise ID pool for the given group, chapter, and item
@@ -108,14 +100,29 @@ class Student_rest extends MY_RestController
           throw new Exception('No exercise available.', RestController::HTTP_BAD_REQUEST);
         }
 
-        // Select a random exercise ID from the pool
-        $exercise_id = $exercise_random_pool[array_rand($exercise_random_pool)];
+        $exercise = array();
+
+        while (empty($exercise)) {
+          // Select a random exercise ID from the pool
+          $exercise_id = $exercise_random_pool[array_rand($exercise_random_pool)];
+          $exercise =  $this->lab_model_rest->get_exercise_by_id($exercise_id);
+
+          if (empty($exercise) && !empty($exercise_random_pool)) {
+            // Remove the selected exercise ID from the pool
+            $exercise_random_pool = array_diff($exercise_random_pool, array($exercise_id));
+          } else if (empty($exercise_random_pool)) {
+            // if there is no exercise available anymore, throw an exception
+            throw new Exception('No exercise available.', RestController::HTTP_BAD_REQUEST);
+          }
+        }
+
+        // Update the random pool in the database
+        $this->lab_model_rest->update_lab_class_item($group_id, $chapter_id, $item_id, $exercise_random_pool);
 
         // Upsert the student's assigned chapter item with the selected exercise ID
         $this->student_model_rest->upsert_student_assigned_chapter_item($stu_id, $chapter_id, $item_id, $exercise_id);
       }
 
-      $this->load->model('lab_model_rest');
 
       // Retrieve the details of the assigned exercise using the exercise ID
       $lab_exercise = $this->lab_model_rest->get_lab_exercise_by_id($exercise_id);
@@ -189,97 +196,112 @@ class Student_rest extends MY_RestController
 
   public function studentExerciseSubmit_post()
   {
-    $stu_id = $this->post('stu_id');
-    $chapter_id = $this->post('chapter_id');
-    $item_id = $this->post('item_id');
-    $sourcecode = $this->post('sourcecode');
-
-
-    if (empty($chapter_id) || empty($item_id) || empty($stu_id) || empty($sourcecode)) {
-      return $this->response(['message' => 'Invalid request body'], RestController::HTTP_BAD_REQUEST);
-    }
-
-    $exercise_id = $this->student_model_rest->get_student_assigned_exercise_id($stu_id, $chapter_id, $item_id);
-
-    // get all submitted exercise
-    $this->load->model('lab_model_rest');
-    $submission_list = $this->lab_model_rest->get_student_submission($stu_id, $exercise_id);
-
-    // get the attemps number as a string
-    $attemps = count($submission_list) + 1;
-
-    // if the digit of attemps is less than 4 then add 0 to the front
-    if (strlen($attemps) < 4) {
-      $attemps = str_pad($attemps, 4, "0", STR_PAD_LEFT);
-    }
-
-    $directory_path = STUDENT_CFILES_FOLDER;
-    $file_name = $stu_id . "_" . $chapter_id . "_" . $item_id . "_" . $attemps . ".py";
-
-    // write the sourcecode to the file at the directory
-    $writer = fopen($directory_path . $file_name, "w");
-    fwrite($writer, $sourcecode);
-    fclose($writer);
-
-    // insert the submission to the database
-    $submission = array(
-      'stu_id' => $stu_id,
-      'exercise_id' => $exercise_id,
-      'status' => 'pending',
-      'sourcecode_filename' => $file_name,
-      'marking' => 0,
-      'time_submit' => date("Y-m-d H:i:s"),
-      'inf_loop' => 'No',
-      'output' => null,
-      'result' => null,
-      'error_message' => null,
-    );
-
-    $this->db->trans_start();
-    $inserted_row = $this->lab_model_rest->exercise_submission_add($submission);
-
-    $testcase_list = $this->lab_model_rest->get_testcase_array($exercise_id);
-    $exercise =  $this->lab_model_rest->get_exercise_by_id($exercise_id);
-
     try {
-      $connection = new AMQPStreamConnection('rabbitmq', getenv('RMQ_PORT'), getenv('RMQ_USER'), getenv('RMQ_PASSWORD'));
-      $channel = $connection->channel();
-      $channel->queue_declare(getenv('RMQ_QUEUE_NAME'), false, true, false, false);
+      $time_submit = date('Y-m-d H:i:s');
+      $stu_id = $this->post('stu_id');
+      $chapter_id = $this->post('chapter_id');
+      $item_id = $this->post('item_id');
+      $sourcecode = $this->post('sourcecode');
+      $job_id = $this->post('job_id');
 
-      $job_id = uniqid();
+      if (empty($chapter_id) || empty($item_id) || empty($stu_id) || empty($sourcecode)) {
+        return $this->response(['message' => 'Invalid request body'], RestController::HTTP_BAD_REQUEST);
+      }
 
-      $message = new AMQPMessage(json_encode(array(
-        'job_id' => $job_id,
-        'job_type' => 'exercise-submit',
-        'submission_id' => $inserted_row["submission_id"],
-        'sourcecode' => file_get_contents($directory_path . $file_name),
-        'testcase_list' => $testcase_list,
-        'keyword_constraints' => $exercise['user_defined_constraints'],
-      )));
+      $this->load->model('lab_model_rest');
 
-      $channel->basic_publish($message, '', 'task-queue');
+      $exercise_id = $this->student_model_rest->get_student_assigned_exercise_id($stu_id, $chapter_id, $item_id);
+      $stu_group = $this->student_model_rest->get_student_record($stu_id)['stu_group'];
+      $permission = $this->lab_model_rest->get_group_permission($stu_group);
 
-      $channel->close();
-      $connection->close();
+      $allow_submit_type = $permission[$chapter_id]['allow_submit_type'];
 
-      // If the AMQP message was sent successfully, commit the transaction
-      $this->db->trans_commit();
-    } catch (Exception $e) {
-      // If an error occurred, roll back the transaction
-      $this->db->trans_rollback();
+      if ($allow_submit_type == 'deny') {
+        throw new Exception('You are not allowed to submit the exercise.', RestController::HTTP_FORBIDDEN);
+      } else if (in_array($allow_submit_type, array('timer', 'datetime'))) {
+        $time_start = $permission[$chapter_id]['submit_time_start'];
+        $time_end = $permission[$chapter_id]['submit_time_end'];
+
+        if ($time_submit < $time_start || $time_submit > $time_end) {
+          throw new Exception('You are not allowed to submit the exercise at this time.', RestController::HTTP_FORBIDDEN);
+        }
+      }
+
+      // get all submitted exercise
+      $submission_list = $this->lab_model_rest->get_student_submission($stu_id, $exercise_id);
+
+      // get the attemps number as a string
+      $attemps = count($submission_list) + 1;
+
+      // if the digit of attemps is less than 4 then add 0 to the front
+      if (strlen($attemps) < 4) {
+        $attemps = str_pad($attemps, 4, "0", STR_PAD_LEFT);
+      }
+
+      $directory_path = STUDENT_CFILES_FOLDER;
+      $file_name = $stu_id . "_" . $chapter_id . "_" . $item_id . "_" . $attemps . ".py";
+
+      // write the sourcecode to the file at the directory
+      $writer = fopen($directory_path . $file_name, "w");
+      fwrite($writer, $sourcecode);
+      fclose($writer);
+
+      // insert the submission to the database
+      $submission = array(
+        'stu_id' => $stu_id,
+        'exercise_id' => $exercise_id,
+        'status' => 'pending',
+        'sourcecode_filename' => $file_name,
+        'marking' => 0,
+        'time_submit' => $time_submit,
+        'inf_loop' => 'No',
+        'output' => null,
+        'result' => null,
+        'error_message' => null,
+      );
+
+      $this->db->trans_start();
+      $inserted_row = $this->lab_model_rest->exercise_submission_add($submission);
+
+      $testcase_list = $this->lab_model_rest->get_testcase_array($exercise_id);
+      $exercise =  $this->lab_model_rest->get_exercise_by_id($exercise_id);
+
+      try {
+        $connection = new AMQPStreamConnection('rabbitmq', getenv('RMQ_PORT'), getenv('RMQ_USER'), getenv('RMQ_PASSWORD'));
+        $channel = $connection->channel();
+        $channel->queue_declare(getenv('RMQ_QUEUE_NAME'), false, true, false, false);
+
+        $message = new AMQPMessage(json_encode(array(
+          'job_id' => $job_id,
+          'job_type' => 'exercise-submit',
+          'submission_id' => $inserted_row["submission_id"],
+          'sourcecode' => file_get_contents($directory_path . $file_name),
+          'testcase_list' => $testcase_list,
+          'keyword_constraints' => $exercise['user_defined_constraints'],
+        )));
+
+        $channel->basic_publish($message, '', 'task-queue');
+
+        $channel->close();
+        $connection->close();
+
+        // If the AMQP message was sent successfully, commit the transaction
+        $this->db->trans_commit();
+      } catch (Exception $e) {
+        // If an error occurred, roll back the transaction
+        $this->db->trans_rollback();
+
+        throw new Exception('An error occurred while trying to connect to AMQP', RestController::HTTP_INTERNAL_ERROR);
+      }
 
       $this->response([
-        'status' => 'error',
-        'message' => 'An error occurred while running testcases',
-        'error' => $e->getMessage(),
-      ], RestController::HTTP_INTERNAL_ERROR);
+        'status' => 'success',
+        'message' => 'Submission are being run',
+        'job_id' => $job_id,
+        'submission_id' => $inserted_row,
+      ], RestController::HTTP_OK);
+    } catch (Exception $e) {
+      return $this->handleError($e);
     }
-
-    $this->response([
-      'status' => 'success',
-      'message' => 'Submission are being run',
-      'job_id' => $job_id,
-      'submission_id' => $inserted_row,
-    ], RestController::HTTP_OK);
   }
 }

@@ -120,14 +120,25 @@ body {
 }
 
 .table-head-column button {
-  text-transform: none !important;
-  font-size: 14px !important;
-  background: var(--mirage) !important;
+  text-transform: none;
+  font-size: 14px;
+  background: var(--mirage);
   border: 1px solid var(--divisor-rgba-25525525502, rgba(255, 255, 255, 0.20));
 }
 
 .table-head-column button:hover {
-  background-color: var(--hover) !important;
+  background-color: var(--hover);
+}
+
+.table-head-column-active button {
+  text-transform: none;
+  font-size: 14px;
+  background: var(--chathamBlue);
+  border: 1px solid var(--divisor-rgba-25525525502, rgba(255, 255, 255, 0.20));
+}
+
+.table-head-column-active button:hover {
+  background-color: var(--hover);
 }
 
 .table-body-column {
@@ -369,4 +380,14 @@ body {
 
 .submission-history-box .cm-editor {
   border-radius: 0px;
+}
+
+.bg-black-editor .cm-content{
+  background-color: black;
+  border-radius: 8px;
+}
+
+.disabled-editor .cm-content {
+  background-color: #2f3955;
+  border-radius: 8px;
 }

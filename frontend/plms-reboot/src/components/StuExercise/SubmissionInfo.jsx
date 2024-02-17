@@ -55,16 +55,16 @@ const SubmissionInfo = ({ selectedSubmission }) => {
 
             <Stack spacing="10px" >
               <Typography sx={{ fontWeight: "bold" }} >Sourcecode</Typography>
-              <MyCodeEditor editable={false} value={submission.sourcecode_content} />
+              <MyCodeEditor className="bg-black-editor" editable={false} value={submission.sourcecode_content} />
             </Stack>
 
-            {submission.status !== "error" &&
+            {/* submission.status !== "error" && */
               <Stack spacing="10px" >
                 <Stack spacing="10px" >
                   <Typography sx={{ fontWeight: "bold" }} >Result</Typography>
                   {Array.isArray(submission.result) && submission.result &&
                     <>
-                      {submission.result.length === 0 && <Typography Typography sx={{ color: "#ccc", fontSize: "14px" }} >No testcases...</Typography>}
+                      {submission.result.length === 0 && <TerminalBlock text="No output" hug />}
                       {submission.result.length > 0 &&
                         submission.result.map((r, i) => <MyDiff key={i} isPassed={r.is_passed} actual={r.actual} expected={r.expected} testcaseNo={r.testcase_no} />)
                       }

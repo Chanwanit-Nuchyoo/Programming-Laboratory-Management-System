@@ -61,7 +61,7 @@ const AvgTableHead = ({
       <Grid md={1.5} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
         <Button fullWidth variant="outlined" sx={{ color: "white" }}  >Year</Button>
       </Grid>
-      <Grid md={1.5} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
+      <Grid md={1.5} className={`flex-center ${selectedSemester.size > 0 ? "table-head-column-active" : "table-head-column"}`} sx={{ padding: "0px 2.5px" }} >
         <Button fullWidth variant="outlined" sx={{ color: "white" }}  {...bindTrigger(semesterPopupState)} endIcon={<UnfoldMoreIcon />} >Semester</Button>
         <Menu {...bindMenu(semesterPopupState)} slotProps={{ paper: { style: menuStyle } }} >
           <FormGroup padding={"10px"} sx={{ width: "100%" }} >
@@ -85,7 +85,7 @@ const AvgTableHead = ({
           </FormGroup>
         </Menu>
       </Grid>
-      <Grid md={3} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
+      <Grid md={3} className={`flex-center ${selectedClassDate.size > 0 ? "table-head-column-active" : "table-head-column"}`} sx={{ padding: "0px 2.5px" }} >
         <Button fullWidth variant="outlined" sx={{ color: "white" }}  {...bindTrigger(classDatePopupState)} endIcon={<UnfoldMoreIcon />} >Class date</Button>
         <Menu {...bindMenu(classDatePopupState)} slotProps={{ paper: { style: menuStyle } }} >
           <FormGroup sx={{ width: "100%" }}>
@@ -121,7 +121,7 @@ const AvgTableHead = ({
       <Grid md={1} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
         <Button fullWidth variant="outlined" sx={{ color: "white" }}  >Students</Button>
       </Grid>
-      <Grid md={2} className="flex-center table-head-column" sx={{ padding: "0px 2.5px" }} >
+      <Grid md={2} className={`flex-center ${selectedInstructor.size > 0 ? "table-head-column-active" : "table-head-column"}`} sx={{ padding: "0px 2.5px" }} >
         <Button fullWidth variant="contained" {...bindTrigger(instructorPopupState)} endIcon={<UnfoldMoreIcon />} >Instructor</Button>
         <Menu {...bindMenu(instructorPopupState)} slotProps={{ paper: { style: menuStyle } }} >
           <FormGroup sx={{ width: "100%" }}>
@@ -153,7 +153,6 @@ AvgTableHead.propTypes = {
   setSelectedSemester: PropTypes.func.isRequired,
   setSelectedClassDate: PropTypes.func.isRequired,
   setSelectedInstructor: PropTypes.func.isRequired,
-
 }
 
 export default AvgTableHead

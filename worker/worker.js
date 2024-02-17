@@ -1,5 +1,6 @@
 import amqp from "amqplib";
 import mysql from "mysql";
+import redis from "redis";
 import { addAndUpdateTestcase } from "./runTestcase.js";
 import { runSubmission } from "./runSubmission.js";
 
@@ -11,12 +12,31 @@ const DB_CONFIG = {
   database: process.env.DATABASE_NAME,
 };
 
+const REDIS_CONFIG = {
+  username: 'default', // use your Redis user. More info https://redis.io/docs/management/security/acl/
+  password: process.env.REDIS_PASSWORD, // use your password here
+  socket: {
+    host: 'redis',
+    port: 6379,
+  }
+};
+
 // RabbitMQ configuration
 const RABBITMQ_URL = `amqp://${process.env.RMQ_USER}:${process.env.DATABASE_PASSWORD}@rabbitmq`;
 const QUEUE_NAME = process.env.RMQ_QUEUE_NAME;
 
 // Create and connect to the database
 const db_connection = mysql.createConnection(DB_CONFIG);
+// Create a Redis client
+const redisClient = redis.createClient(REDIS_CONFIG);
+
+redisClient.on('connect', function () {
+  console.log('Connected to Redis');
+});
+
+redisClient.on('error', function (err) {
+  console.log('Redis error: ' + err);
+});
 
 const connectToDatabase = () => {
   db_connection.connect((err) => {
@@ -55,9 +75,9 @@ async function python_consumer() {
       // console.log("Received a message from the queue:", msg_body);
 
       if (job_type === "upsert-testcase") {
-        addAndUpdateTestcase(channel, db_connection, msg, msg_body);
+        addAndUpdateTestcase(channel, db_connection, msg, msg_body, redisClient);
       } else if (job_type === "exercise-submit") {
-        runSubmission(channel, db_connection, msg, msg_body);
+        runSubmission(channel, db_connection, msg, msg_body, redisClient);
       }
 
       // console.log("-----------------------------------------")
@@ -71,6 +91,7 @@ async function python_consumer() {
 // Start the consumer and database connection
 try {
   connectToDatabase();
+  await redisClient.connect();
   python_consumer();
 } catch (err) {
   console.log(err.message);

@@ -999,7 +999,7 @@ class Lab_model_rest extends CI_Model
 		return sizeof($query->result_array());
 	}
 
-	public function get_supervise_group($lecturer, $year, $semester)
+	public function get_supervise_group($lecturer, $semester)
 	{
 		/*
 		$table = 'class_schedule';
@@ -1014,7 +1014,6 @@ class Lab_model_rest extends CI_Model
 
 		$this->db->select('group_id')
 			->from('class_schedule')
-			->where('class_schedule.year', $year)
 			->where('class_schedule.semester', $semester)
 			->where('class_schedule.lecturer', $lecturer);
 
@@ -1353,6 +1352,18 @@ class Lab_model_rest extends CI_Model
 
 		$query = $this->db->get();
 		$result = $query->result_array();
+
+		if (empty($result)) {
+			$this->assign_group_item($group_id);
+			$this->db->select('*')
+				->from('group_assigned_chapter_item')
+				->order_by('item_id')
+				->where('group_id', $group_id)
+				->where('chapter_id', $chapter_id);
+
+			$query = $this->db->get();
+			$result = $query->result_array();
+		}
 
 		foreach ($result as &$row) {
 			$row['exercise_id_list'] = unserialize($row['exercise_id_list']);

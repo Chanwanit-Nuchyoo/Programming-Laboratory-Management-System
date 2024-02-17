@@ -197,9 +197,9 @@ export const updateGroupAssignedChapterItem = async (formData) => {
   return data;
 }
 
-export const sendRunTaskMessage = async (formData) => {
+export const saveExerciseTestcase = async (formData) => {
   const { data } = await axios.post(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/common_rest/sendRunTaskMessage`,
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/saveExerciseTestcase`,
     formData,
     { withCredentials: true }
   );

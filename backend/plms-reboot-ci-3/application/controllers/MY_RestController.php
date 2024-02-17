@@ -14,8 +14,19 @@ class MY_RestController extends RestController
     $method = $_SERVER['REQUEST_METHOD'];
     parent::__construct();
 
+    $this->logout_after_time_limit();
+
     // $this->login_check();
     $_SESSION['walk'] = __METHOD__ . " ";
+  }
+
+  public function handleError(Exception $e)
+  {
+    return $this->response([
+      'status' => FALSE,
+      'message' => 'Error: ' . $e->getMessage(),
+      'payload' => null,
+    ], $e->getCode() ? $e->getCode() : 500);
   }
 
   public function isLoggedInCheck()

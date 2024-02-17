@@ -96,7 +96,7 @@ const Problem = ({ exercise }) => {
       </Box>
 
       {/* Keyword Constraints */}
-      <Box borderRadius={"8px"} >
+      <Box borderRadius={"8px"} sx={{ borderRadius: "8px", overflow: "hidden" }} >
         <Accordion sx={{ bgcolor: "transparent" }} >
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}

@@ -49,8 +49,11 @@ async function updateTestcase(db_connection, exercise_id, testcase) {
   });
 }
 
-export async function addAndUpdateTestcase(channel, db_connection, msg, msg_body) {
-  const { exercise_id, sourcecode, testcase_list } = msg_body;
+export async function addAndUpdateTestcase(channel, db_connection, msg, msg_body, redisClient) {
+  const { exercise_id, sourcecode, testcase_list, job_id } = msg_body;
+
+  const publisher = redisClient.duplicate();
+  await publisher.connect();
 
   // Create a unique temporary file
   const tmpFile = tmp.fileSync({ postfix: '.py' });
@@ -58,93 +61,66 @@ export async function addAndUpdateTestcase(channel, db_connection, msg, msg_body
   // Write the source code to the file
   fs.writeFileSync(tmpFile.name, sourcecode);
 
-  console.log("=".repeat(60))
+  printMessage('Run testcase for exercise: ' + exercise_id);
 
-  console.log("\n")
-  console.log('Run testcase for exercise: ' + exercise_id);
-  console.log("\n")
-
-  const testcase_result = [];
   try {
     for (let i = 0; i < testcase_list.length; i++) {
       let result;
       try {
         result = await runPythonScript(testcase_list[i], tmpFile.name);
 
-        console.log(`Testcase ${i + 1}`)
-        console.log(`Output: `);
-        console.log(result.output.trimEnd())
+        printMessage(`Testcase ${i + 1}`);
+        printMessage(`Output: `);
+        printMessage(result.output.trimEnd());
 
-        testcase_result.push({
+        await updateTestcase(db_connection, exercise_id, {
           ...testcase_list[i],
           testcase_output: result.output.trimEnd(),
           testcase_error: null
         });
       } catch (err) {
+        printMessage(`Error in testcase ${i + 1}: ${err.message}`);
 
-        if (err instanceof AppError) {
-
-          if ([ERROR_NAME.TIMEOUT_ERROR, ERROR_NAME.MEMORY_LIMIT_EXCEEDED, ERROR_NAME.OUTPUT_LIMIT_EXCEEDED, ERROR_NAME.DATABASE_ERROR].includes(err.name)) {
-            testcase_result.push({
-              ...testcase_list[i],
-              testcase_output: null,
-              testcase_error: err.message
-            });
-            throw err
-          }
-        }
-
-        testcase_result.push({
+        // Update the failed testcase with the error message
+        await updateTestcase(db_connection, exercise_id, {
           ...testcase_list[i],
-          testcase_output: null,
+          testcase_output: err instanceof AppError ? err.stdout : null,
           testcase_error: err.message
         });
-      }
-    }
 
-    // Update the testcase in the database
-    for (const testcase of testcase_result) {
-      await updateTestcase(db_connection, exercise_id, testcase).catch(err => {
-        throw err;
-      });
+        // Update the remaining testcases with a message indicating they did not run
+        for (let j = i + 1; j < testcase_list.length; j++) {
+          await updateTestcase(db_connection, exercise_id, {
+            ...testcase_list[j],
+            testcase_output: null,
+            testcase_error: "Error occurred before this testcase"
+          });
+        }
+
+        // Acknowledge the message and stop processing
+        channel.ack(msg);
+        return;
+      }
     }
 
     // Acknowledge the message
     channel.ack(msg);
   } catch (err) {
-    if (err instanceof AppError && err.name === ERROR_NAME.DATABASE_ERROR) {
-      channel.nack(msg);
-    } else {
-      try {
-        const index_before_error = testcase_result.length
-
-        const testcase_list_after_error = testcase_list.slice(index_before_error)
-
-        const result = [...testcase_result]
-
-        for (const testcase of testcase_list_after_error) {
-          result.push({
-            ...testcase,
-            testcase_output: null,
-            testcase_error: "Error occurred before this testcase"
-          })
-        }
-
-        for (const testcase of result) {
-          await updateTestcase(db_connection, exercise_id, testcase)
-        }
-
-        channel.ack(msg);
-      } catch (err) {
-        console.error(err)
-        channel.nack(msg);
-      }
-    }
+    console.error(err);
+    channel.nack(msg);
   } finally {
+    // Publish the error message
+    await publisher.publish(`testcase-result:${job_id}`, "done");
+    publisher.quit();
     // Remove the temporary file
     tmpFile.removeCallback();
-    console.log("\n")
-    console.log("=".repeat(60))
-    console.log("\n")
+    printMessage();
   }
+}
+
+function printMessage(message = '') {
+  console.log("=".repeat(60));
+  console.log("\n");
+  console.log(message);
+  console.log("\n");
 }

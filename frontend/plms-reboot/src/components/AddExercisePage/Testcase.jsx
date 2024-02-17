@@ -145,12 +145,12 @@ const Testcase = ({ originalTestcase, realIndex, remove, editable, submitFn }) =
           />
         </Grid>}
         <Grid className="hide-cursor" xs={12} md={6}>
-          {watchedTestcase.is_ready === "no" && <TerminalBlock text="Testcase is running..." />}
-          {watchedTestcase.is_ready === "yes" && watchedTestcase.testcase_output &&
-            <TerminalBlock text={watchedTestcase.testcase_output} style={{ borderRadius: "0px 0px 8px 0px" }} />
+          {watchedTestcase.is_ready && watchedTestcase.is_ready === "no" && <TerminalBlock text="Output is not ready..." style={{ borderRadius: "0px 0px 8px 0px", backgroundColor: "#0e1117" }} />}
+          {watchedTestcase.is_ready && watchedTestcase.is_ready === "yes" && watchedTestcase.testcase_output &&
+            <TerminalBlock text={watchedTestcase.testcase_output} style={{ borderRadius: "0px 0px 8px 0px", backgroundColor: "#0e1117" }} />
           }
-          {watchedTestcase.is_ready === "yes" && !watchedTestcase.testcase_output &&
-            <TerminalBlock text={watchedTestcase.testcase_error} error style={{ borderRadius: "0px 0px 8px 0px" }} />
+          {watchedTestcase.is_ready && watchedTestcase.is_ready === "yes" && !watchedTestcase.testcase_output &&
+            <TerminalBlock text={watchedTestcase.testcase_error} error style={{ borderRadius: "0px 0px 8px 0px", backgroundColor: "#0e1117" }} />
           }
         </Grid>
       </Grid>

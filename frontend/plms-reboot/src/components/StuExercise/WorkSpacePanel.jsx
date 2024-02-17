@@ -1,11 +1,7 @@
-import { Stack, Typography, Box, Button } from "@mui/material"
+import { Stack, Typography, Box, Button, CircularProgress } from "@mui/material"
 import PanelHeader from "@/components/StuExercise/PanelHeader"
-import CodeIcon from '@mui/icons-material/Code';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import MyCodeEditor from "@/components/_shared/MyCodeEditor";
-import Split from "react-split";
-import MyDiff from "@/components/_shared/MyDiff";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { useAtom } from "jotai";
 import { userAtom } from "@/store/store";
@@ -14,22 +10,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import codingIcon from '@/assets/images/codingicon.svg'
 import { studentExerciseSubmit, checkKeyword } from '@/utils/api'
 import { getConstraintsFailedMessage } from '@/utils'
-
-/* const expected = ` *** Distance *** 
-Enter Velocity Acceleration Time: 10,0,10
-Your Distance = 80.00`
-const actual = ` *** Distance *** 
-Enter Velocity Acceleration Time: 10,0,10
-Your Distance = 100.00` */
+import { v4 as uuidv4 } from 'uuid';
 
 const WorkSpacePanel = ({ exercise, submissionList, selectedTab, shouldShowLatestSubmission }) => {
-
-  const [isCollapsed, setIsCollapsed] = useState(true);
   const [saveStatus, setSaveStatus] = useState('');
+  const eventSourceRef = useRef(null);
+  const submittedTime = useRef(null);
   const [user, setUser] = useAtom(userAtom);
-  const handleCollapse = () => {
-    setIsCollapsed(prev => !prev);
-  }
 
   const queryClient = useQueryClient();
 
@@ -39,11 +26,56 @@ const WorkSpacePanel = ({ exercise, submissionList, selectedTab, shouldShowLates
 
   const watchedSourcecode = watch("sourcecode");
 
-  const { mutate: sendExerciseSubmission } = useMutation({
+  const subscribeSubmissionResult = (job_id) => {
+    eventSourceRef.current = new EventSource(`${import.meta.env.VITE_REALTIME_BASE_URL}/subscribe/submission-result/${job_id}`);
+
+    eventSourceRef.current.onmessage = (event) => {
+      submissionList.refetch();
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+  }
+
+  const sendExerciseSubmission = useMutation({
     mutationFn: studentExerciseSubmit,
     onSuccess: () => {
       queryClient.invalidateQueries(['submission-list', user.id, chapterId, itemId]);
       shouldShowLatestSubmission.setValue(true);
+    },
+    onError: (err) => {
+      alert(err.response.data.message)
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+  });
+
+  const checkKeywordMutation = useMutation({
+    mutationFn: checkKeyword,
+    onSuccess: async (response_body) => {
+      const is_kw_passed = response_body.status === "passed";
+
+      if (!is_kw_passed) {
+        const message = getConstraintsFailedMessage(response_body);
+        alert(message);
+        return;
+      } else {
+        if (watchedSourcecode !== "" || watchedSourcecode !== null) {
+          const jobId = uuidv4();
+          const req_body = {
+            stu_id: user.id,
+            chapter_id: chapterId,
+            item_id: itemId,
+            sourcecode: watchedSourcecode,
+            job_id: jobId,
+          }
+          subscribeSubmissionResult(jobId);
+          sendExerciseSubmission.mutate(req_body);
+        }
+      }
+    },
+    onError: (error) => {
+      console.log(error);
+      alert(error.message);
     }
   });
 
@@ -65,7 +97,7 @@ const WorkSpacePanel = ({ exercise, submissionList, selectedTab, shouldShowLates
         const timer = setTimeout(() => {
           localStorage.setItem(`sourcecode-${user.id}-${chapterId}-${itemId}`, watchedSourcecode);
           setSaveStatus('Saved!');
-        }, 3000); // 3000ms = 3s
+        }, 1000);
 
         return () => clearTimeout(timer);
       } else {
@@ -76,46 +108,30 @@ const WorkSpacePanel = ({ exercise, submissionList, selectedTab, shouldShowLates
     }
   }, [watchedSourcecode, user.id, chapterId, itemId]);
 
-  const onSubmit = async (data) => {
-    try {
-      if (exercise.data.user_defined_constraints !== null) {
-        const req_body = {
-          "sourcecode": data.sourcecode,
-          "exercise_kw_list": exercise.data.user_defined_constraints,
-        }
-        const response_body = await checkKeyword(req_body)
-        const is_kw_passed = response_body.status === "passed";
+  const onSubmit = async () => {
+    const req_body = {
+      "sourcecode": watchedSourcecode,
+      "exercise_kw_list": exercise.data.user_defined_constraints || {
+        "classes": [],
+        "imports": [],
+        "methods": [],
+        "functions": [],
+        "variables": [],
+        "reserved_words": []
+      },
+    };
+    checkKeywordMutation.mutate(req_body);
+  }
 
-        if (!is_kw_passed) {
-          const message = getConstraintsFailedMessage(response_body);
-          alert(message);
-          return;
-        } else {
-          if (data.sourcecode !== "" || data.sourcecode !== null) {
-            const req_body = {
-              stu_id: user.id,
-              chapter_id: chapterId,
-              item_id: itemId,
-              sourcecode: data.sourcecode,
-            }
-            sendExerciseSubmission(req_body);
-            selectedTab.setValue(1);
-          }
-        }
-      } else {
-        if (data.sourcecode !== "" || data.sourcecode !== null) {
-          const req_body = {
-            stu_id: user.id,
-            chapter_id: chapterId,
-            item_id: itemId,
-            sourcecode: data.sourcecode,
-          }
-          sendExerciseSubmission(req_body);
-          selectedTab.setValue(1);
-        }
-      }
-    } catch (error) {
-      console.log(error);
+  const getButtonText = () => {
+    if (saveStatus === "Saving...") {
+      return "Saving...";
+    } else if (checkKeywordMutation.isPending) {
+      return "Checking Constraints..."
+    } else if (sendExerciseSubmission.isPending) {
+      return "Submitting..."
+    } else {
+      return "Submit";
     }
   }
 
@@ -126,15 +142,23 @@ const WorkSpacePanel = ({ exercise, submissionList, selectedTab, shouldShowLates
           <Stack direction={"row"} spacing={"10px"} >
             <img src={codingIcon} alt="Coding Icon" />
             <Typography>Code editor</Typography>
-            <Typography sx={{ fontSize: "16px", color: "var(--raven)" }} >{saveStatus}</Typography>
+            {/* <Typography sx={{ fontSize: "16px", color: "var(--raven)" }} >{saveStatus}</Typography> */}
           </Stack>
           <Stack>
-            <Button disabled={!watchedSourcecode || exercise.isError} onClick={handleSubmit(onSubmit)} color="primary" variant="contained" sx={{ textTransform: "none" }} >Submit</Button>
+            <Button
+              disabled={!watchedSourcecode || exercise.isError || saveStatus !== "Saved!" || sendExerciseSubmission.isPending || checkKeywordMutation.isPending}
+              startIcon={(saveStatus === "Saving..." || sendExerciseSubmission.isPending || checkKeywordMutation.isPending) && <CircularProgress size="20px" sx={{ color: "white" }} />}
+              onClick={handleSubmit(onSubmit)}
+              color="primary"
+              variant="contained"
+              sx={{ textTransform: "none" }} >
+              {saveStatus === "Saving..." ? "Saving..." : "Submit"}
+            </Button>
           </Stack>
         </PanelHeader>
 
         <Box height={"calc(100% - 44px)"} >
-          <Box overflow={"auto"} height={"100%"} borderRadius="0px 0px 8px 8px" /* onDrop={handleFileDrop} */ >
+          <Box overflow={"auto"} height={"100%"} borderRadius="0px 0px 8px 8px">
             <Controller
               name="sourcecode"
               control={control}

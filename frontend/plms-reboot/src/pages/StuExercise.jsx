@@ -12,7 +12,7 @@ import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs'
 import ProblemPanel from '@/components/StuExercise/ProblemPanel'
 import WorkSpacePanel from '@/components/StuExercise/WorkSpacePanel'
 
-const StuExcercise = () => {
+const StuExercise = () => {
   const [user] = useAtom(userAtom)
   const { chapterId, itemId } = useParams();
   const [selectedTab, setSelectedTab] = useState(0);
@@ -25,22 +25,9 @@ const StuExcercise = () => {
     staleTime: Infinity,
   })
 
-  const { data: submissionList, isLoading: isSubmissionListLoading } = useQuery({
+  const { data: submissionList, isLoading: isSubmissionListLoading, refetch: refetchSubmissionList } = useQuery({
     queryKey: ['submission-list', user.id, chapterId, itemId],
     queryFn: () => getStudentSubmissionList(user.id, chapterId, itemId),
-    refetchInterval: ({ state: { data } }) => {
-      if (data && Array.isArray(data) && data.length !== 0) {
-        if (data.every(submission => submission.status !== "pending")) {
-          return false;
-        } else {
-          return 1000;
-        }
-      } else if (data && Array.isArray(data)) {
-        return false;
-      } else {
-        return 1000;
-      }
-    }
   })
 
   useEffect(() => {
@@ -85,7 +72,7 @@ const StuExcercise = () => {
         />
         <WorkSpacePanel
           exercise={exercise}
-          submissionList={{ isLoading: isSubmissionListLoading, value: submissionList, latest: latestSubmission }}
+          submissionList={{ isLoading: isSubmissionListLoading, value: submissionList, refetch: refetchSubmissionList, latest: latestSubmission }}
           selectedTab={{ value: selectedTab, setValue: setSelectedTab }}
           shouldShowLatestSubmission={{ value: shouldShowLatestSubmission, setValue: setShouldShowLatestSubmission }}
         />
@@ -94,4 +81,4 @@ const StuExcercise = () => {
   </Stack>
 }
 
-export default StuExcercise
+export default StuExercise

@@ -196,10 +196,9 @@ class Supervisor_model_rest extends CI_Model
 		return $row['password'];
 	}
 
-	public function get_class_schedule($year)
+	public function get_class_schedule()
 	{
 		$semester = array(1, 2);
-		$this->db->where("year", $year);
 		$this->db->where_in('semester', $semester);
 		$query = $this->db->get('class_schedule');
 		return $query->result_array();

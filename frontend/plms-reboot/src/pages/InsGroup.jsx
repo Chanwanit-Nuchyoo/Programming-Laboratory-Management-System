@@ -27,8 +27,8 @@ const InsGroup = () => {
   const { data: labData, isLoading: isLabChapterLoading } = useQuery({
     queryKey: ['labData', groupId],
     queryFn: async () => {
-      const res = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getGroupDataById?group_id=${groupId}`, { withCredentials: true })
-      return res.data.payload.group_permission;
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getGroupChapterPermission?group_id=${groupId}`, { withCredentials: true })
+      return res.data;
     }
   });
 
