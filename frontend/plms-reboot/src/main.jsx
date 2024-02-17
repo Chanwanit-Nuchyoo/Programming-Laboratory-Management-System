@@ -9,6 +9,7 @@ import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { Provider } from 'jotai';
 import RouterComponent from './RouterComponent';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import './index.css';
 
 const customTheme = createTheme(themeOptions);
@@ -28,6 +29,7 @@ const App = () => {
           <CssBaseline />
           <QueryClientProvider client={queryClient} >
             <RouterComponent />
+            {/* <ReactQueryDevtools initialIsOpen={false} /> */}
           </QueryClientProvider>
         </LocalizationProvider>
       </ThemeProvider>

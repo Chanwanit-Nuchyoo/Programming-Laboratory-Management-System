@@ -21,7 +21,7 @@ const StudentList = lazy(() => import('@/pages/StudentList'));
 const StudentScore = lazy(() => import('@/pages/StudentScore'));
 const InsGroup = lazy(() => import('@/pages/InsGroup'));
 const SubmissionHistory = lazy(() => import('@/pages/SubmissionHistory'));
-const StuExcercise = lazy(() => import('@/pages/StuExcercise'));
+const StuExercise = lazy(() => import('@/pages/StuExercise'));
 const EditExercise = lazy(() => import('@/pages/EditExercise'));
 const StuExerciseList = lazy(() => import('@/pages/StuExerciseList'));
 const StuHome = lazy(() => import('@/pages/StuHome'));
@@ -67,7 +67,7 @@ const RouterComponent = () => {
         } >
           <Route index element={<Suspense fallback={<div>Loading...</div>}><StuHome /></Suspense>} />
           <Route path={REL_STU_URL.STATIC.EXERCISE_LIST} element={<Suspense fallback={<div>Loading...</div>}><StuExerciseList /></Suspense>} />
-          <Route path={REL_STU_URL.DYNAMIC.EXERCISE()} element={<Suspense fallback={<div>Loading...</div>}><StuExcercise /></Suspense>} />
+          <Route path={REL_STU_URL.DYNAMIC.EXERCISE()} element={<Suspense fallback={<div>Loading...</div>}><StuExercise /></Suspense>} />
           <Route path={REL_STU_URL.STATIC.INSTRUCTION} element={<Instruction />} />
           <Route path={REL_STU_URL.STATIC.EXAMINATION} element={<Examination />} />
           <Route path={REL_STU_URL.STATIC.FAQ} element={<Faq />} />

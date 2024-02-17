@@ -108,6 +108,7 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
           createNewExercse(newExercise)
         } else {
           const message = getConstraintsFailedMessage(res);
+
           alert(message);
         }
       })
@@ -279,6 +280,7 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
               render={({ field: { onChange, onBlur, value } }) =>
                 <MyCodeEditor
                   editable={editable}
+                  className={!editable && "disabled-editor"}
                   onChange={onChange}
                   value={value}
                 />

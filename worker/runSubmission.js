@@ -41,8 +41,11 @@ async function updateSubmission(db_connection, submission_data) {
   })
 }
 
-export async function runSubmission(channel, db_connection, msg, msg_body) {
-  const { submission_id, sourcecode, testcase_list } = msg_body;
+export async function runSubmission(channel, db_connection, msg, msg_body, redisClient) {
+  const { submission_id, sourcecode, testcase_list, job_id } = msg_body;
+
+  const publisher = redisClient.duplicate();
+  await publisher.connect();
 
   const tmpFile = tmp.fileSync({ postfix: '.py' });
   const tmpFile2 = tmp.fileSync({ postfix: '.json' });
@@ -125,7 +128,7 @@ export async function runSubmission(channel, db_connection, msg, msg_body) {
         submission_id: submission_id,
         status: "error",
         marking: 0,
-        result: JSON.stringify(testcase_result),
+        result: err.stdout ? JSON.stringify(err.stdout) : JSON.stringify([]),
         error_message: err.message
       }
 
@@ -139,6 +142,9 @@ export async function runSubmission(channel, db_connection, msg, msg_body) {
     }
 
   } finally {
+    // publish message
+    await publisher.publish(`submission-result:${job_id}`, "done");
+    publisher.quit();
     tmpFile.removeCallback();
     tmpFile2.removeCallback();
   }

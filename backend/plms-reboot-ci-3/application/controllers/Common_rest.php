@@ -1,10 +1,6 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
-use PhpAmqpLib\Message\AMQPMessage;
-
-use function PHPSTORM_META\type;
 
 require_once(APPPATH . "/controllers/MY_RestController.php");
 
@@ -22,89 +18,102 @@ class Common_rest extends MY_RestController
 
   public function getBreadCrumbs_get()
   {
-    $params = $this->get();
+    try {
+      $params = $this->get();
 
-    // Define a mapping of parameter names to table names and column names
-    $mapping = array(
-      'group_id' => array('table' => 'class_schedule', 'column' => 'group_no'),
-      'chapter_id' => array('table' => 'lab_classinfo', 'column' => 'chapter_name'),
-      'exercise_id' => array('table' => 'lab_exercise', 'column' => 'lab_name'),
-    );
+      // Define a mapping of parameter names to table names and column names
+      $mapping = array(
+        'group_id' => array('table' => 'class_schedule', 'column' => 'group_no'),
+        'chapter_id' => array('table' => 'lab_classinfo', 'column' => 'chapter_name'),
+        'exercise_id' => array('table' => 'lab_exercise', 'column' => 'lab_name'),
+      );
 
-    // Loop over url query parameters
-    $data = $this->common_model_rest->get_breadcrumbs($params, $mapping);
+      // Loop over url query parameters
+      $data = $this->common_model_rest->get_breadcrumbs($params, $mapping);
 
-    $this->response($data, RestController::HTTP_OK);
+      $this->response($data, RestController::HTTP_OK);
+    } catch (Exception $e) {
+      $this->handleError($e);
+    }
   }
 
   public function getProfileFormData_get()
   {
-    $prefix = array(
-      'student' => 'stu',
-      'supervisor' => 'supervisor',
-    );
+    try {
+      $prefix = array(
+        'student' => 'stu',
+        'supervisor' => 'supervisor',
+      );
 
-    $role = $this->session->userdata('role');
-    $data = $this->common_model_rest->get_profile_form_data();
-    $image_file_name = $data[$prefix[$role] . '_avatar'];
+      $role = $this->session->userdata('role');
+      $data = $this->common_model_rest->get_profile_form_data();
+      $image_file_name = $data[$prefix[$role] . '_avatar'];
 
-    if ($image_file_name) {
-      $data[$prefix[$role] . '_avatar'] = ($role == "student" ? STUDENT_AVATAR_FOLDER : SUPERVISOR_AVATAR_FOLDER) . $image_file_name;
-    } else {
-      $data[$prefix[$role] . '_avatar'] = null;
-    }
+      if ($image_file_name) {
+        $data[$prefix[$role] . '_avatar'] = ($role == "student" ? STUDENT_AVATAR_FOLDER : SUPERVISOR_AVATAR_FOLDER) . $image_file_name;
+      } else {
+        $data[$prefix[$role] . '_avatar'] = null;
+      }
 
-    // Rename the keys
-    $newData = array();
-    foreach ($data as $key => $value) {
-      $newKey = preg_replace('/^.*?_/', '', $key); // remove everything before and including the first underscore
-      $newData[$newKey] = $value;
-    }
+      // Rename the keys
+      $newData = array();
+      foreach ($data as $key => $value) {
+        $newKey = preg_replace('/^.*?_/', '', $key); // remove everything before and including the first underscore
+        $newData[$newKey] = $value;
+      }
 
-    if ($role == "student") {
-      $department_list = $this->common_model_rest->get_all_department();
-      $dept_id = $newData['dept_id'];
-      unset($newData['dept_id']);
+      if ($role == "student") {
+        $department_list = $this->common_model_rest->get_all_department();
+        $dept_id = $newData['dept_id'];
+        unset($newData['dept_id']);
 
-      foreach ($department_list as $department) {
-        if ($department['dept_id'] == $dept_id) {
-          $newData['department'] = $department['dept_name'];
-          break;
+        foreach ($department_list as $department) {
+          if ($department['dept_id'] == $dept_id) {
+            $newData['department'] = $department['dept_name'];
+            break;
+          }
         }
       }
+      $this->response($newData, RestController::HTTP_OK);
+    } catch (Exception $e) {
+      $this->handleError($e);
     }
-    $this->response($newData, RestController::HTTP_OK);
   }
+
   public function updateProfile_post()
   {
-    $formData = $this->post(null, true);
-    $role = $this->session->userdata('role');
+    try {
+      $formData = $this->post(null, true);
+      $role = $this->session->userdata('role');
 
-    // Load necessary models and libraries
-    $this->load->model('auth_model_rest', 'auth');
-    $this->load->library('upload');
+      // Load necessary models and libraries
+      $this->load->model('auth_model_rest', 'auth');
+      $this->load->library('upload');
 
-    // Verify current password
-    if (!$this->auth->verify_password($formData['current_password'])) {
-      return $this->response(['message' => 'Incorrect password.'], RestController::HTTP_UNAUTHORIZED);
+      // Verify current password
+      if (!$this->auth->verify_password($formData['current_password'])) {
+        throw new Exception('Incorrect password.', RestController::HTTP_UNAUTHORIZED);
+      }
+
+      $this->db->trans_start(); // Start transaction
+
+      // Check and update password if new password is provided and matches confirm password
+      $this->updatePasswordIfProvided($formData, $role);
+
+      // Handle avatar upload if file is provided
+      $data = $this->handleAvatarUpload($formData, $role);
+
+      // Update profile with form data
+      $data = array_merge($data, $this->prepareProfileData($formData, $role));
+
+      $this->common_model_rest->updateProfile($role, $data);
+
+      $this->db->trans_complete(); // Complete transaction
+
+      return $this->response(['message' => 'Successfully updated profile'], RestController::HTTP_OK);
+    } catch (Exception $e) {
+      $this->handleError($e);
     }
-
-    $this->db->trans_start(); // Start transaction
-
-    // Check and update password if new password is provided and matches confirm password
-    $this->updatePasswordIfProvided($formData, $role);
-
-    // Handle avatar upload if file is provided
-    $data = $this->handleAvatarUpload($formData, $role);
-
-    // Update profile with form data
-    $data = array_merge($data, $this->prepareProfileData($formData, $role));
-
-    $this->common_model_rest->updateProfile($role, $data);
-
-    $this->db->trans_complete(); // Complete transaction
-
-    return $this->response(['message' => 'Successfully updated profile'], RestController::HTTP_OK);
   }
 
   private function updatePasswordIfProvided($formData, $role)
@@ -200,88 +209,6 @@ class Common_rest extends MY_RestController
     $this->response($data, RestController::HTTP_OK);
   }
 
-  public function sendRunTaskMessage_post()
-  {
-    $req_body = $this->post(null, true);
-    $exercise_id = $req_body['exercise_id'];
-    $testcase_list = $req_body['testcase_list'];
-    $removed_list = $req_body['removed_list'];
-
-    if (!isset($exercise_id)) {
-      return $this->response(['message' => 'Invalid request body'], RestController::HTTP_BAD_REQUEST);
-    }
-
-    $this->load->model('lab_model_rest');
-
-    // Start a transaction
-    $this->db->trans_begin();
-
-    if (!empty($removed_list)) {
-      $this->lab_model_rest->exercise_testcase_delete_by_id_list($removed_list);
-    }
-
-    // Update testcase.is_ready to false
-    foreach ($testcase_list as &$testcase) {
-      $testcase['is_ready'] = 'no';
-      if ($testcase['testcase_id'] == null) {
-        $testcase['testcase_id'] = $this->lab_model_rest->exercise_testcase_upsert($testcase);
-      } else {
-        $this->lab_model_rest->exercise_testcase_upsert($testcase);
-      }
-    }
-    unset($testcase); // Unset reference when it's no longer needed
-
-    $file_name = $this->lab_model_rest->get_sourcecode_filename($exercise_id);
-
-    $role = $this->session->userdata('role');
-
-    $directory_path = $role == "student" ? STUDENT_CFILES_FOLDER : SUPERVISOR_CFILES_FOLDER;
-
-    // Prepare source code file
-    $file_to_run = $directory_path . $file_name;
-
-    $result_list = array();
-
-    try {
-      $connection = new AMQPStreamConnection('rabbitmq', getenv('RMQ_PORT'), getenv('RMQ_USER'), getenv('RMQ_PASSWORD'));
-      $channel = $connection->channel();
-      $channel->queue_declare(getenv('RMQ_QUEUE_NAME'), false, true, false, false);
-
-      $job_id = uniqid();
-
-      $message = new AMQPMessage(json_encode(array(
-        'job_id' => $job_id,
-        'job_type' => 'upsert-testcase',
-        'exercise_id' => $exercise_id,
-        'testcase_list' => $testcase_list,
-        'sourcecode' => file_get_contents($file_to_run),
-      )));
-
-      $channel->basic_publish($message, '', 'task-queue');
-
-      $channel->close();
-      $connection->close();
-
-      // If the AMQP message was sent successfully, commit the transaction
-      $this->db->trans_commit();
-    } catch (Exception $e) {
-      // If an error occurred, roll back the transaction
-      $this->db->trans_rollback();
-
-      $this->response([
-        'status' => 'error',
-        'message' => 'An error occurred while running testcases',
-        'error' => $e->getMessage(),
-      ], RestController::HTTP_INTERNAL_ERROR);
-    }
-
-    $this->response([
-      'status' => 'success',
-      'message' => 'Testcases are being run',
-      'job_id' => $job_id,
-    ], RestController::HTTP_OK);
-  }
-
   public function getRunTaskResult_get()
   {
     $job_id = $this->get('job_id');
@@ -364,6 +291,7 @@ class Common_rest extends MY_RestController
 
       $command = escapeshellcmd("python3.12 python-files/kw_checker.py '$tempfile1' '$tempfile2'");
       $output = shell_exec($command);
+
       return json_decode($output, true);
     } finally {
       // delete temp files

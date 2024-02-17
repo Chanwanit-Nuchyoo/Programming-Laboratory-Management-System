@@ -98,7 +98,7 @@ def analyze_code(code_str):
     else:
         suggested_constraints = keyword_analyzer(code_str)
         return {
-            "status": "success",
+            "status": "passed",
             "message": "Analysis completed successfully.",
             "data": suggested_constraints,
         }
@@ -143,7 +143,7 @@ def check_constraints(user_kw_list, kw_list):
 
 def main():
     if len(sys.argv) < 3:
-        print("Usage: python3 kw_checker.py <script_to_run.py> <keyword.json>")
+        print(json.dumps({"status": "error", "message": "Invalid number of arguments"}))
         return
 
     # get the filename from the arguments
@@ -151,29 +151,37 @@ def main():
     kw_list_path = sys.argv[2]
 
     if file_path is None:
-        raise Exception("No file path provided")
+        print(json.dumps({"status": "error", "message": "No file path provided"}))
 
     if kw_list_path is None:
-        raise Exception("No keyword list provided")
+        print(json.dumps({"status": "error", "message": "No keyword list provided"}))
 
     try:
         with open(kw_list_path, "r") as f:
             kw_list = json.load(f)
     except IOError as e:
-        print(f"Error opening file: {e}")
+        print(json.dumps({"status": "error", "message": f"Error opening file: {e}"}))
         return
 
     try:
         with open(file_path, "r") as f:
             code = f.read()
     except IOError as e:
-        print(f"Error opening file: {e}")
+        print(json.dumps({"status": "error", "message": f"Error opening file: {e}"}))
         return
 
     analysis_result = analyze_code(code)
 
     if analysis_result["status"] == "error":
-        print(f"Error analyzing code: {analysis_result['message']}")
+        print(
+            json.dumps(
+                {
+                    "status": "error",
+                    "message": analysis_result["message"],
+                    "keyword_constraint": None,
+                }
+            )
+        )
         return
 
     user_kw_list = analysis_result["data"]

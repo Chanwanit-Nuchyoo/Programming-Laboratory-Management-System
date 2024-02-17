@@ -8,10 +8,12 @@ import { getChapterList } from "@/utils/api"
 import { useQuery } from "@tanstack/react-query"
 import { userAtom, sidebarSelectedAtom } from "@/store/store"
 import { useAtom, useSetAtom } from "jotai"
+import { useQueryClient } from "@tanstack/react-query"
 
 const StuExerciseList = () => {
   const [user] = useAtom(userAtom)
   const setSelected = useSetAtom(sidebarSelectedAtom);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     setSelected('stu_exercise_list');
@@ -20,7 +22,7 @@ const StuExerciseList = () => {
   const { data: chapterList, isLoading: isChapterListLoading } = useQuery({
     queryKey: ["chapterList", user?.id],
     queryFn: () => getChapterList(user?.id),
-    refetchInterval: 300000,
+    refetchInterval: 1000 * 60 /* 1 min */,
   })
 
   return (

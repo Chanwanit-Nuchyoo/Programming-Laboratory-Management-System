@@ -1,10 +1,9 @@
 /* eslint-disable no-unused-vars */
-import { Box, Container, Skeleton, Stack } from "@mui/material"
+import { Box, Container, Skeleton, Stack, Typography } from "@mui/material"
 import peopleIcon from "@/assets/images/peopleicon.svg";
 import { useState, useEffect } from "react"
 import { useSetAtom } from "jotai";
 import { sidebarSelectedAtom } from "@/store/store";
-import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 
 // components
@@ -21,10 +20,12 @@ const AvailableGroups = () => {
   const [selectedInstructor, setSelectedInstructor] = useState(new Set());
   const setSelected = useSetAtom(sidebarSelectedAtom);
 
-  const { data: groups = [], isLoading } = useQuery({
-    queryKey: ['groups', import.meta.env.VITE_YEAR],
+  const groupsQuery = useQuery({
+    queryKey: ['available_groups', import.meta.env.VITE_YEAR],
     queryFn: getAllAvailableGroups,
   });
+
+  const groups = groupsQuery.data || [];
 
   useEffect(() => {
     //get all instructors name from groups
@@ -32,7 +33,7 @@ const AvailableGroups = () => {
     setInstructorOptions(new Set(instructors));
 
     setSelected('available_groups');
-  }, [groups, setSelected])
+  }, [groupsQuery.isPending, setSelected])
 
   const filteredGroups = groups.filter((group) => {
     const classDate = `${group.day_of_week + ", " + group.time_start + " - " + group.time_end}`;
@@ -69,7 +70,7 @@ const AvailableGroups = () => {
             />
 
             {/* Table body */}
-            {isLoading &&
+            {groupsQuery.isLoading &&
               <>
                 <Skeleton variant="rounded" width={"100%"} height={54} animation="wave" />
                 <Skeleton variant="rounded" width={"100%"} height={54} animation="wave" />
@@ -77,7 +78,20 @@ const AvailableGroups = () => {
                 <Skeleton variant="rounded" width={"100%"} height={54} animation="wave" />
               </>
             }
-            {!isLoading && filteredGroups.map(g => <AvgTableRow key={g.group_id} groupId={g.group_id} groupNo={g.group_no} year={g.year} semester={g.semester} classDate={`${g.day_of_week + ", " + g.time_start + " - " + g.time_end}`} students={g.num_students} instructor={g.lecturer_name} />)}
+
+            {!groupsQuery.isLoading &&
+              <>
+                {
+                  Array.isArray(filteredGroups) && filteredGroups.length > 0 ?
+                    filteredGroups.map(g => <AvgTableRow key={g.group_id} groupId={g.group_id} groupNo={g.group_no} year={g.year} semester={g.semester} classDate={`${g.day_of_week + ", " + g.time_start + " - " + g.time_end}`} students={g.num_students} instructor={g.lecturer_name} />)
+                    :
+                    <Stack justifyContent="center" alignItems="center" width="100%" direction="row" padding="20px" bgcolor="var(--mirage)" borderRadius="8px" >
+                      <Typography>No groups found.</Typography>
+                    </Stack>
+                }
+              </>
+            }
+
           </Stack>
 
         </Stack>

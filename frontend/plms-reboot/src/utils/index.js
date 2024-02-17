@@ -70,27 +70,35 @@ export const markingBgColor = {
 }
 
 export const getConstraintsFailedMessage = (response_body) => {
-  let message = "Category".padEnd(25) + "Keywords\n" + "-".repeat(40) + "\n";
-  let failed = {
-    "classes": [],
-    "imports": [],
-    "methods": [],
-    "functions": [],
-    "variables": [],
-    "reserved_words": [],
-  }
-
-  for (const [key, value] of Object.entries(response_body.keyword_constraint)) {
-    if (Array.isArray(value) && value.length > 0) {
-      const kwFailedList = value.filter(kw => !kw.is_passed).map(kw => kw.keyword);
-      failed[key].push(...kwFailedList)
+  let message = "";
+  if (response_body.status === "failed") {
+    message = "Category".padEnd(25) + "Keywords\n" + "-".repeat(40) + "\n";
+    let failed = {
+      "classes": [],
+      "imports": [],
+      "methods": [],
+      "functions": [],
+      "variables": [],
+      "reserved_words": [],
     }
-  }
 
-  for (const [key, value] of Object.entries(failed)) {
-    if (value.length > 0) {
-      message += `${key.padEnd(25)} ${value.join(", ")}\n`;
+    for (const [key, value] of Object.entries(response_body.keyword_constraint)) {
+      if (Array.isArray(value) && value.length > 0) {
+        const kwFailedList = value.filter(kw => !kw.is_passed).map(kw => kw.keyword);
+        failed[key].push(...kwFailedList)
+      }
     }
+
+    for (const [key, value] of Object.entries(failed)) {
+      if (value.length > 0) {
+        message += `${key.padEnd(25)} ${value.join(", ")}\n`;
+      }
+    }
+
+  } else if (response_body.status === "error") {
+    message = response_body.message;
+  } else {
+    message = response_body.message;
   }
 
   return message;

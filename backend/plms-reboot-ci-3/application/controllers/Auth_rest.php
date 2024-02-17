@@ -18,8 +18,6 @@ class Auth_rest extends MY_RestController
 
   public function logged_in_check_get()
   {
-    $this->logout_after_time_limit();
-
     $isLoggedIn = $this->isLoggedInCheck();
 
     if ($isLoggedIn) {
@@ -50,9 +48,6 @@ class Auth_rest extends MY_RestController
   public function login_post()
   {
     try {
-      // Logout if the session has expired
-      $this->logout_after_time_limit();
-
       // Get and sanitize the username and password
       $username = trim($this->post('username', TRUE), " ");
       $password = trim($this->post('password', TRUE), " ");
