@@ -69,12 +69,14 @@ const WorkSpacePanel = ({ exercise, submissionList, selectedTab, shouldShowLates
             job_id: jobId,
           }
           subscribeSubmissionResult(jobId);
+          selectedTab.setValue(1);
           sendExerciseSubmission.mutate(req_body);
         }
       }
     },
     onError: (error) => {
       console.log(error);
+      selectedTab.setValue(0);
       alert(error.message);
     }
   });
