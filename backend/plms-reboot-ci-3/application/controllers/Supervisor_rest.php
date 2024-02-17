@@ -864,37 +864,28 @@ class Supervisor_rest extends MY_RestController
 		$stu_data = $this->post('student_data');
 		$stu_group_id = $this->post('group_id');
 		$string = $stu_data;
-		$tok = strtok($string, " \n\t");
-		$count = 0;
+		$students = explode("\n", $stu_data);
 		$student_data = array();
-		while ($tok !== false) {
-			$stu_no = $tok;
-			$tok = strtok(" \n\t");
-			$stu_id = $tok;
-			$tok = strtok(" \n\t");
-			$stu_name = $tok;
-			$tok = strtok(" \n\t");
-			$stu_surname = $tok;
-			$tok = strtok(" \n\t");
-			$row['stu_no'] = $stu_no;
-			$row['stu_id'] = $stu_id;
-			$row['stu_name'] = $stu_name;
-			$row['stu_surname'] = $stu_surname;
-			$student_data[$count] = $row;
-			$count++;
+		foreach ($students as $student) {
+			$student_info = explode(" ", $student);
+			$row['stu_no'] = $student_info[0];
+			$row['stu_id'] = $student_info[1];
+			$row['stu_name'] = $student_info[2];
+			$row['stu_surname'] = $student_info[3];
+			$student_data[] = $row;
 		}
-		$this->load->model('student_model');
-		foreach ($student_data as $row) {
+		$this->load->model('student_model_rest');
+		foreach($student_data as $row) {
 			$stu_id = $row['stu_id'];
 			$stu_name = $row['stu_name'];
 			$stu_surname = $row['stu_surname'];
-			// echo $row['stu_no']." ".$row['stu_id']." ".$row['stu_name']." ".$row['stu_surname']."<br />";
-			if (strlen($row['stu_id']) == 8) {
-				// echo "add will be performed.<br />";
+			echo $row['stu_no']." ".$row['stu_id']." ".$row['stu_name']." ".$row['stu_surname']."<br />";
+			if ( strlen($row['stu_id']) == 8) {
+				echo "add will be performed.<br />";
 				$message = $this->student_model_rest->check_or_add_student_to_user($stu_id);
-				if ($message == 'OK') {
-					$this->createLogfile(__METHOD__ . " : $stu_id is added to user table. ==> " . $message);
-					// echo " ==> Added.<br />";
+				if ($message=='OK') {
+					$this->createLogfile(__METHOD__." : $stu_id is added to user table. ==> ".$message);
+					echo " ==> Added.<br />";
 					$stu_gender = 'other';
 					if (substr($stu_name, 0, 9) == 'นาย') {
 						$stu_gender = 'male';
@@ -918,25 +909,14 @@ class Supervisor_rest extends MY_RestController
 						'stu_gender'	=> $stu_gender
 					);
 					$message = $this->student_model_rest->check_or_add_student_to_user_student($student_data);
-
-
-					$this->response([
-						'status' => TRUE,
-						'message' => 'Student added successfully'
-					], RestController::HTTP_OK);
-				} else if ($message == 'cannot add') {
-					$this->response([
-						'status' => TRUE,
-						'message' => 'Student Already exist'
-					], RestController::HTTP_OK);
-				} else {
-					$this->response([
-						'status' => FALSE,
-						'message' => 'Failed to add student'
-					], RestController::HTTP_BAD_REQUEST);
 				}
 			}
 		}
+		$this->response([
+			'status' => TRUE,
+			'message' => 'Student added successfully'
+		], RestController::HTTP_OK);
+	
 	}
 
 	public function saveExerciseTestcase_post()
