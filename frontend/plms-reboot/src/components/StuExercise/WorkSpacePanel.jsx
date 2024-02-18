@@ -12,10 +12,9 @@ import { studentExerciseSubmit, checkKeyword } from '@/utils/api'
 import { getConstraintsFailedMessage } from '@/utils'
 import { v4 as uuidv4 } from 'uuid';
 
-const WorkSpacePanel = ({ exercise, submissionList, selectedTab, shouldShowLatestSubmission }) => {
+const WorkSpacePanel = ({ exerciseQuery, submitPermission, submissionList, selectedTab, shouldShowLatestSubmission }) => {
   const [saveStatus, setSaveStatus] = useState('');
   const eventSourceRef = useRef(null);
-  const submittedTime = useRef(null);
   const [user, setUser] = useAtom(userAtom);
 
   const queryClient = useQueryClient();
@@ -113,7 +112,7 @@ const WorkSpacePanel = ({ exercise, submissionList, selectedTab, shouldShowLates
   const onSubmit = async () => {
     const req_body = {
       "sourcecode": watchedSourcecode,
-      "exercise_kw_list": exercise.data.user_defined_constraints || {
+      "exercise_kw_list": exerciseQuery.data.user_defined_constraints || {
         "classes": [],
         "imports": [],
         "methods": [],
@@ -125,17 +124,7 @@ const WorkSpacePanel = ({ exercise, submissionList, selectedTab, shouldShowLates
     checkKeywordMutation.mutate(req_body);
   }
 
-  const getButtonText = () => {
-    if (saveStatus === "Saving...") {
-      return "Saving...";
-    } else if (checkKeywordMutation.isPending) {
-      return "Checking Constraints..."
-    } else if (sendExerciseSubmission.isPending) {
-      return "Submitting..."
-    } else {
-      return "Submit";
-    }
-  }
+  const passPermission = submitPermission === "submittable" || submitPermission === "timer-paused";
 
   return (
     <>
@@ -144,11 +133,10 @@ const WorkSpacePanel = ({ exercise, submissionList, selectedTab, shouldShowLates
           <Stack direction={"row"} spacing={"10px"} >
             <img src={codingIcon} alt="Coding Icon" />
             <Typography>Code editor</Typography>
-            {/* <Typography sx={{ fontSize: "16px", color: "var(--raven)" }} >{saveStatus}</Typography> */}
           </Stack>
           <Stack>
             <Button
-              disabled={!watchedSourcecode || exercise.isError || saveStatus !== "Saved!" || sendExerciseSubmission.isPending || checkKeywordMutation.isPending}
+              disabled={!watchedSourcecode || exerciseQuery.isError || saveStatus !== "Saved!" || sendExerciseSubmission.isPending || checkKeywordMutation.isPending || !passPermission}
               startIcon={(saveStatus === "Saving..." || sendExerciseSubmission.isPending || checkKeywordMutation.isPending) && <CircularProgress size="20px" sx={{ color: "white" }} />}
               onClick={handleSubmit(onSubmit)}
               color="primary"
@@ -166,7 +154,7 @@ const WorkSpacePanel = ({ exercise, submissionList, selectedTab, shouldShowLates
               control={control}
               render={({ field: { value, onChange } }) => (
                 <MyCodeEditor
-                  editable={exercise.isError ? false : true}
+                  editable={exerciseQuery.isError ? false : true}
                   value={value}
                   onChange={onChange}
                   minHeight={"100%"}

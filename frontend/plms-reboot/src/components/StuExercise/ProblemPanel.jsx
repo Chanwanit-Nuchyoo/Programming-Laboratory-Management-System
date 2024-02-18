@@ -14,21 +14,21 @@ import assignmentIcon from '@/assets/images/assignmenticon.svg'
 import historyIcon from '@/assets/images/historyicon.svg'
 
 const tabs = [
-  { label: "Problem", icon: <img src={assignmentIcon} alt="Problem Icon" /> }, 
+  { label: "Problem", icon: <img src={assignmentIcon} alt="Problem Icon" /> },
   { label: "Submission history", icon: <img src={historyIcon} alt="History Icon" /> },
 ]
 
-const ProblemPanel = ({ exercise, submissionList, selectedTab, selectedSubmission }) => {
+const ProblemPanel = ({ exerciseQuery, submissionList, selectedTab, selectedSubmission }) => {
   const handleSelectTab = (index) => selectedTab.setValue(index)
   const isPassed = submissionList.latest && submissionList.latest.marking !== '-1' && submissionList.latest.marking === '2';
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (exercise.isError) {
+    if (exerciseQuery.isError) {
       setIsModalOpen(true);
     }
-  }, [exercise.isError])
+  }, [exerciseQuery.isError])
 
   const handleGoback = () => {
     setIsModalOpen(false);
@@ -55,13 +55,13 @@ const ProblemPanel = ({ exercise, submissionList, selectedTab, selectedSubmissio
           {submissionList.latest && submissionList.latest.marking !== '-1' ? submissionList.latest.marking : '0'}/2
         </Box>
       </PanelHeader>
-      {exercise.isLoading ?
+      {exerciseQuery.isLoading ?
         <Box height={"calc(100% - 54px)"} marginTop={"54px"} width={"100%"} padding={"15px"} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
           <CircularProgress size="50px" sx={{ color: "white" }} />
         </Box>
         :
         <Box height={"calc(100% - 54px)"} marginTop={"54px"} width={"100%"} padding={"15px"} sx={{ overflowY: "auto", position: "absolute" }} >
-          {exercise.isError ?
+          {exerciseQuery.isError ?
             <Modal
               open={isModalOpen}
             >
@@ -81,7 +81,7 @@ const ProblemPanel = ({ exercise, submissionList, selectedTab, selectedSubmissio
             </Modal>
             :
             <>
-              {selectedTab.value === 0 && !exercise.isLoading && <Problem exercise={exercise.data} />}
+              {selectedTab.value === 0 && !exerciseQuery.isLoading && <Problem exercise={exerciseQuery.data} />}
               {selectedTab.value === 1 && <SubmissionList submissionList={submissionList} selectedSubmission={selectedSubmission} />}
             </>
           }

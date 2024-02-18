@@ -78,8 +78,8 @@ export const ABS_STU_URL = {
     "FAQ": `${PREFIX[USER_ROLES.STUDENT]}/faq`,
   },
   "DYNAMIC": {
-    "EXERCISE": (chapterId = ':chapterId', itemId = ":itemId") =>
-      `${PREFIX[USER_ROLES.STUDENT]}/chapter/${chapterId}/item/${itemId}`,
+    "EXERCISE": (group_id = ":groupId", chapterId = ':chapterId', itemId = ":itemId") =>
+      `${PREFIX[USER_ROLES.STUDENT]}/group/${group_id}/chapter/${chapterId}/item/${itemId}`,
     "PROFILE": (userId = ":userId") =>
       `${PREFIX[USER_ROLES.STUDENT]}/profile/${userId}`,
   }
@@ -94,8 +94,8 @@ export const REL_STU_URL = {
     "FAQ": `faq`,
   },
   "DYNAMIC": {
-    "EXERCISE": (chapterId = ':chapterId', itemId = ":itemId") =>
-      `chapter/${chapterId}/item/${itemId}`,
+    "EXERCISE": (group_id = ":groupId", chapterId = ':chapterId', itemId = ":itemId") =>
+      `group/${group_id}/chapter/${chapterId}/item/${itemId}`,
     "PROFILE": (userId = ":userId") =>
       `profile/${userId}`,
   }

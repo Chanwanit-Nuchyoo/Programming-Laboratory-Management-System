@@ -103,3 +103,17 @@ export const getConstraintsFailedMessage = (response_body) => {
 
   return message;
 }
+
+export function secondsToDhms(seconds) {
+  seconds = Number(seconds);
+  const d = Math.floor(seconds / (3600 * 24));
+  const h = Math.floor(seconds % (3600 * 24) / 3600);
+  const m = Math.floor(seconds % 3600 / 60);
+  const s = Math.floor(seconds % 60);
+
+  const dDisplay = d > 0 ? d.toString().padStart(2, '0') : '00';
+  const hDisplay = h > 0 ? h.toString().padStart(2, '0') : '00';
+  const mDisplay = m > 0 ? m.toString().padStart(2, '0') : '00';
+  const sDisplay = s > 0 ? s.toString().padStart(2, '0') : '00';
+  return { d: dDisplay, h: hDisplay, m: mDisplay, s: sDisplay };
+}
