@@ -44,8 +44,8 @@ const ChapterListTableBody = ({ chapter }) => {
     }
   };
 
-  const renderScoreBox = (item, index) => {
-    const args = onStudentPage ? [item.stu_lab.chapter_id, index + 1] : [item.group_id, item.stu_lab.stu_id, item.stu_lab.chapter_id, item.stu_lab.item_id];
+  const renderScoreBox = (groupId, item, index) => {
+    const args = onStudentPage ? [groupId, item.stu_lab.chapter_id, index + 1] : [item.group_id, item.stu_lab.stu_id, item.stu_lab.chapter_id, item.stu_lab.item_id];
 
     return (
       <Link key={index} to={isAccessible() ? getUrl(...args) : ""}>
@@ -71,7 +71,7 @@ const ChapterListTableBody = ({ chapter }) => {
       </Box>
       <Box width={395} className="row-info-box">
         <Stack direction="row" flexWrap="wrap">
-          {chapter?.items && chapter.items.map(renderScoreBox)}
+          {chapter?.items && chapter.items.map((item, index) => renderScoreBox(chapter.class_id, item, index))}
         </Stack>
       </Box>
       <Box alignItems="center" width={95} className={`outlined ${'row-info-box'}`}>

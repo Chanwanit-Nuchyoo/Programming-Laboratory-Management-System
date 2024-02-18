@@ -274,3 +274,11 @@ export const addStudent = async (formData) => {
   );
   return data;
 }
+
+export const getChapterPermission = async (group_id, chapter_id) => {
+  const { data } = await axios.get(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/student_rest/getChapterPermission?group_id=${group_id}&chapter_id=${chapter_id}`,
+    { withCredentials: true }
+  );
+  return data;
+}
