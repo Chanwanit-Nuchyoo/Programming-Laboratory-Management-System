@@ -4,6 +4,7 @@ import mysql from "mysql";
 import chapterPermission from './handlers/chapterPermission.js';
 import testcaseResult from './handlers/testcaseResult.js';
 import submissionResult from './handlers/submissionResult.js';
+import onlineStudents from './handlers/onlineStudents.js';
 import redis from "redis";
 
 const DB_CONFIG = {
@@ -55,6 +56,7 @@ app.use(cors());
 app.get('/subscribe/testcase-result/:job_id', (req, res, next) => testcaseResult(req, res, next, redisClient))
 app.get('/subscribe/submission-result/:job_id', (req, res, next) => submissionResult(req, res, next, redisClient))
 app.get('/subscribe/chapter-permission/:group_id', (req, res, next) => chapterPermission(req, res, next, redisClient))
+app.get('/subscribe/online-students/:group_id', (req, res, next) => onlineStudents(req, res, next, db_connection, redisClient))
 
 app.listen(3001, () => {
   console.log('Server is running on port 3001');

@@ -1734,24 +1734,14 @@ class Lab_model_rest extends CI_Model
 		$query = $this->db->update($_table);
 	}
 
-	public function get_online_student()
+	public function get_online_students($group_id)
 	{
-		$query = $this->db->query('SELECT `T1`.`stu_group`,  `T1`.`stu_id` 
-		FROM `user_student` AS `T1` 
-		LEFT JOIN `user` AS `T2` ON `T1`.`stu_id` = `T2`.`id` 
-		WHERE `T2`.`status`="online"  AND `T1`.`stu_group`');
-		// $this->db->select('id')
-		// 	->where('status','online')
-		// 	->where('active','yes')
-		// 	->where('role','student')
-		// 		->from('user');
-		// $online_stu_ids = $this->db->get()->result_array();
-		// // $online_stu_ids = array_column($online_stu_ids,'id')
-		// return $online_stu_ids;
-		// $this->db->select('stu_id','stu_group')
-		// 	->where_in('stu_id',$online_stu_ids)
-		// 		->from('user_student');
-		// $query = $this->db->get();
+		$this->db->select('user.id, user.username, user_student.stu_firstname, user_student.stu_lastname, user_student.stu_group')
+			->from('user')
+			->join('user_student', 'user.id = user_student.stu_id')
+			->where('user.status', 'online')
+			->where('user_student.stu_group', $group_id);
+		$query = $this->db->get();
 		return $query->result_array();
 	}
 

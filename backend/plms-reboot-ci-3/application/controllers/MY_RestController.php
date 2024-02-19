@@ -20,6 +20,17 @@ class MY_RestController extends RestController
     $_SESSION['walk'] = __METHOD__ . " ";
   }
 
+  public function get_redis_instance()
+  {
+    $redis = new Redis([
+      'host' => 'redis',
+      'port' => 6379,
+      'connectTimeout' => 2.5,
+      'auth' => ['default', 'plmskmitl2023'],
+    ]);
+    return $redis;
+  }
+
   public function handleError(Exception $e)
   {
     return $this->response([
@@ -169,18 +180,4 @@ class MY_RestController extends RestController
       }
     }
   }
-  // public function show_to_console($arr = 'empty')
-  // {
-  //   //return;
-  //   if ($arr == 'empty') {
-  //     $x = json_encode($_SESSION);
-  //   } else {
-  //     $x = json_encode($arr);
-  //   }
-
-  //   echo '<script>' . PHP_EOL;
-  //   echo 'var x = ' . json_encode($x) . ';' . PHP_EOL;
-  //   echo "console.log(" . $x . ") ;" . PHP_EOL;
-  //   echo '</script>' . PHP_EOL;
-  // }
 }

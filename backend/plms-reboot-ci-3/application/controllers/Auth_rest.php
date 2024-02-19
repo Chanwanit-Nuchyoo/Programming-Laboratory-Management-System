@@ -45,12 +45,25 @@ class Auth_rest extends MY_RestController
     }
   }
 
+  public function publishActionMessage($redis, $user, $action)
+  {
+    if ($user["role"] == "student") {
+      $this->load->model('lab_model_rest');
+      $student = $this->lab_model_rest->get_student_info($user['id']);
+      $group_id = $student['stu_group'];
+      $redis->publish("online-students:$group_id", json_encode($action));
+    }
+  }
+
   public function login_post()
   {
+    $redis = null;
     try {
       // Get and sanitize the username and password
       $username = trim($this->post('username', TRUE), " ");
       $password = trim($this->post('password', TRUE), " ");
+
+      $redis = $this->get_redis_instance();
 
       // Check if the username and password are not empty
       if (empty($username) || empty($password)) {
@@ -65,13 +78,13 @@ class Auth_rest extends MY_RestController
         throw new Exception('Username or password is not correct.', RestController::HTTP_UNAUTHORIZED);
       }
 
+      // Get the user's data
+      $user = $this->auth->get_user_row();
+
       // Check if the user is trying to log in from a different session
       if ($status == ERR_REPEAT_LOGIN || $status == ERR_UNMATCH_SESSION) {
-        // Get the user's data
-        $row = $this->auth->get_user_row();
-
         // Save the current and old session IDs
-        $old_session_id = $row['session_id'];
+        $old_session_id = $user['session_id'];
         $current_session_id = session_id();
 
         // Destroy the current session
@@ -82,11 +95,11 @@ class Auth_rest extends MY_RestController
         session_start();
 
         // Log the user out from the old session
-        $this->auth->update_user_logout($row['id']);
+        $this->auth->update_user_logout($user['id']);
 
         // Set the session data
-        $_SESSION['username'] = $row['username'];
-        $_SESSION['role'] = $row['role'];
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['role'] = $user['role'];
         $_SESSION['page_name'] = 'login';
 
         // Log the logout event
@@ -103,6 +116,11 @@ class Auth_rest extends MY_RestController
         session_id($current_session_id);
         session_start();
 
+        $this->publishActionMessage($redis, $user, array(
+          "action" => "logout",
+          "id" => $user["id"]
+        ));
+
         // Throw an exception to indicate that the user needs to log in again
         throw new Exception('Repeat log in. Previous machine logged out. Please try again.', RestController::HTTP_UNAUTHORIZED);
       }
@@ -115,6 +133,11 @@ class Auth_rest extends MY_RestController
       // Set the session data
       $this->session->set_userdata($this->auth->get_data());
       $this->session->set_userdata("logged_in", true);
+
+      $this->publishActionMessage($redis, $user, array(
+        "action" => "login",
+        "id" => $user["id"]
+      ));
 
       // Send a success response
       $this->response([
@@ -132,17 +155,26 @@ class Auth_rest extends MY_RestController
         'status' => FALSE,
         'message' => $error_message
       ], $http_code);
+    } finally {
+      if ($redis) {
+        $redis->close();
+      }
     }
   }
 
 
   public function logout_post()
   {
+    $redis = null;
     try {
-
-
       if (isset($_SESSION['id'])) {
         $this->auth->update_user_logout($_SESSION['id']);
+        $user = $this->auth->get_user_row();
+        $redis = $this->get_redis_instance();
+        $this->publishActionMessage($redis, $user, array(
+          "action" => "logout",
+          "id" => $user["id"]
+        ));
       } else {
         throw new Exception('User ID not found in session.');
       }
@@ -170,6 +202,10 @@ class Auth_rest extends MY_RestController
         'status' => FALSE,
         'message' => 'Logout failed: ' . $error_message
       ], RestController::HTTP_INTERNAL_ERROR);
+    } finally {
+      if ($redis) {
+        $redis->close();
+      }
     }
   }
 }

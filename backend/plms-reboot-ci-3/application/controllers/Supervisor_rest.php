@@ -142,7 +142,7 @@ class Supervisor_rest extends MY_RestController
 			$class_schedule['student_no'] = sizeof($students_data);
 
 			$data = array(
-				'class_schedule' => $class_schedule
+				'class_schedule' => $class_schedule,
 			);
 
 			$this->response([
@@ -150,6 +150,22 @@ class Supervisor_rest extends MY_RestController
 				'message' => 'Successfully fetch group data',
 				'payload' => $data,
 			], RestController::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
+		}
+	}
+
+	public function getNumberOfOnlineStudents()
+	{
+		try {
+			$group_id = $this->query('group_id');
+			$online_students = sizeof($this->lab_model_rest->get_online_students($group_id));
+
+			$data = [
+				'online_students' => $online_students,
+			];
+
+			$this->response($data, RestController::HTTP_OK);
 		} catch (Exception $e) {
 			return $this->handleError($e);
 		}
@@ -278,12 +294,7 @@ class Supervisor_rest extends MY_RestController
 
 			$update_row = $this->lab_model_rest->set_chapter_permission($class_id, $chapter_id, $permission);
 
-			$redis = new Redis([
-				'host' => 'redis',
-				'port' => 6379,
-				'connectTimeout' => 2.5,
-				'auth' => ['default', 'plmskmitl2023'],
-			]);
+			$redis = $this->get_redis_instance();
 
 			echo "chapter-permission:$class_id:chap-$chapter_id";
 
