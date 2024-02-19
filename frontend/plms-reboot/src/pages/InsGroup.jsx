@@ -2,6 +2,7 @@ import { Box, Button, Container, Stack, Skeleton } from "@mui/material"
 import folderIcon from '@/assets/images/foldericon.svg';
 import { useParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query";
+import useOnlineStudentsList from "@/hooks/useOnlineStudentsList";
 import axios from "axios"
 
 import Header from "@/components/_shared/Header"
@@ -11,9 +12,10 @@ import MiddleBox from "@/components/InsGroupPage/MiddleBox";
 import LabRow from "@/components/InsGroupPage/LabRow"
 import RightBox from "../components/InsGroupPage/RightBox";
 
+
 const InsGroup = () => {
   const { groupId } = useParams();
-
+  const onlineStudentsList = useOnlineStudentsList(groupId);
 
   // TODO: Do something with this later
   const { data: groupData, isLoading: isClassLoading } = useQuery({
@@ -45,7 +47,7 @@ const InsGroup = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', width: '100%', heigh: '100%' }}>
             <LeftBox isClassLoading={isClassLoading} groupData={groupData} />
-            <MiddleBox isClassLoading={isClassLoading} groupData={groupData} />
+            <MiddleBox isClassLoading={isClassLoading} groupData={groupData} onlineStudentsList={onlineStudentsList} />
             <RightBox groupData={groupData} />
           </div>
 

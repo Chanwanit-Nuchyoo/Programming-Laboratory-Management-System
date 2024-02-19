@@ -6,7 +6,7 @@ import { logoutAllStudentInGroup } from "@/utils/api";
 import { useParams } from "react-router-dom"
 import LogoutIcon from '@/assets/images/logouticon.svg';
 
-const MiddleBox = ({ isClassLoading, groupData }) => {
+const MiddleBox = ({ isClassLoading, groupData, onlineStudentsList }) => {
   const { groupId } = useParams();
   const queryClient = useQueryClient();
 
@@ -41,7 +41,7 @@ const MiddleBox = ({ isClassLoading, groupData }) => {
       <Stack direction={"row"} spacing={"20px"} >
         <Stack direction={"row"} gap={"5px"} >
           <Typography color={"primary"}  >Student online:</Typography>
-          <Typography ></Typography>
+          <Typography >{onlineStudentsList.length}</Typography>
         </Stack>
       </Stack>
       <Box>

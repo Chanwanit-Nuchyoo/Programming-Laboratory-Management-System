@@ -3,10 +3,16 @@ import { Box, Button, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
 import { ABS_INS_URL } from "@/utils/constants/routeConst";
 import { useParams } from "react-router-dom";
+import useOnlineStudentsList from "@/hooks/useOnlineStudentsList";
 import avatarPlaceHolder from "@/assets/images/avatarplaceholder.svg";
+
+const onlineStatusDot = {
+  width: "30px", height: "30px", bottom: "5px", borderRadius: "50%", right: "5px", zIndex: "10", position: "absolute"
+}
 
 const StudentListTableBody = ({ isLoading, labInfo, students }) => {
   const { groupId } = useParams();
+  const onlineStudentsList = useOnlineStudentsList(groupId);
 
   return (
     <>
@@ -36,7 +42,7 @@ const StudentListTableBody = ({ isLoading, labInfo, students }) => {
                 bgcolor: "inherit",
               }}
             >
-              <Box sx={{ width: '130px' }} className="table-body-column" paddingLeft="10px">
+              <Box sx={{ width: '130px', position: "relative" }} className="table-body-column" paddingLeft="10px">
                 <img
                   src={avatarPlaceHolder}
                   /* student.avatar
@@ -47,6 +53,7 @@ const StudentListTableBody = ({ isLoading, labInfo, students }) => {
                   className="image"
                 //style={{ width: '120px', height: '120px' }}
                 />
+                <Box sx={{ ...onlineStatusDot, bgcolor: onlineStudentsList.includes(student.stu_id) ? "#4CAF50" : "#F44336" }} />
               </Box>
               <Stack
                 gap="10px"
