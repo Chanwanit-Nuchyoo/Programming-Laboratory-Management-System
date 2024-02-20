@@ -1,0 +1,1 @@
+print(" *** Min Max Avg ***")

@@ -6,6 +6,7 @@ import PauseCircleOutlineIcon from '@mui/icons-material/PauseCircleOutline';
 import PlayCircleFilledWhiteOutlinedIcon from '@mui/icons-material/PlayCircleFilledWhiteOutlined';
 import { setChapterPermission } from "@/utils/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { secondsToDhms } from "@/utils";
 import moment from 'moment';
 
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -62,22 +63,29 @@ const PermissionText = ({ prefix, type, lab, isInsPage }) => {
     return <Typography sx={{ color: "red" }} >Deny</Typography>
   } else if (type === 'timer') {
     const timeEnd = moment(lab[`${prefix}_time_end`]);
-    const timeLeft = moment.duration(timeEnd.diff(currentTime));
+    const timeLeftInSecond = timeEnd.diff(currentTime, 'seconds');
     const isEnded = currentTime.isAfter(timeEnd);
+
+    const timeLeft = secondsToDhms(timeLeftInSecond);
+
+    const hours = Number(timeLeft.d) * 24 + Number(timeLeft.h);
+    const minutes = Number(timeLeft.m);
+    const seconds = Number(timeLeft.s);
+
     return (
       <>
         {!isEnded ?
           <Stack direction="row" spacing={0.5} alignItems='center' >
             <StyledBox>
-              <Typography >{String(timeLeft.hours()).length < 2 ? `0${String(timeLeft.hours())}` : String(timeLeft.hours())}</Typography>
+              <Typography >{String(hours).length < 2 ? `0${String(hours)}` : String(hours)}</Typography>
             </StyledBox>
             <Typography >:</Typography>
             <StyledBox>
-              <Typography >{String(timeLeft.minutes()).length < 2 ? `0${String(timeLeft.minutes())}` : String(timeLeft.minutes())}</Typography>
+              <Typography >{String(minutes).length < 2 ? `0${String(minutes)}` : String(minutes)}</Typography>
             </StyledBox>
             <Typography >:</Typography>
             <StyledBox>
-              <Typography >{String(timeLeft.seconds()).length < 2 ? `0${String(timeLeft.seconds())}` : String(timeLeft.seconds())}</Typography>
+              <Typography >{String(seconds).length < 2 ? `0${String(seconds)}` : String(seconds)}</Typography>
             </StyledBox>
             {isInsPage &&
               <>{type === 'timer-paused' ? <PlayCircleFilledWhiteOutlinedIcon onClick={handleResume} /> : <PauseCircleOutlineIcon onClick={handlePaused} />}</>
@@ -92,20 +100,25 @@ const PermissionText = ({ prefix, type, lab, isInsPage }) => {
   else if (type === 'timer-paused') {
     const timeEnd = moment(lab[`${prefix}_time_end`]);
     const timeStart = moment(lab[`${prefix}_time_start`]);
-    const timeLeft = moment.duration(timeEnd.diff(timeStart));
+    const timeLeftInSecond = timeEnd.diff(currentTime, 'seconds');
+    const timeLeft = secondsToDhms(timeLeftInSecond);
+
+    const hours = Number(timeLeft.d) * 24 + Number(timeLeft.h);
+    const minutes = timeLeft.m;
+    const seconds = timeLeft.s;
 
     return (
       <Stack direction="row" spacing={0.5} alignItems='center' >
         <StyledBox>
-          <Typography >{String(timeLeft.hours()).length < 2 ? `0${String(timeLeft.hours())}` : String(timeLeft.hours())}</Typography>
+          <Typography >{String(hours).length < 2 ? `0${String(hours)}` : String(hours)}</Typography>
         </StyledBox>
         <Typography >:</Typography>
         <StyledBox>
-          <Typography >{String(timeLeft.minutes()).length < 2 ? `0${String(timeLeft.minutes())}` : String(timeLeft.minutes())}</Typography>
+          <Typography >{String(minutes).length < 2 ? `0${String(minutes)}` : String(minutes)}</Typography>
         </StyledBox>
         <Typography >:</Typography>
         <StyledBox>
-          <Typography >{String(timeLeft.seconds()).length < 2 ? `0${String(timeLeft.seconds())}` : String(timeLeft.seconds())}</Typography>
+          <Typography >{String(seconds).length < 2 ? `0${String(seconds)}` : String(seconds)}</Typography>
         </StyledBox>
         {isInsPage &&
           <>{type === 'timer-paused' ? <PlayCircleFilledWhiteOutlinedIcon onClick={handleResume} /> : <PauseCircleOutlineIcon onClick={handlePaused} />}</>

@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Stack, TextField, Typography } from "@mui/material"
-import { Controller } from "react-hook-form"
+import { Controller } from "react-hook-form";
+
 const TimerFields = ({ control }) => {
   return (
     <Stack direction="row" spacing={"10px"} alignItems="center">
@@ -14,8 +15,8 @@ const TimerFields = ({ control }) => {
             size='small'
             label="HH"
             onChange={field.onChange}
-            inputProps={{ maxLength: 2 }}
-            sx={{ width: '50px' }}
+            InputLabelProps={{sx:{ fontSize: "20px" }}}
+            inputProps={{ maxLength: 2, style: { height: '40px', width: '50px', textAlign: 'center', fontSize: "20px" } }}
           />
         )}
       />
@@ -29,9 +30,15 @@ const TimerFields = ({ control }) => {
             value={field.value}
             size='small'
             label="MM"
-            onChange={field.onChange}
-            inputProps={{ maxLength: 2 }}
-            sx={{ width: '50px' }}
+            onChange={(event) => {
+              let value = event.target.value;
+              if (Number(value) > 60) {
+                value = 59;
+              }
+              field.onChange(value);
+            }}
+            InputLabelProps={{sx:{ fontSize: "20px" }}}
+            inputProps={{ maxLength: 2, style: { height: '40px', width: '50px', textAlign: 'center' , fontSize: "20px"} }}
           />
         )}
       />
@@ -45,9 +52,15 @@ const TimerFields = ({ control }) => {
             value={field.value}
             size='small'
             label="SS"
-            onChange={field.onChange}
-            inputProps={{ maxLength: 2 }}
-            sx={{ width: '50px' }}
+            onChange={(event) => {
+              let value = event.target.value;
+              if (Number(value) > 60) {
+                value = 59;
+              }
+              field.onChange(value);
+            }}
+            inputProps={{ maxLength: 2, style: { height: '40px', width: '50px', textAlign: 'center', fontSize: "20px" } }}
+            InputLabelProps={{sx:{ fontSize: "20px" }}}
           />
         )}
       />

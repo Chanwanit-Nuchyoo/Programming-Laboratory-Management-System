@@ -60,10 +60,10 @@ const InsGroup = () => {
               <Box width={100} className="table-head-column">
                 <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none" }} >Score</Button>
               </Box>
-              <Box width={300} className="table-head-column">
+              <Box width={335} className="table-head-column">
                 <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none" }} >Access exercise</Button>
               </Box>
-              <Box width={300} className="table-head-column">
+              <Box width={335} className="table-head-column">
                 <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none" }} >Allow submit</Button>
               </Box>
             </Stack>
