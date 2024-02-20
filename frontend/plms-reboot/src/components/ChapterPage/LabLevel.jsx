@@ -11,15 +11,25 @@ import { Link, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateGroupAssignedChapterItem } from '@/utils/api';
+import { useFormContext, useFieldArray } from 'react-hook-form';
 
 // Sub-components
-const TableContent = ({ lv, exerciseList, page, rowsPerPage, selected, setSelected }) => {
-
+const TableContent = ({ lv, exerciseList, page, rowsPerPage, randomPools }) => {
   const handleChecked = (exerciseId) => {
-    if (selected.includes(exerciseId)) {
-      setSelected(selected.filter(id => id !== exerciseId))
+    if (randomPools.value[String(lv)].includes(exerciseId)) {
+
+      const updatedPools = {
+        ...randomPools.value,
+        [String(lv)]: randomPools.value[String(lv)].filter(id => id !== exerciseId)
+      }
+      randomPools.setValue(updatedPools)
     } else {
-      setSelected([...selected, exerciseId])
+
+      const updatedPools = {
+        ...randomPools.value,
+        [String(lv)]: [...randomPools.value[String(lv)], exerciseId]
+      }
+      randomPools.setValue(updatedPools)
     }
   }
 
@@ -50,7 +60,7 @@ const TableContent = ({ lv, exerciseList, page, rowsPerPage, selected, setSelect
               sx={{
                 height: "40px",
               }}
-              checked={selected.includes(ex.exercise_id)}
+              checked={randomPools.value[String(lv)].includes(ex.exercise_id)}
               onClick={() => { handleChecked(ex.exercise_id) }}
             />
           </TableCell>
@@ -72,8 +82,19 @@ const TableContent = ({ lv, exerciseList, page, rowsPerPage, selected, setSelect
   );
 }
 
-const Actions = ({ groupId, chapterId, lv, selectedListFromAPI, selected, setSelected }) => {
+const arraysAreEqual = (arr1, arr2) => {
+  const set1 = new Set(arr1);
+  const set2 = new Set(arr2);
 
+  if (set1.size !== set2.size) return false;
+
+  const sortedArr1 = Array.from(set1).sort();
+  const sortedArr2 = Array.from(set2).sort();
+
+  return sortedArr1.every((value, index) => value === sortedArr2[index]);
+}
+
+const Actions = ({ groupId, chapterId, lv, selectedListFromAPI, randomPools }) => {
   const queryClient = useQueryClient();
 
   const { mutate: updateSelectedLabs } = useMutation({
@@ -83,32 +104,28 @@ const Actions = ({ groupId, chapterId, lv, selectedListFromAPI, selected, setSel
     }
   });
 
-  const arraysAreEqual = (arr1, arr2) => {
-    if (arr1.length !== arr2.length) {
-      return false;
-    }
-
-    return arr1.every((value, index) => value === arr2[index]);
-  }
-
   const handleUpdate = () => {
     updateSelectedLabs({
       group_id: groupId,
       chapter_id: chapterId,
       item_id: lv,
-      exercise_id_list: selected
+      exercise_id_list: randomPools.value[String(lv)]
     });
   }
 
   const handleReset = () => {
-    setSelected(selectedListFromAPI)
+    const updatedPools = {
+      ...randomPools.value,
+      [String(lv)]: selectedListFromAPI[String(lv)]
+    }
+    randomPools.setValue(updatedPools);
   }
 
   return (
     <Stack direction={"row"} alignItems={"center"} spacing={"10px"} justifyContent={"flex-end"}>
       <Button variant='contained' size='medium'
         onClick={handleUpdate}
-        disabled={arraysAreEqual(selectedListFromAPI, selected)}
+        disabled={arraysAreEqual(selectedListFromAPI[String(lv)], randomPools.value[String(lv)])}
         sx={{
           fontSize: '16px',
           width: '120px',
@@ -119,7 +136,7 @@ const Actions = ({ groupId, chapterId, lv, selectedListFromAPI, selected, setSel
           flexShrink: "0",
         }}
       >Update</Button>
-      {arraysAreEqual(selectedListFromAPI, selected) ?
+      {arraysAreEqual(selectedListFromAPI[String(lv)], randomPools.value[String(lv)]) ?
         (<Link to={ABS_INS_URL.DYNAMIC.ADD_EXERCISE(groupId, chapterId, lv)} >
           <Button variant='outlined' size='medium' sx={{
             width: '140px',
@@ -146,34 +163,30 @@ const Actions = ({ groupId, chapterId, lv, selectedListFromAPI, selected, setSel
   )
 };
 
+const filterExercises = (rule, lv, selected) => {
+  switch (rule) {
+    case "all":
+      return lv;
+    case "selected":
+      return lv.filter(ex => selected.includes(ex.exercise_id));
+    case "Not selected":
+      return lv.filter(ex => !selected.includes(ex.exercise_id));
+    default:
+      return lv;
+  }
+}
+
 // Main Component
-const LabLevel = ({ lv, index, selectedList }) => {
+const LabLevel = ({ lv, index, selectedListFromAPI, randomPools }) => {
   const [filterRule, setFilterRule] = useState('all');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(6);
-  const [selected, setSelected] = useState(selectedList);
   const [filteredList, setFilteredList] = useState(lv);
-  const { groupId, groupNo, chapterId } = useParams();
+  const { groupId, chapterId, groupNo } = useParams();
 
   useEffect(() => {
-    const filter = (rule) => {
-      switch (rule) {
-        case "all":
-          setFilteredList(lv)
-          break;
-        case "selected":
-          setFilteredList(lv.filter(ex => selected.includes(ex.exercise_id)))
-          break;
-        case "Not selected":
-          setFilteredList(lv.filter(ex => !selected.includes(ex.exercise_id)))
-          break;
-        default:
-          break;
-      }
-    }
-
-    filter(filterRule)
-  }, [filterRule, lv, selected])
+    setFilteredList(filterExercises(filterRule, lv, randomPools.value[String(index + 1)]));
+  }, [filterRule, lv, selectedListFromAPI, randomPools.value, index]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -216,7 +229,7 @@ const LabLevel = ({ lv, index, selectedList }) => {
           <TableContainer component={Paper}>
             <Table size="small">
               {/* <TableHeader exerciseList={lv} selected={selected} setSelected={setSelected} /> */}
-              <TableContent lv={index + 1} exerciseList={filteredList} page={page} rowsPerPage={rowsPerPage} selected={selected} setSelected={setSelected} />
+              <TableContent lv={index + 1} exerciseList={filteredList} page={page} rowsPerPage={rowsPerPage} randomPools={randomPools} />
             </Table>
           </TableContainer>
         </Box>
@@ -233,7 +246,7 @@ const LabLevel = ({ lv, index, selectedList }) => {
         />
 
         {/* Actions */}
-        <Actions groupId={groupId} groupNo={groupNo} chapterId={chapterId} lv={index + 1} selectedListFromAPI={selectedList} selected={selected} setSelected={setSelected} />
+        <Actions groupId={groupId} groupNo={groupNo} chapterId={chapterId} lv={index + 1} selectedListFromAPI={selectedListFromAPI} randomPools={randomPools} />
 
       </Stack>
     </Grid>

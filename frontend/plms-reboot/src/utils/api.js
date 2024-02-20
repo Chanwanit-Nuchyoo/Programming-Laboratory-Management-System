@@ -197,6 +197,15 @@ export const updateGroupAssignedChapterItem = async (formData) => {
   return data;
 }
 
+export const updateAllGroupAssignedChapterItem = async (formData) => {
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/updateAllGroupAssignedChapterItem`,
+    formData,
+    { withCredentials: true }
+  );
+  return data;
+}
+
 export const saveExerciseTestcase = async (formData) => {
   const { data } = await axios.post(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/saveExerciseTestcase`,

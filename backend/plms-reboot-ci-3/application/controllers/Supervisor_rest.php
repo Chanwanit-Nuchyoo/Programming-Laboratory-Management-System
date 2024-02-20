@@ -425,6 +425,37 @@ class Supervisor_rest extends MY_RestController
 		}
 	}
 
+	public function updateAllGroupAssignedChapterItem_post()
+	{
+		try {
+			$group_id = $this->post('group_id');
+			$chapter_id = $this->post('chapter_id');
+			$pools_list = $this->post('pools_list');
+			$previledge = $this->check_previledge($group_id);
+
+			if ($previledge == "none") {
+				throw new Exception("You are not allowed to select Exercises for student group:", RestController::HTTP_FORBIDDEN);
+			}
+
+			// start transaction
+			$this->db->trans_start();
+
+			// iterate through array and get $key and $value
+			foreach ($pools_list as $key => $value) {
+				$item_id = $key;
+				$exercise_id_list = $value;
+				$strval_exercise_id_list = array_map('strval', $exercise_id_list);
+				$this->lab_model_rest->update_lab_class_item($group_id, $chapter_id, $item_id, $strval_exercise_id_list);
+			}
+
+			// commit transaction
+			$this->db->trans_complete();
+		} catch (Exception $e) {
+			$this->db->trans_rollback();
+			return $this->handleError($e);
+		}
+	}
+
 	public function getEditExercisePageInfo_get()
 	{
 		try {
