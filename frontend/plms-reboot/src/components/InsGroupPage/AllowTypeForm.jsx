@@ -36,6 +36,8 @@ const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
       // Create a copy of the object and update the item with the matching chapter_id
       const newData = { ...snapshot };
       const item = newData[variables.chapter_id];
+      item.access_time_end = variables.access_time_end;
+      item.access_time_start = variables.access_time_start;
     
       if (item) {
         newData[variables.chapter_id] = {
