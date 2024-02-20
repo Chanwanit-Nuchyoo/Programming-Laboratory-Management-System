@@ -269,12 +269,8 @@ body {
   gap: 5px
 }
 
-.ͼ1.cm-merge-b .cm-changedLine {
-  background: rgba(78, 199, 83, 0.30);
-}
-
-.ͼ1.cm-merge-a .cm-changedLine {
-  background: rgba(244, 67, 54, 0.30);
+.ͼ1.cm-merge-a .cm-changedLine, .ͼ1.cm-merge-b .cm-changedLine {
+  background: rgba(244, 67, 54, 0.25);
 }
 
 .ͼ3.cm-merge-a .cm-changedText, .ͼ3 .cm-deletedChunk .cm-deletedText {
@@ -282,7 +278,11 @@ body {
 }
 
 .ͼ3.cm-merge-b .cm-changedText {
-  background: linear-gradient(lime, lime) bottom/100% 2px no-repeat;
+  background: linear-gradient(red, red) bottom/100% 2px no-repeat;
+}
+
+.ͼ3.cm-merge-b .cm-changedLineGutter, .ͼ3.cm-merge-a .cm-changedLineGutter, .ͼ3 .cm-deletedLineGutter {
+  background: red;
 }
 
 ::-webkit-scrollbar{
