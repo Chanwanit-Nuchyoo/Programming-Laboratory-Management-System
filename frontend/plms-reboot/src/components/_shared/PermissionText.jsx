@@ -100,7 +100,7 @@ const PermissionText = ({ prefix, type, lab, isInsPage }) => {
   else if (type === 'timer-paused') {
     const timeEnd = moment(lab[`${prefix}_time_end`]);
     const timeStart = moment(lab[`${prefix}_time_start`]);
-    const timeLeftInSecond = timeEnd.diff(currentTime, 'seconds');
+    const timeLeftInSecond = timeEnd.diff(timeStart, 'seconds');
     const timeLeft = secondsToDhms(timeLeftInSecond);
 
     const hours = Number(timeLeft.d) * 24 + Number(timeLeft.h);

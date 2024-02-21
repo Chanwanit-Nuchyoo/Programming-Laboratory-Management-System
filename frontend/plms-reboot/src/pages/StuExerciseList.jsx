@@ -22,7 +22,7 @@ const StuExerciseList = () => {
   const { data: chapterList, isLoading: isChapterListLoading } = useQuery({
     queryKey: ["chapterList", user?.id],
     queryFn: () => getChapterList(user?.id),
-    refetchInterval: 1000 * 60 /* 1 min */,
+    refetchInterval: 1000 * 60,
   })
 
   return (

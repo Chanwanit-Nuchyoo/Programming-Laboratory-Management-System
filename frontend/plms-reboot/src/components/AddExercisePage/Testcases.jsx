@@ -23,6 +23,19 @@ const Testcases = ({ hasSourceCode = false }) => {
   const { data, isLoading, status, refetch: refetchTestcaseData } = useQuery({
     queryKey: ['testcaseData', exerciseId],
     queryFn: () => getExerciseTestcases(exerciseId),
+    /* refetchInterval: ({ state: { data } }) => {
+      if (data && Array.isArray(data) && data.length !== 0) {
+        if (data.every(testcase => testcase.is_ready === "yes")) {
+          return false;
+        } else {
+          return 1000;
+        }
+      } else if (data && Array.isArray(data)) {
+        return false;
+      } else {
+        return 1000;
+      }
+    }, */
   })
   const queryClient = useQueryClient();
   const { mutate: saveTestcases } = useMutation({
