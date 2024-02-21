@@ -25,6 +25,8 @@ function MyGroups() {
 
   const items = [{ label: 'My Groups', href: '/ins' }];
 
+  console.log(groupListQuery.data)
+
   return (
     <Container>
       <Stack spacing="20px">
@@ -56,7 +58,7 @@ function MyGroups() {
             </>
           }
 
-          {!groupListQuery.isLoading && !groupListQuery.isError &&
+          {!groupListQuery.isLoading && !groupListQuery.isError && groupListQuery.data &&
             <>
               {Array.isArray(groupListQuery.data) && groupListQuery.data.length > 0 ?
                 groupListQuery.data.map((group) => (

@@ -1,7 +1,5 @@
-def a():
-    a()
-
-a()
+while True:
+    print("Hello World")
 
 x=2
 print("x =",x)

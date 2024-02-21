@@ -9,7 +9,7 @@ import { setChapterPermission } from "@/utils/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import moment from 'moment';
 import React, { useState } from 'react';
-import {DevTool} from "@hookform/devtools";
+import { DevTool } from "@hookform/devtools";
 
 const buttonProps = {
   size: 'medium',
@@ -102,7 +102,7 @@ const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
       console.log(getValues("hours"), getValues("minutes"), getValues("seconds"));
 
       form[`${prefix}_time_start`] = moment().format('YYYY-MM-DD HH:mm:ss');
-      form[`${prefix}_time_end`] = moment().add(moment.duration(getValues("hours"),"hours")).add(moment.duration(getValues("minutes"), "minutes")).add(moment.duration(getValues("seconds"), "seconds")).format('YYYY-MM-DD HH:mm:ss');
+      form[`${prefix}_time_end`] = moment().add(moment.duration(getValues("hours"), "hours")).add(moment.duration(getValues("minutes"), "minutes")).add(moment.duration(getValues("seconds"), "seconds")).format('YYYY-MM-DD HH:mm:ss');
     } else if (data[`allow_${prefix}_type`] === 'datetime') {
       form[`${prefix}_time_start`] = data[`${prefix}_time_start`].format('YYYY-MM-DD HH:mm:ss');
       form[`${prefix}_time_end`] = data[`${prefix}_time_end`].format('YYYY-MM-DD HH:mm:ss');
@@ -155,24 +155,24 @@ const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
             gap: "10px",
             alignItems: "center"
           }} >
-            <Stack direction="row" spacing =" 10px ">
-              <Button {...buttonProps} type="submit" variant={"outlined"} onClick={() => {
+            <Stack direction="row" spacing="10px">
+              <Button {...buttonProps} variant={"outlined"} onClick={() => {
                 setValue('minutes', 5)
                 handleSubmit(onSubmit)();
               }}
                 sx={buttonStyle}>Set to 5 minutes</Button>
-              <Button {...buttonProps} type="submit" variant={"outlined"} onClick={() => {
+              <Button {...buttonProps} variant={"outlined"} onClick={() => {
                 setValue('minutes', 30)
                 handleSubmit(onSubmit)();
               }}
                 sx={buttonStyle}>Set to 30 minutes</Button>
-              <Button {...buttonProps} type="submit" variant={"outlined"} onClick={() => {
+              <Button {...buttonProps} variant={"outlined"} onClick={() => {
                 setValue('hours', 3)
                 handleSubmit(onSubmit)();
               }}
                 sx={buttonStyle}>Set to 3 hours</Button>
             </Stack>
-            
+
             <TimerFields control={control} setValue={setValue} />
           </Paper>
         )}

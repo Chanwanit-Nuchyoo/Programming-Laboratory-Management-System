@@ -70,42 +70,49 @@ class Supervisor_rest extends MY_RestController
 	}
 
 	public function getGroupListById_get()
-	{
-		try {
-			$this->logout_after_time_limit();
-			$this->update_last_seen();
-			$user_id = $_SESSION['id'];
-			$supervised_groups_sem1 = $this->lab_model_rest->get_supervise_group($user_id, 1);
-			$supervised_groups_sem2 = $this->lab_model_rest->get_supervise_group($user_id, 2);
-			$assisted_groups = $this->lab_model_rest->get_staff_group($user_id);
-			$groups = array_merge($supervised_groups_sem1, $supervised_groups_sem2, $assisted_groups);
+{
+	try {
+		$this->logout_after_time_limit();
+		$this->update_last_seen();
+		$user_id = $_SESSION['id'];
+		$supervised_groups_sem1 = $this->lab_model_rest->get_supervise_group($user_id, 1);
+		$supervised_groups_sem2 = $this->lab_model_rest->get_supervise_group($user_id, 2);
+		$assisted_groups = $this->lab_model_rest->get_staff_group($user_id);
 
-			$group_list = array();
-			for ($i = 0; $i < sizeof($groups); $i++) {
-				if (!empty($groups[$i]['class_id'])) {
-					$group_id = $groups[$i]['class_id'];
-				} else {
-					$group_id = $groups[$i]['group_id'];
-				}
+		// Merge the arrays
+		$merged_groups = array_merge($supervised_groups_sem1, $supervised_groups_sem2, $assisted_groups);
 
-				$group_list[$i] = $this->lab_model_rest->get_class_schedule_by_group_id($group_id);
-				$students_in_group = $this->lab_model_rest->get_count_of_students($group_id);
-				$group_list[$i]['students_in_group'] = $students_in_group;
+		// Remove duplicates
+		$groups = array();
+		foreach ($merged_groups as $group) {
+			if (!in_array($group, $groups, true)) {
+				$groups[] = $group;
 			}
-
-			$data = array(
-				'group_list' => $group_list,
-			);
-
-			$this->response([
-				'status' => TRUE,
-				'message' => 'Successfully fetch supervisor group list',
-				'payload' => $data,
-			], RestController::HTTP_OK);
-		} catch (Exception $e) {
-			return $this->handleError($e);
 		}
+
+		$group_list = array();
+		foreach ($groups as $i => $group) {
+			$group_id = !empty($group['class_id']) ? $group['class_id'] : $group['group_id'];
+
+			$group_list[$i] = $this->lab_model_rest->get_class_schedule_by_group_id($group_id);
+			$students_in_group = $this->lab_model_rest->get_count_of_students($group_id);
+			$group_list[$i]['students_in_group'] = $students_in_group;
+		}
+
+		$data = array(
+			'group_list' => $group_list,
+		);
+
+		$this->response([
+			'status' => TRUE,
+			'message' => 'Successfully fetch supervisor group list',
+			'payload' => $data,
+		], RestController::HTTP_OK);
+	} catch (Exception $e) {
+		return $this->handleError($e);
 	}
+}
+
 
 	private function set_default_for_group_permission($group_id)
 	{
