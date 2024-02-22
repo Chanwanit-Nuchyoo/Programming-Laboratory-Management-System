@@ -2,7 +2,7 @@ import { Stack, Typography, Box, Button, CircularProgress } from "@mui/material"
 import PanelHeader from "@/components/StuExercise/PanelHeader"
 import MyCodeEditor from "@/components/_shared/MyCodeEditor";
 import { useEffect, useState, useRef } from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, set, useFormContext } from "react-hook-form";
 import { useAtom } from "jotai";
 import { userAtom } from "@/store/store";
 import { useParams } from "react-router-dom";
@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const WorkSpacePanel = ({ exerciseQuery, submitPermission, submissionList, selectedTab, shouldShowLatestSubmission }) => {
   const [saveStatus, setSaveStatus] = useState('');
+  const [alreadyPassed, setAlreadyPassed] = useState(false);
   const eventSourceRef = useRef(null);
   const [user, setUser] = useAtom(userAtom);
 
@@ -81,6 +82,15 @@ const WorkSpacePanel = ({ exerciseQuery, submitPermission, submissionList, selec
   });
 
   useEffect(() => {
+    if (!submissionList.isLoading && submissionList.value.length > 0) {
+      const acceptedSubmission = submissionList.value.filter(submission => submission.status === "accepted");
+      if (acceptedSubmission.length > 0) {
+        setAlreadyPassed(true);
+      }
+    }
+  }, [submissionList.isLoading, submissionList.value]);
+
+  useEffect(() => {
     if (!submissionList.isLoading) {
       const localSourcecode = localStorage.getItem(`sourcecode-${user.id}-${chapterId}-${itemId}`);
       if (localSourcecode) {
@@ -136,7 +146,7 @@ const WorkSpacePanel = ({ exerciseQuery, submitPermission, submissionList, selec
           </Stack>
           <Stack>
             <Button
-              disabled={!watchedSourcecode || exerciseQuery.isError || saveStatus !== "Saved!" || sendExerciseSubmission.isPending || checkKeywordMutation.isPending || !passPermission}
+              disabled={!watchedSourcecode || exerciseQuery.isError || saveStatus !== "Saved!" || sendExerciseSubmission.isPending || checkKeywordMutation.isPending || !passPermission || alreadyPassed}
               startIcon={(saveStatus === "Saving..." || sendExerciseSubmission.isPending || checkKeywordMutation.isPending) && <CircularProgress size="20px" sx={{ color: "white" }} />}
               onClick={handleSubmit(onSubmit)}
               color="primary"
@@ -154,7 +164,7 @@ const WorkSpacePanel = ({ exerciseQuery, submitPermission, submissionList, selec
               control={control}
               render={({ field: { value, onChange } }) => (
                 <MyCodeEditor
-                  editable={exerciseQuery.isError ? false : true}
+                  editable={exerciseQuery.isError || alreadyPassed ? false : true}
                   value={value}
                   onChange={onChange}
                   minHeight={"100%"}
