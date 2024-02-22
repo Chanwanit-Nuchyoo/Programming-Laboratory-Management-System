@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Stack, Box, Typography, FormControl, RadioGroup, FormControlLabel, Radio, Paper, Button } from "@mui/material";
-import { /* useFormContext, */ useForm, Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import checked from '@/assets/images/allowsubmit.svg';
 import { modalStyle } from '@/utils';
 import TimerFields from "@/components/InsGroupPage/TimerFields";
@@ -8,12 +8,11 @@ import DateTimeFields from "@/components/InsGroupPage/DateTimeFields";
 import { setChapterPermission } from "@/utils/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import moment from 'moment';
-import React, { useState } from 'react';
-import { DevTool } from "@hookform/devtools";
+import { useState } from 'react';
 
 const buttonProps = {
   size: 'medium',
-  sx: { paddingX: "25px", borderRadius: "8px", textTransform: "none" },
+  sx: { paddingX: "10px" },
   variant: 'contained',
 };
 
@@ -25,7 +24,7 @@ const buttonStyle = {
   border: 'solid 2px'
 }
 
-const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
+const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open, isAccessible }) => {
   const queryClient = useQueryClient();
   /* const {watch, handleSubmit, control, setValue} = useFormContext(); */
   const handleClose = (buttonType) => {
@@ -85,10 +84,14 @@ const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
     }
   });
   const watchAllowType = watch(`allow_${prefix}_type`);
-  /* const [additionalMinutes, setAdditionalMinutes] = useState(0);
-  const [additionalHours, setAdditionalHours] = useState(0); */
 
   const onSubmit = (data) => {
+    let sync = !isAccessible;
+
+    if (prefix === "access") {
+      sync = false;
+    }
+
     let form = {
       class_id: data.class_id,
       chapter_id: data.chapter_id,
@@ -96,11 +99,10 @@ const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
       [`allow_${prefix}_type`]: data[`allow_${prefix}_type`],
       [`${prefix}_time_start`]: null,
       [`${prefix}_time_end`]: null,
+      sync: sync,
     };
 
     if (data[`allow_${prefix}_type`] === 'timer') {
-      console.log(getValues("hours"), getValues("minutes"), getValues("seconds"));
-
       form[`${prefix}_time_start`] = moment().format('YYYY-MM-DD HH:mm:ss');
       form[`${prefix}_time_end`] = moment().add(moment.duration(getValues("hours"), "hours")).add(moment.duration(getValues("minutes"), "minutes")).add(moment.duration(getValues("seconds"), "seconds")).format('YYYY-MM-DD HH:mm:ss');
     } else if (data[`allow_${prefix}_type`] === 'datetime') {
@@ -109,6 +111,10 @@ const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
     }
     mutate(form);
   };
+
+  const syncAllowSubmitPermission = (type, value) => {
+
+  }
 
   return (
     <form>
@@ -152,12 +158,13 @@ const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
             justifyContent: "center",
             marginTop: "10px",
             flexDirection: "column",
-            gap: "10px",
+            gap: "20px",
             alignItems: "center"
           }} >
             <Stack direction="row" spacing="10px">
               <Button {...buttonProps} variant={"outlined"} onClick={() => {
                 setValue('minutes', 5)
+
                 handleSubmit(onSubmit)();
               }}
                 sx={buttonStyle}>Set to 5 minutes</Button>

@@ -25,8 +25,6 @@ function MyGroups() {
 
   const items = [{ label: 'My Groups', href: '/ins' }];
 
-  console.log(groupListQuery.data)
-
   return (
     <Container>
       <Stack spacing="20px">

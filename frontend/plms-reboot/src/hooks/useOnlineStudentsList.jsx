@@ -6,7 +6,7 @@ const useOnlineStudentsList = (groupId) => {
   useEffect(() => {
     const eventSource = new EventSource(`${import.meta.env.VITE_REALTIME_BASE_URL}/subscribe/online-students/${groupId}`);
     eventSource.onmessage = (e) => {
-      console.log(JSON.parse(e.data));
+      /* console.log(JSON.parse(e.data)); */
       setOnlineStudentsList(JSON.parse(e.data));
     }
     return () => {
