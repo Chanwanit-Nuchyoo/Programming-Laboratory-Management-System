@@ -33,7 +33,7 @@ const StuExercise = () => {
   const submissionListQuery = useQuery({
     queryKey: ['submission-list', user.id, chapterId, itemId],
     queryFn: () => getStudentSubmissionList(user.id, chapterId, itemId),
-    refetchInterval: ({ state: { data } }) => {
+    /* refetchInterval: ({ state: { data } }) => {
       if (data && Array.isArray(data) && data.length !== 0) {
         if (data.every(submission => submission.status !== "pending")) {
           return false;
@@ -45,7 +45,7 @@ const StuExercise = () => {
       } else {
         return 1000;
       }
-    }
+    } */
   })
 
   const { chapterPermissionQuery, ...permission } = useSubmittable(groupId, chapterId);
