@@ -960,34 +960,42 @@ class Supervisor_rest extends MY_RestController
 			$stu_id = $row['stu_id'];
 			$stu_name = $row['stu_name'];
 			$stu_surname = $row['stu_surname'];
+			$message = "";
+			/* echo $row['stu_no'] . " " . $row['stu_id'] . " " . $row['stu_name'] . " " . $row['stu_surname'] . "<br />"; */
 			if (strlen($row['stu_id']) == 8) {
+				/* echo "add will be performed.<br />"; */
 				$message = $this->student_model_rest->check_or_add_student_to_user($stu_id);
-				if ($message == 'OK') {
-					$this->createLogfile(__METHOD__ . " : $stu_id is added to user table. ==> " . $message);
+				/* if ($message == 'OK') { */
+				$this->createLogfile(__METHOD__ . " : $stu_id is added to user table. ==> " . $message);
+				/* echo " ==> Added.<br />"; */
+				$stu_gender = 'other';
+				if (substr($stu_name, 0, 9) == 'นาย') {
+					$stu_gender = 'male';
+					$stu_firstname = substr($stu_name, 9, strlen($stu_name));
+					$stu_lastname = $stu_surname;
+				} else if (substr($stu_name, 0, 18) == 'นางสาว') {
+					$stu_gender = 'female';
+					$stu_firstname = substr($stu_name, 18, strlen($stu_name));
+					$stu_lastname = $stu_surname;
+				} else {
 					$stu_gender = 'other';
-					if (substr($stu_name, 0, 9) == 'นาย') {
-						$stu_gender = 'male';
-						$stu_firstname = substr($stu_name, 9, strlen($stu_name));
-						$stu_lastname = $stu_surname;
-					} else if (substr($stu_name, 0, 18) == 'นางสาว') {
-						$stu_gender = 'female';
-						$stu_firstname = substr($stu_name, 18, strlen($stu_name));
-						$stu_lastname = $stu_surname;
-					} else {
-						$stu_gender = 'other';
-						$stu_firstname = $stu_name;
-						$stu_lastname = $stu_surname;
-					}
-
-					$student_data = array(
-						'stu_id'	=> $stu_id,
-						'stu_firstname'	=> $stu_firstname,
-						'stu_lastname'	=> $stu_lastname,
-						'stu_group'		=> $stu_group_id,
-						'stu_gender'	=> $stu_gender
-					);
-					$message = $this->student_model_rest->check_or_add_student_to_user_student($student_data);
+					$stu_firstname = $stu_name;
+					$stu_lastname = $stu_surname;
 				}
+
+				$student_data = array(
+					'stu_id'	=> $stu_id,
+					'stu_firstname'	=> $stu_firstname,
+					'stu_lastname'	=> $stu_lastname,
+					'stu_group'		=> $stu_group_id,
+					'stu_gender'	=> $stu_gender
+				);
+				$message = $this->student_model_rest->check_or_add_student_to_user_student($student_data);
+
+				if ($message == 'Alreadyexist') {
+					$this->student_model_rest->update_student_group($stu_id, $stu_group_id);
+				}
+				/* } */
 			}
 		}
 		$this->response([
