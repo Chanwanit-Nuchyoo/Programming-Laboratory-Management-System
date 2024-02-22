@@ -3,6 +3,7 @@ import { Stack } from '@mui/material'
 import { DateTimeField } from '@mui/x-date-pickers'
 import { Controller } from 'react-hook-form'
 import moment from 'moment';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
 const DateTimeFields = ({ prefix, control }) => {
   return (
@@ -10,12 +11,12 @@ const DateTimeFields = ({ prefix, control }) => {
       <Controller
         name={`${prefix}_time_start`}
         control={control}
-        defaultValue={moment()}
+        defaultValue={moment().startOf('minute')}
         render={({ field }) => (
-          <DateTimeField
+          <DateTimePicker
             label="Start date"
             size='small'
-            format="YYYY-MM-DD HH:mm:ss"
+            format="YYYY-MM-DD HH:mm"
             value={field.value}
             onChange={field.onChange}
           />
@@ -25,12 +26,12 @@ const DateTimeFields = ({ prefix, control }) => {
       <Controller
         name={`${prefix}_time_end`}
         control={control}
-        defaultValue={moment()}
+        defaultValue={moment().startOf('minute')}
         render={({ field }) => (
-          <DateTimeField
+          <DateTimePicker
             label="End date"
             size='small'
-            format="YYYY-MM-DD HH:mm:ss"
+            format="YYYY-MM-DD HH:mm"
             value={field.value}
             onChange={field.onChange}
           />

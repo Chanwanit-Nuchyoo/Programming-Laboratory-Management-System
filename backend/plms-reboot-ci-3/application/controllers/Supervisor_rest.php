@@ -70,48 +70,48 @@ class Supervisor_rest extends MY_RestController
 	}
 
 	public function getGroupListById_get()
-{
-	try {
-		$this->logout_after_time_limit();
-		$this->update_last_seen();
-		$user_id = $_SESSION['id'];
-		$supervised_groups_sem1 = $this->lab_model_rest->get_supervise_group($user_id, 1);
-		$supervised_groups_sem2 = $this->lab_model_rest->get_supervise_group($user_id, 2);
-		$assisted_groups = $this->lab_model_rest->get_staff_group($user_id);
+	{
+		try {
+			$this->logout_after_time_limit();
+			$this->update_last_seen();
+			$user_id = $_SESSION['id'];
+			$supervised_groups_sem1 = $this->lab_model_rest->get_supervise_group($user_id, 1);
+			$supervised_groups_sem2 = $this->lab_model_rest->get_supervise_group($user_id, 2);
+			$assisted_groups = $this->lab_model_rest->get_staff_group($user_id);
 
-		// Merge the arrays
-		$merged_groups = array_merge($supervised_groups_sem1, $supervised_groups_sem2, $assisted_groups);
+			// Merge the arrays
+			$merged_groups = array_merge($supervised_groups_sem1, $supervised_groups_sem2, $assisted_groups);
 
-		// Remove duplicates
-		$groups = array();
-		foreach ($merged_groups as $group) {
-			if (!in_array($group, $groups, true)) {
-				$groups[] = $group;
+			// Remove duplicates
+			$groups = array();
+			foreach ($merged_groups as $group) {
+				if (!in_array($group, $groups, true)) {
+					$groups[] = $group;
+				}
 			}
+
+			$group_list = array();
+			foreach ($groups as $i => $group) {
+				$group_id = !empty($group['class_id']) ? $group['class_id'] : $group['group_id'];
+
+				$group_list[$i] = $this->lab_model_rest->get_class_schedule_by_group_id($group_id);
+				$students_in_group = $this->lab_model_rest->get_count_of_students($group_id);
+				$group_list[$i]['students_in_group'] = $students_in_group;
+			}
+
+			$data = array(
+				'group_list' => $group_list,
+			);
+
+			$this->response([
+				'status' => TRUE,
+				'message' => 'Successfully fetch supervisor group list',
+				'payload' => $data,
+			], RestController::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
 		}
-
-		$group_list = array();
-		foreach ($groups as $i => $group) {
-			$group_id = !empty($group['class_id']) ? $group['class_id'] : $group['group_id'];
-
-			$group_list[$i] = $this->lab_model_rest->get_class_schedule_by_group_id($group_id);
-			$students_in_group = $this->lab_model_rest->get_count_of_students($group_id);
-			$group_list[$i]['students_in_group'] = $students_in_group;
-		}
-
-		$data = array(
-			'group_list' => $group_list,
-		);
-
-		$this->response([
-			'status' => TRUE,
-			'message' => 'Successfully fetch supervisor group list',
-			'payload' => $data,
-		], RestController::HTTP_OK);
-	} catch (Exception $e) {
-		return $this->handleError($e);
 	}
-}
 
 
 	private function set_default_for_group_permission($group_id)
@@ -272,6 +272,9 @@ class Supervisor_rest extends MY_RestController
 			$class_id = $postdata['class_id'];
 			$chapter_id = $postdata['chapter_id'];
 			$prefix = $postdata['prefix'];
+			$sync = $postdata['sync'];
+
+			$other_prefix = $prefix == 'submit' ? 'access' : 'submit';
 
 			// Validate the type
 			$type = $postdata['allow_' . $prefix . '_type'];
@@ -281,15 +284,27 @@ class Supervisor_rest extends MY_RestController
 
 			$permission = array();
 			$permission['allow_' . $prefix . "_type"] = $type;
+			if ($sync) {
+				$permission['allow_' . $other_prefix . "_type"] = $type;
+			}
 
 			if ($type == 'always' || $type == 'deny') {
 				$permission[$prefix . '_time_start'] = null;
 				$permission[$prefix . '_time_end'] = null;
+
+				if ($sync) {
+					$permission[$other_prefix . '_time_start'] = null;
+					$permission[$other_prefix . '_time_end'] = null;
+				}
 			} else if ($type == 'timer-paused') {
 				if (!isset($postdata[$prefix . '_time_start'])) {
 					throw new Exception('Missing' . $prefix . ' start date or' . $prefix . 'end date', RestController::HTTP_BAD_REQUEST);
 				}
 				$permission[$prefix . '_time_start'] = $postdata[$prefix . '_time_start'];
+
+				if ($sync) {
+					$permission[$other_prefix . '_time_start'] = $postdata[$prefix . '_time_start'];
+				}
 			} else {
 				// Validate the dates
 				if (!isset($postdata[$prefix . '_time_start'], $postdata[$prefix . '_time_end'])) {
@@ -297,13 +312,16 @@ class Supervisor_rest extends MY_RestController
 				}
 				$permission[$prefix . '_time_start'] = $postdata[$prefix . '_time_start'];
 				$permission[$prefix . '_time_end'] = $postdata[$prefix . '_time_end'];
+
+				if ($sync) {
+					$permission[$other_prefix . '_time_start'] = $postdata[$prefix . '_time_start'];
+					$permission[$other_prefix . '_time_end'] = $postdata[$prefix . '_time_end'];
+				}
 			}
 
 			$update_row = $this->lab_model_rest->set_chapter_permission($class_id, $chapter_id, $permission);
 
 			$redis = $this->get_redis_instance();
-
-			echo "chapter-permission:$class_id:chap-$chapter_id";
 
 			$redis->publish("chapter-permission:$class_id:chap-$chapter_id", "permission updated");
 

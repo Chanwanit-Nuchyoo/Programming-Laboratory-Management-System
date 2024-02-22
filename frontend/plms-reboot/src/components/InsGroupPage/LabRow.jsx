@@ -13,7 +13,7 @@ import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import IconButton from '@mui/material/IconButton';
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { setChapterPermission } from "@/utils/api";
-import { useForm ,FormProvider} from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 
 const LabRow = ({ lab, groupId, groupNo }) => {
   const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
@@ -23,8 +23,8 @@ const LabRow = ({ lab, groupId, groupNo }) => {
   const queryClient = useQueryClient();
   const currentTime = useCurrentTime();
 
-  const { mutate }  = useMutation({
-    mutationFn:setChapterPermission,
+  const { mutate } = useMutation({
+    mutationFn: setChapterPermission,
     onSuccess: () => {
       queryClient.invalidateQueries(['labData', groupId]);
       const ee = queryClient.getQueryData(['labData', groupId]);
@@ -60,18 +60,27 @@ const LabRow = ({ lab, groupId, groupNo }) => {
     } */
   })
 
-  const handleToggleSwitch = (prefix, class_id, chapter_id)=> {
+  const handleToggleSwitch = (prefix, class_id, chapter_id) => {
+    let isAccessible = checkIsAccessible(lab[`allow_${prefix}_type`], currentTime, moment(lab[`${prefix}_time_start`]), moment(lab[`${prefix}_time_end`]));
+    let sync = !isAccessible;
+
+    if (prefix === 'access') {
+      sync = false;
+    }
+
     let form = {
       class_id: class_id,
       chapter_id: chapter_id,
       prefix: prefix,
-      [`allow_${prefix}_type`]: !!checkIsAccessible(lab[`allow_${prefix}_type`], currentTime, moment(lab[`${prefix}_time_start`]), moment(lab[`${prefix}_time_end`])) ? "deny": "always",
+      [`allow_${prefix}_type`]: !!checkIsAccessible(lab[`allow_${prefix}_type`], currentTime, moment(lab[`${prefix}_time_start`]), moment(lab[`${prefix}_time_end`])) ? "deny" : "always",
       [`${prefix}_time_start`]: null,
       [`${prefix}_time_end`]: null,
+      sync: sync
     };
 
     mutate(form);
   }
+
   return (
     <Stack direction={"row"} padding="10px" bgcolor="var(--biscay)" borderRadius="8px" >
       <Stack flex={1} justifyContent="center" >
@@ -82,31 +91,31 @@ const LabRow = ({ lab, groupId, groupNo }) => {
       <Stack width={100} justifyContent="center" alignItems="center" >
         <Typography>{lab.chapter_fullmark}</Typography>
       </Stack>
-      
+
       <Stack width={335} direction={"row"} spacing={"20px"} justifyContent="flex-start" alignItems="center" paddingX="16px" >
         <ToggleSwitch
           isChecked={!!checkIsAccessible(lab.allow_access_type, currentTime, moment(lab.access_time_start), moment(lab.access_time_end))}
-          onToggle={()=> handleToggleSwitch("access", lab.class_id, lab.chapter_id)}
+          onToggle={() => handleToggleSwitch("access", lab.class_id, lab.chapter_id)}
         />
         <Stack>
           <PermissionText prefix='access' type={lab.allow_access_type} lab={lab} isInsPage={true} />
         </Stack>
         <Box display="flex" flexGrow={1} justifyContent="flex-end" alignItems="center">
-        <IconButton onClick={() => setIsAccessModalOpen(true)}>
-          <AccessAlarmIcon color="primary"/>
-        </IconButton>
-        <Modal
-          open={isAccessModalOpen}
-          onClose={() => setIsAccessModalOpen(false)}
-        >
-          <Box>
-            <AllowTypeForm lab={lab} groupId={groupId} chapterId={lab.chapter_id} prefix="access" title="Allow access exercise" open={setIsAccessModalOpen} />
-          </Box>
-        </Modal>
+          <IconButton onClick={() => setIsAccessModalOpen(true)}>
+            <AccessAlarmIcon color="primary" />
+          </IconButton>
+          <Modal
+            open={isAccessModalOpen}
+            onClose={() => setIsAccessModalOpen(false)}
+          >
+            <Box>
+              <AllowTypeForm lab={lab} groupId={groupId} chapterId={lab.chapter_id} prefix="access" title="Allow access exercise" open={setIsAccessModalOpen} isAccessible={!!checkIsAccessible(lab.allow_submit_type, currentTime, moment(lab.submit_time_start), moment(lab.submit_time_end))} />
+            </Box>
+          </Modal>
         </Box>
-        
+
       </Stack>
-      
+
       <Stack width={335} direction={"row"} spacing={"20px"} justifyContent="flex-start" alignItems="center" paddingX="16px">
         <ToggleSwitch
           isChecked={!!checkIsAccessible(lab.allow_submit_type, currentTime, moment(lab.submit_time_start), moment(lab.submit_time_end))}
@@ -116,17 +125,17 @@ const LabRow = ({ lab, groupId, groupNo }) => {
           <PermissionText prefix='submit' type={lab.allow_submit_type} lab={lab} isInsPage={true} />
         </Stack>
         <Box display="flex" flexGrow={1} justifyContent="flex-end" alignItems="center">
-        <IconButton onClick={() => setIsSubmitModalOpen(true)}>
-          <AccessAlarmIcon color="primary"/>
-        </IconButton>
-        <Modal
-          open={isSubmitModalOpen}
-          onClose={() => setIsSubmitModalOpen(false)}
-        >
-          <Box>
-            <AllowTypeForm lab={lab} groupId={groupId} chapterId={lab.chapter_id} prefix='submit' title="Allow submit exercise" open={setIsSubmitModalOpen} />
-          </Box>
-        </Modal>
+          <IconButton onClick={() => setIsSubmitModalOpen(true)}>
+            <AccessAlarmIcon color="primary" />
+          </IconButton>
+          <Modal
+            open={isSubmitModalOpen}
+            onClose={() => setIsSubmitModalOpen(false)}
+          >
+            <Box>
+              <AllowTypeForm lab={lab} groupId={groupId} chapterId={lab.chapter_id} prefix='submit' title="Allow submit exercise" open={setIsSubmitModalOpen} isAccessible={!!checkIsAccessible(lab.allow_submit_type, currentTime, moment(lab.submit_time_start), moment(lab.submit_time_end))} />
+            </Box>
+          </Modal>
         </Box>
       </Stack>
     </Stack>

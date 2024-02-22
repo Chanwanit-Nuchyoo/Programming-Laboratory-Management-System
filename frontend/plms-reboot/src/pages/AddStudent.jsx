@@ -2,8 +2,9 @@ import { Box, Button, Stack, TextField } from "@mui/material"
 import blueFolder from "@/assets/images/bluefoldericon.svg"
 import { useParams } from 'react-router-dom';
 import { addStudent } from '@/utils/api';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import React, { useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { getBreadCrumbs } from '@/utils/api';
+import React, { useState, useMemo } from 'react';
 // components
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs'
 import Header from "@/components/_shared/Header"
@@ -20,13 +21,16 @@ const AddStudent = () => {
   const { groupId } = useParams();
   const [student_data, setStudentData] = useState('');
 
-  const { data: groupData, isLoading: isClassLoading } = useQuery({
-    queryKey: ['groupData', groupId],
-    queryFn: async () => {
-      const res = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getGroupDataById?group_id=${groupId}`, { withCredentials: true })
-      return res.data.payload.class_schedule;
+  const breadCrumbsId = useMemo(() => {
+    return {
+      'group_id': groupId,
     }
-  });
+  }, [groupId])
+
+  const { data: bc, isLoading: isBcLoading } = useQuery({
+    queryKey: ['add-student-info', breadCrumbsId],
+    queryFn: () => getBreadCrumbs(breadCrumbsId)
+  })
 
   const { mutate: AddStudentMutation } = useMutation({
     mutationFn: addStudent,
@@ -41,10 +45,10 @@ const AddStudent = () => {
         <MyBreadCrumbs items={[
 
           { label: 'My Groups', href: '/ins' },
-          { label: `Group ${groupData?.group_no} `, href: '#' },
+          { label: `Group ${!isBcLoading ? bc.group_no : "..."} `, href: '#' },
         ]} />
 
-        <Header logoSrc={blueFolder} title={`Group ${!isClassLoading ? groupData?.group_no : "..."}`} />
+        <Header logoSrc={blueFolder} title={`Group ${!isBcLoading ? bc.group_no : "..."}`} />
 
         <Box >
           <TextField color="primary" variant="outlined" fullWidth multiline rows={20} placeholder={placeholder}

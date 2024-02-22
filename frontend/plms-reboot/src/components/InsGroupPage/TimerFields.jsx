@@ -2,6 +2,8 @@
 import { Stack, TextField, Typography } from "@mui/material"
 import { Controller } from "react-hook-form";
 
+const inputStyle = { height: '30px', width: '30px', textAlign: 'center', fontSize: "16px" };
+
 const TimerFields = ({ control }) => {
   return (
     <Stack direction="row" spacing={"10px"} alignItems="center">
@@ -15,8 +17,8 @@ const TimerFields = ({ control }) => {
             size='small'
             label="HH"
             onChange={field.onChange}
-            InputLabelProps={{sx:{ fontSize: "20px" }}}
-            inputProps={{ maxLength: 2, style: { height: '40px', width: '50px', textAlign: 'center', fontSize: "20px" } }}
+            InputLabelProps={{ sx: { fontSize: "16px" } }}
+            inputProps={{ maxLength: 2, style: inputStyle }}
           />
         )}
       />
@@ -37,8 +39,8 @@ const TimerFields = ({ control }) => {
               }
               field.onChange(value);
             }}
-            InputLabelProps={{sx:{ fontSize: "20px" }}}
-            inputProps={{ maxLength: 2, style: { height: '40px', width: '50px', textAlign: 'center' , fontSize: "20px"} }}
+            InputLabelProps={{ sx: { fontSize: "20px" } }}
+            inputProps={{ maxLength: 2, style: inputStyle }}
           />
         )}
       />
@@ -59,8 +61,8 @@ const TimerFields = ({ control }) => {
               }
               field.onChange(value);
             }}
-            inputProps={{ maxLength: 2, style: { height: '40px', width: '50px', textAlign: 'center', fontSize: "20px" } }}
-            InputLabelProps={{sx:{ fontSize: "20px" }}}
+            inputProps={{ maxLength: 2, style: inputStyle }}
+            InputLabelProps={{ sx: { fontSize: "20px" } }}
           />
         )}
       />

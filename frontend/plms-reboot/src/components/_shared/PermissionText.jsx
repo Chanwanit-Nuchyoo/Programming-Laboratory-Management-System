@@ -135,12 +135,12 @@ const PermissionText = ({ prefix, type, lab, isInsPage }) => {
     if (!isStarted) {
       return (<>
         <Typography fontSize={"12px"}>Start date</Typography>
-        <Typography>{timeStart.format("YYYY-MM-DD HH:mm:ss")}</Typography>
+        <Typography variant='caption' >{timeStart.format("YYYY-MM-DD HH:mm:ss")}</Typography>
       </>)
     } else if (isStarted && !isEnded) {
       return (<>
         <Typography fontSize={"12px"} >End date</Typography>
-        <Typography>{timeEnd.format("YYYY-MM-DD HH:mm:ss")}</Typography>
+        <Typography variant='caption' >{timeEnd.format("YYYY-MM-DD HH:mm:ss")}</Typography>
       </>)
     } else {
       return <Typography sx={{ color: "red" }}>Deny</Typography>
