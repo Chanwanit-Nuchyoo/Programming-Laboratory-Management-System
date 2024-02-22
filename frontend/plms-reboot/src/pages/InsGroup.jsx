@@ -3,7 +3,7 @@ import folderIcon from '@/assets/images/foldericon.svg';
 import { useParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query";
 import useOnlineStudentsList from "@/hooks/useOnlineStudentsList";
-import axios from "axios";
+import axios from "axios"
 
 import Header from "@/components/_shared/Header"
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs'

@@ -4,11 +4,15 @@ import { Typography, Stack, Skeleton, Box, Button } from "@mui/material"
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { logoutAllStudentInGroup } from "@/utils/api";
 import { useParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
+import { ABS_INS_URL } from "@/utils/constants/routeConst";
 import LogoutIcon from '@/assets/images/logouticon.svg';
+import usericon from '@/assets/images/usericon.svg';
 
 const MiddleBox = ({ isClassLoading, groupData, onlineStudentsList }) => {
   const { groupId } = useParams();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { mutate: logoutAllStudent } = useMutation({
     mutationFn: logoutAllStudentInGroup,
@@ -22,6 +26,10 @@ const MiddleBox = ({ isClassLoading, groupData, onlineStudentsList }) => {
 
   const handleLogoutAllStudent = () => {
     logoutAllStudent(groupId)
+  }
+
+  const handleGoToStudentListPage = () => {
+    navigate(ABS_INS_URL.DYNAMIC.STUDENT_LIST(groupId));
   }
 
   return (
@@ -44,11 +52,14 @@ const MiddleBox = ({ isClassLoading, groupData, onlineStudentsList }) => {
           <Typography >{onlineStudentsList.length}</Typography>
         </Stack>
       </Stack>
-      <Box>
-        <Button variant="contained" color="primary" startIcon={<img src={LogoutIcon} alt="Logout" />} sx={{ textTransform: "none", padding: "6px 26px", fontSize: "16px" }} onClick={handleLogoutAllStudent} >
-          Log out all student
+      <Stack direction="row" spacing="10px" >
+        <Button variant="contained" color="primary" startIcon={<img src={usericon} alt="Logout" />} sx={{ textTransform: "none", fontSize: "16px", height: "40px" }} onClick={handleGoToStudentListPage} >
+          Students
         </Button>
-      </Box>
+        <Button variant="contained" color="primary" startIcon={<img src={LogoutIcon} alt="Logout" />} sx={{ textTransform: "none", fontSize: "16px", height: "40px" }} onClick={handleLogoutAllStudent} >
+          Log out all
+        </Button>
+      </Stack>
     </ClassInfoBox>
   )
 }
