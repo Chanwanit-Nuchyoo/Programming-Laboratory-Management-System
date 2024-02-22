@@ -104,34 +104,35 @@ class Student_model_rest extends CI_Model
 		$query = $this->db->update('user');
 	}
 
-	public function check_or_add_student_to_user($stu_id) {
+	public function check_or_add_student_to_user($stu_id)
+	{
 		//echo '<h2>__METHOD__ = '. __METHOD__ .'</h2>';
-		$this->db->where("id",$stu_id);
+		$this->db->where("id", $stu_id);
 		$query = $this->db->get('user');
 		if ($query->num_rows() >= 1) {
 			//print_r($query->result_array());
 			//echo $stu_id." have previously been added to 'user' table.<br>";
 			return "cannot add";
-			
-		} else { 
+		} else {
 			//add new student to 'user' table
 			$data = array(
-						"id"		=> $stu_id,
-						"username"	=> $stu_id,
-						"password"	=> md5($stu_id),
-						"role"		=> 'student',
-						"active"	=> 'yes',
-						"added_by"	=> $_SESSION['username']
-						);
-			$this->db->insert('user',$data);
+				"id"		=> $stu_id,
+				"username"	=> $stu_id,
+				"password"	=> md5($stu_id),
+				"role"		=> 'student',
+				"active"	=> 'yes',
+				"added_by"	=> $_SESSION['username']
+			);
+			$this->db->insert('user', $data);
 			//echo "Insert : ".$data['id']." : num of row : ".$this->db->affected_rows();
 			return "OK";
 		}
 	}
 
-	public function check_or_add_student_to_user_student($student_data) {
+	public function check_or_add_student_to_user_student($student_data)
+	{
 		// $table = 'user_student';
-	
+
 		// check first before add
 		$this->db->where("stu_id", $student_data['stu_id']);
 		$query = $this->db->get($this->table); // Fix: Change 'this->table' to '$this->table'
@@ -144,5 +145,12 @@ class Student_model_rest extends CI_Model
 			//echo "Insert : " . $student_data['stu_id'] . " : num of row : " . $this->db->affected_rows();
 			return "OK";
 		}
+	}
+
+	public function update_student_group($stu_id, $group_id)
+	{
+		$this->db->set("stu_group", $group_id);
+		$this->db->where("stu_id", $stu_id);
+		$query = $this->db->update($this->table);
 	}
 }//class Student_model
