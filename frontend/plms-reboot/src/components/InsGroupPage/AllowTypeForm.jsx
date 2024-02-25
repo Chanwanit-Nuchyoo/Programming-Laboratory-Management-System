@@ -1,14 +1,13 @@
 /* eslint-disable react/prop-types */
-import { Stack, Box, Typography, FormControl, RadioGroup, FormControlLabel, Radio, Paper, Button } from "@mui/material";
-import { useForm, Controller } from "react-hook-form";
+import { Stack, Box, Typography, Button, FormControlLabel, Checkbox } from "@mui/material";
+import { useForm, Controller, FormProvider } from "react-hook-form";
 import checked from '@/assets/images/allowsubmit.svg';
 import { modalStyle } from '@/utils';
-import TimerFields from "@/components/InsGroupPage/TimerFields";
 import DateTimeFields from "@/components/InsGroupPage/DateTimeFields";
-import { setChapterPermission } from "@/utils/api";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import useChapterPermissionMutation from '@/hooks/useChapterPermissionMutation';
+import AllowTypeOptions from "@/components/InsGroupPage/AllowTypeOptions";
+import TimerType from "@/components/InsGroupPage/TimerType";
 import moment from 'moment';
-import { useState } from 'react';
 
 const buttonProps = {
   size: 'medium',
@@ -24,9 +23,7 @@ const buttonStyle = {
   border: 'solid 2px'
 }
 
-const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open, isAccessible }) => {
-  const queryClient = useQueryClient();
-  /* const {watch, handleSubmit, control, setValue} = useFormContext(); */
+const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
   const handleClose = (buttonType) => {
     if (buttonType === 'cancel') {
       reset();
@@ -36,168 +33,122 @@ const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open, isAccessi
     }
   };
 
-  const { mutate } = useMutation({
-    mutationFn: setChapterPermission,
-    onSuccess: () => {
-      queryClient.invalidateQueries(['labData', groupId]);
-      const ee = queryClient.getQueryData(['labData', groupId]);
-      //console.log(ee)
-      handleClose('done');
-    },
-    // Adding optimistic update
-    onMutate: async (variables) => {
-      const snapshot = queryClient.getQueryData(['labData', groupId]);
+  const { mutate } = useChapterPermissionMutation(groupId, open);
 
-      // Create a copy of the object and update the item with the matching chapter_id
-      const newData = { ...snapshot };
-      const item = newData[variables.chapter_id];
-      item.access_time_end = variables.access_time_end;
-      item.access_time_start = variables.access_time_start;
-
-      if (item) {
-        newData[variables.chapter_id] = {
-          ...item,
-          ...(variables.prefix === 'access' ? { allow_access_type: variables.allow_access_type } : { allow_submit_type: variables.allow_submit_type }),
-        };
-      }
-
-      // Optimistically update the query data
-      queryClient.setQueryData(['labData', groupId], newData);
-
-      // Return a context object with the snapshot for backup plan
-      return { snapshot };
-    },
-    onError: (error, variables, context) => {
-      console.log(error);
-      queryClient.setQueryData(['labData', groupId], () => context?.snapshot);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries(['labData', groupId]);
-    }
-  })
-
-  const { watch, handleSubmit, control, setValue, getValues, reset } = useForm({
+  const allowTypeForm = useForm({
     defaultValues: {
       'class_id': groupId,
       'chapter_id': chapterId,
       [`allow_${prefix}_type`]: lab[`allow_${prefix}_type`],
+      sync: false,
     }
   });
+
+  const { watch, handleSubmit, control, getValues, reset, formState } = allowTypeForm;
+
   const watchAllowType = watch(`allow_${prefix}_type`);
 
+  const formatDate = (date) => date.format('YYYY-MM-DD HH:mm:ss');
+
   const onSubmit = (data) => {
-    let sync = !isAccessible;
-
-    if (prefix === "access") {
-      sync = false;
-    }
-
-    let form = {
+    const form = {
       class_id: data.class_id,
       chapter_id: data.chapter_id,
       prefix: prefix,
       [`allow_${prefix}_type`]: data[`allow_${prefix}_type`],
       [`${prefix}_time_start`]: null,
       [`${prefix}_time_end`]: null,
-      sync: sync,
+      sync: data.sync,
     };
 
+    const currentTime = moment();
+
     if (data[`allow_${prefix}_type`] === 'timer') {
-      form[`${prefix}_time_start`] = moment().format('YYYY-MM-DD HH:mm:ss');
-      form[`${prefix}_time_end`] = moment().add(moment.duration(getValues("hours"), "hours")).add(moment.duration(getValues("minutes"), "minutes")).add(moment.duration(getValues("seconds"), "seconds")).format('YYYY-MM-DD HH:mm:ss');
+      form[`${prefix}_time_start`] = formatDate(moment());
+      form[`${prefix}_time_end`] = formatDate(currentTime.add(moment.duration(getValues("hours"), "hours")).add(moment.duration(getValues("minutes"), "minutes")).add(moment.duration(getValues("seconds"), "seconds")));
     } else if (data[`allow_${prefix}_type`] === 'datetime') {
-      form[`${prefix}_time_start`] = data[`${prefix}_time_start`].format('YYYY-MM-DD HH:mm:ss');
-      form[`${prefix}_time_end`] = data[`${prefix}_time_end`].format('YYYY-MM-DD HH:mm:ss');
+      form[`${prefix}_time_start`] = formatDate(data[`${prefix}_time_start`]);
+      form[`${prefix}_time_end`] = formatDate(data[`${prefix}_time_end`]);
     }
     mutate(form);
   };
 
-  const syncAllowSubmitPermission = (type, value) => {
+  const addTime = (data) => {
+    const form = {
+      class_id: data.class_id,
+      chapter_id: data.chapter_id,
+      prefix: prefix,
+      [`allow_${prefix}_type`]: data[`allow_${prefix}_type`],
+      [`${prefix}_time_start`]: null,
+      [`${prefix}_time_end`]: null,
+      sync: data.sync,
+    };
 
+    const currentTime = moment();
+
+    if (data[`allow_${prefix}_type`] === 'timer') {
+      if (lab[`${prefix}_time_start`] && lab[`${prefix}_time_end`]) {
+        const startTime = moment(lab[`${prefix}_time_start`])
+        const endTime = moment(lab[`${prefix}_time_end`]);
+        const isBetween = (currentTime.isBetween(startTime, endTime));
+
+        if (!isBetween) {
+          form[`${prefix}_time_start`] = formatDate(currentTime);
+          form[`${prefix}_time_end`] = formatDate(currentTime.add(moment.duration(getValues("hours"), "hours")).add(moment.duration(getValues("minutes"), "minutes")).add(moment.duration(getValues("seconds"), "seconds")));
+        } else {
+          form[`${prefix}_time_start`] = formatDate(startTime);
+          form[`${prefix}_time_end`] = formatDate(endTime.add(moment.duration(getValues("hours"), "hours")).add(moment.duration(getValues("minutes"), "minutes")).add(moment.duration(getValues("seconds"), "seconds")));
+        }
+      } else {
+        form[`${prefix}_time_start`] = formatDate(moment());
+        form[`${prefix}_time_end`] = formatDate(currentTime.add(moment.duration(getValues("hours"), "hours")).add(moment.duration(getValues("minutes"), "minutes")).add(moment.duration(getValues("seconds"), "seconds")));
+      }
+    }
+    mutate(form);
   }
 
   return (
     <form>
-      <Stack spacing={"15px"} sx={modalStyle}>
-        <Stack direction="row" spacing={"10px"} alignItems="center"  >
-          <Box style={{ margin: 0 }}>
-            <img src={checked} style={{ width: "36px", height: "36px", objectFit: "cover" }} alt="checked" />
-          </Box>
-          <Typography sx={{ color: '#0CA6E9', fontSize: '20px', fontWeight: 'bold' }}>{title}</Typography>
-        </Stack>
-        <Controller
-          name={`allow_${prefix}_type`}
-          control={control}
-          defaultValue={"always"}
-          render={({ field }) => (
-            <FormControl>
-              <RadioGroup
-                aria-label="type of allow access"
-                value={field.value}
-                onChange={field.onChange}
-                name="access allow type"
-                sx={{
-                  '& > :not(style)': {
-                    marginBottom: 0,
-                    marginTop: 0
-                  }
-                }}
-              >
-                {/* <FormControlLabel value="always" control={<Radio />} label="Always" /> */}
-                <FormControlLabel value="timer" control={<Radio />} label="Set timer" />
-                <FormControlLabel value="datetime" control={<Radio />} label="Set date and time" />
-                {/* <FormControlLabel value="deny" control={<Radio />} label="Deny" /> */}
-              </RadioGroup>
-            </FormControl>
+      <FormProvider {...allowTypeForm} >
+        <Stack spacing={"15px"} sx={modalStyle}>
+          <Stack direction="row" spacing={"10px"} alignItems="center"  >
+            <Box style={{ margin: 0 }}>
+              <img src={checked} style={{ width: "36px", height: "36px", objectFit: "cover" }} alt="checked" />
+            </Box>
+            <Typography sx={{ color: '#0CA6E9', fontSize: '20px', fontWeight: 'bold' }}>{title}</Typography>
+          </Stack>
+          <Controller
+            name={`allow_${prefix}_type`}
+            control={control}
+            defaultValue={"always"}
+            render={({ field }) => <AllowTypeOptions field={field} />}
+          />
+          {watchAllowType === "timer" && (
+            <TimerType prefix={prefix} onSubmit={addTime} lab={lab} />
           )}
-        />
-        {watchAllowType === "timer" && (
-          <Paper sx={{
-            display: 'flex',
-            padding: '20px',
-            justifyContent: "center",
-            marginTop: "10px",
-            flexDirection: "column",
-            gap: "20px",
-            alignItems: "center"
-          }} >
-            <Stack direction="row" spacing="10px">
-              <Button {...buttonProps} variant={"outlined"} onClick={() => {
-                setValue('minutes', 5)
-
-                handleSubmit(onSubmit)();
-              }}
-                sx={buttonStyle}>Set to 5 minutes</Button>
-              <Button {...buttonProps} variant={"outlined"} onClick={() => {
-                setValue('minutes', 30)
-                handleSubmit(onSubmit)();
-              }}
-                sx={buttonStyle}>Set to 30 minutes</Button>
-              <Button {...buttonProps} variant={"outlined"} onClick={() => {
-                setValue('hours', 3)
-                handleSubmit(onSubmit)();
-              }}
-                sx={buttonStyle}>Set to 3 hours</Button>
-            </Stack>
-
-            <TimerFields control={control} setValue={setValue} />
-          </Paper>
-        )}
-        {watchAllowType === "datetime" && (
-          <Paper sx={{
-            display: 'flex',
-            padding: '20px',
-            justifyContent: "center",
-            marginTop: "10px",
-          }} >
+          {watchAllowType === "datetime" && (
             <DateTimeFields prefix={prefix} control={control} />
-          </Paper>
-        )}
-        <Stack direction="row" justifyContent="flex-end" spacing={"5px"}>
-          <Button onClick={() => handleClose('cancel')} variant="contained" sx={{ width: "100px", height: "40px", fontSize: "16px", textTransform: 'none', bgcolor: "var(--raven)", ":hover": { bgcolor: "#444" } }}>Cancel</Button>
-          <Button type="submit" onClick={handleSubmit(onSubmit)} variant="contained" sx={{ width: "100px", height: "40px", fontSize: "16px", textTransform: 'none', }}>Done</Button>
+          )}
+          <Stack direction="row" justifyContent="space-between" spacing={"5px"}>
+            <Controller
+              control={control}
+              name="sync"
+              render={({ field }) => (
+                <FormControlLabel label={<Typography variant="caption2">Sync Acceses & Submit</Typography>} control={<Checkbox checked={field.value} onChange={field.onChange} />} />
+              )}
+            />
+            <Stack direction="row" spacing="5px" >
+              <Button onClick={() => handleClose('cancel')} variant="contained" sx={{ width: "100px", height: "40px", fontSize: "16px", textTransform: 'none', bgcolor: "var(--raven)", ":hover": { bgcolor: "#444" } }}>Cancel</Button>
+              <Button
+                type="submit"
+                onClick={handleSubmit(onSubmit)}
+                variant="contained"
+                disabled={!formState.isDirty}
+                sx={{ width: "100px", height: "40px", fontSize: "16px", textTransform: 'none', }}>Done</Button>
+            </Stack>
+          </Stack>
         </Stack>
-      </Stack>
+      </FormProvider>
     </form>
   );
 };

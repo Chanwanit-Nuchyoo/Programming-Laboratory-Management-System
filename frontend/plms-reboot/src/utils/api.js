@@ -291,3 +291,15 @@ export const getChapterPermission = async (group_id, chapter_id) => {
   );
   return data;
 }
+
+export const getGroupDataById = async (groupId) => {
+  const res = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getGroupDataById?group_id=${groupId}`,
+    { withCredentials: true }
+  )
+  return res.data.payload.class_schedule;
+}
+
+export const getGroupChapterPermission = async (groupId) => {
+  const res = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getGroupChapterPermission?group_id=${groupId}`, { withCredentials: true })
+  return res.data;
+}
