@@ -1,38 +1,30 @@
 import { Box, Button, Container, Stack, Skeleton } from "@mui/material"
 import folderIcon from '@/assets/images/foldericon.svg';
 import { useParams } from "react-router-dom"
-import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import useOnlineStudentsList from "@/hooks/useOnlineStudentsList";
-import axios from "axios"
+import useGroupDataQuery from "@/hooks/useGroupDataQuery";
+import useGroupChapterPermissionQuery from "@/hooks/useGroupChapterPermissionQuery";
 
 import Header from "@/components/_shared/Header"
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs'
 import LeftBox from "@/components/InsGroupPage/LeftBox";
 import MiddleBox from "@/components/InsGroupPage/MiddleBox";
-import LabRow from "@/components/InsGroupPage/LabRow"
 import RightBox from "@/components/InsGroupPage/RightBox";
-
+import GroupLabsTable from "@/components/InsGroupPage/GroupLabsTable";
 
 const InsGroup = () => {
   const { groupId } = useParams();
   const onlineStudentsList = useOnlineStudentsList(groupId);
 
   // TODO: Do something with this later
-  const { data: groupData, isLoading: isClassLoading } = useQuery({
-    queryKey: ['groupData', groupId],
-    queryFn: async () => {
-      const res = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getGroupDataById?group_id=${groupId}`, { withCredentials: true })
-      return res.data.payload.class_schedule;
-    }
-  });
+  const { data: groupData, isLoading: isClassLoading } = useGroupDataQuery(groupId);
 
-  const { data: labData, isLoading: isLabChapterLoading } = useQuery({
-    queryKey: ['labData', groupId],
-    queryFn: async () => {
-      const res = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getGroupChapterPermission?group_id=${groupId}`, { withCredentials: true })
-      return res.data;
-    }
-  });
+  const { data: labData, isLoading: isLabChapterLoading } = useGroupChapterPermissionQuery(groupId);
+
+  const labDataArray = useMemo(() => {
+    return Object.keys(labData || {}).map(key => labData[key]);
+  }, [labData]);
 
   return (
     <Box>
@@ -52,21 +44,7 @@ const InsGroup = () => {
           </div>
 
           <Stack spacing={"10px"}>
-            {/* Table Head */}
-            <Stack direction={"row"} spacing={"5px"} sx={{ position: "sticky", top: "0", bgcolor: "var(--ebony)", zIndex: "10", paddingY: "0px" }} >
-              <Box flex={1} className="table-head-column">
-                <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none" }} >Chapter</Button>
-              </Box>
-              <Box width={100} className="table-head-column">
-                <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none" }} >Score</Button>
-              </Box>
-              <Box width={335} className="table-head-column">
-                <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none" }} >Access exercise</Button>
-              </Box>
-              <Box width={335} className="table-head-column">
-                <Button fullWidth sx={{ height: "100%", color: "white", pointerEvents: "none" }} >Allow submit</Button>
-              </Box>
-            </Stack>
+            {!isLabChapterLoading && labDataArray && <GroupLabsTable data={labDataArray} />}
 
             {isLabChapterLoading && <>
               <Skeleton variant="rounded" height={62} />
@@ -75,9 +53,6 @@ const InsGroup = () => {
               <Skeleton variant="rounded" height={62} />
               <Skeleton variant="rounded" height={62} />
             </>}
-            {!isLabChapterLoading && Object.keys(labData || {}).map((key, index) => (
-              <LabRow key={index} lab={labData[key]} groupId={groupId} groupNo={groupData?.group_no} />
-            ))}
 
           </Stack>
 

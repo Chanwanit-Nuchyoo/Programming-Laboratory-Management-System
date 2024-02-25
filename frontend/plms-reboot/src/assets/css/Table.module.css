@@ -1,0 +1,46 @@
+.my-table {
+  border-spacing: 0px 10px;
+  border-collapse: separate;
+}
+
+.my-table tbody td {
+  border-width: 0px 2.5px;
+  border-style: solid;
+  border-color: transparent;
+  padding: 10px;
+  min-height: 56px;
+}
+
+.my-table tr th  {
+  height: 40px;
+  background-color: var(--mirage);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 0 5px 0 0;
+  border-width: 0px 2.5px;
+  border-style: solid;
+  border-color: var(--ebony);
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.my-table tbody tr {
+  background-color: var(--biscay);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.my-table tbody tr td:not(:first-child) {
+  padding: 5px;
+  text-align: center;
+}
+
+.my-table tbody tr td:first-child {
+  border-bottom-left-radius: 8px;
+  border-top-left-radius: 8px;
+}
+
+.my-table tbody tr td:last-child {
+  border-bottom-right-radius: 8px;
+  border-top-right-radius: 8px;
+}
