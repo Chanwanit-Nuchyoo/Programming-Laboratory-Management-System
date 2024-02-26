@@ -2,7 +2,7 @@ import fs from 'fs';
 import tmp from 'tmp';
 import { AppError, ERROR_NAME, runPythonScript, runPythonScriptWithoutTestcase } from "./utils.js";
 
-async function updateSubmission(db_connection, submission_data) {
+async function updateSubmission(db_pool, submission_data) {
   const { submission_id, status, marking, result, error_message } = submission_data;
 
   const sql = `UPDATE exercise_submission SET 
@@ -15,33 +15,42 @@ async function updateSubmission(db_connection, submission_data) {
   const values = [status, marking, result, error_message, submission_id]
 
   return new Promise((resolve, reject) => {
-    db_connection.beginTransaction(err => {
+    db_pool.getConnection((err, connection) => {
       if (err) {
-        reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
-      } else {
-        db_connection.query(sql, values, (err, result) => {
-          if (err) {
-            db_connection.rollback(() => {
-              reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
-            });
-          } else {
-            db_connection.commit(err => {
-              if (err) {
-                db_connection.rollback(() => {
-                  reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
-                });
-              } else {
-                resolve(result);
-              }
-            });
-          }
-        });
+        reject(new AppError(ERROR_NAME.DATABASE_ERROR, "Failed to connect to the database."));
       }
+      connection.beginTransaction(err => {
+        if (err) {
+          connection.release(); // Release the connection here
+          reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
+        } else {
+          connection.query(sql, values, (err, result) => {
+            if (err) {
+              connection.rollback(() => {
+                connection.release(); // And here
+                reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
+              });
+            } else {
+              connection.commit(err => {
+                if (err) {
+                  connection.rollback(() => {
+                    connection.release(); // And here
+                    reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
+                  });
+                } else {
+                  connection.release(); // And finally here
+                  resolve(result);
+                }
+              });
+            }
+          });
+        }
+      });
     });
   })
 }
 
-export async function runSubmission(channel, db_connection, msg, msg_body, redisClient) {
+export async function runSubmission(channel, db_pool, msg, msg_body, redisClient) {
   const { submission_id, sourcecode, testcase_list, job_id } = msg_body;
 
   const publisher = redisClient.duplicate();
@@ -91,7 +100,7 @@ export async function runSubmission(channel, db_connection, msg, msg_body, redis
         error_message: null
       }
 
-      await updateSubmission(db_connection, submission).catch(err => {
+      await updateSubmission(db_pool, submission).catch(err => {
         throw err;
       });
     } else {
@@ -108,7 +117,7 @@ export async function runSubmission(channel, db_connection, msg, msg_body, redis
         error_message: null
       }
 
-      await updateSubmission(db_connection, submission).catch(err => {
+      await updateSubmission(db_pool, submission).catch(err => {
         throw err;
       });
     }
@@ -133,7 +142,7 @@ export async function runSubmission(channel, db_connection, msg, msg_body, redis
       }
 
       try {
-        await updateSubmission(db_connection, submission);
+        await updateSubmission(db_pool, submission);
         channel.ack(msg);
       } catch (err) {
         console.error(err)

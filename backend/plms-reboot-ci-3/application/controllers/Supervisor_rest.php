@@ -1152,4 +1152,19 @@ class Supervisor_rest extends MY_RestController
 			return $this->handleError($e);
 		}
 	}
+
+	public function deleteStudent_post()
+	{
+		try {
+			$stu_id = $this->post('stu_id');
+			$this->student_model_rest->delete_student($stu_id);
+
+			$this->response([
+				'status' => TRUE,
+				'message' => 'Student deleted successfully',
+			], RestController::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
+		}
+	}
 }

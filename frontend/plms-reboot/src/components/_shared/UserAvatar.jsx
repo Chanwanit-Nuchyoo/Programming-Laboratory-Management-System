@@ -1,4 +1,4 @@
-import avatarPlaceholder from "@/assets/images/avatarplaceholder.png";
+import avatarPlaceholder from "@/assets/images/avatarplaceholder.svg";
 import classes from "@/assets/css/UserAvatar.module.css";
 import {
   usePopupState,

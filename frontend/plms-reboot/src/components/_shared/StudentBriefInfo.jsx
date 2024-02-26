@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
 import { Stack, Box, Typography, Button, Skeleton, Modal } from '@mui/material'
 import avatarPlaceholder from '@/assets/images/avatarplaceholder.svg'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { modalStyle } from '@/utils';
 import ErrorIcon from '@mui/icons-material/Error';
-import { studentInfoCard, resetStudentPassword } from '@/utils/api'
+import { useNavigate } from 'react-router';
+import { studentInfoCard, resetStudentPassword, deleteStudent } from '@/utils/api'
+import { ABS_INS_URL } from '@/utils/constants/routeConst';
+import { useParams } from 'react-router-dom';
 
 const StudentBriefInfo = ({ studentId }) => {
+  const { groupId } = useParams();
+  const queryClient = useQueryClient();
+
   const [filterRule, setFilterRule] = useState('all');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [isDelModalOpen, setIsDelModalOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   const { data: studentInfoCardData, isLoading: isStudentInfoCardLoading } = useQuery({
     queryKey: ['studentInfoCard', studentId],
@@ -18,7 +27,16 @@ const StudentBriefInfo = ({ studentId }) => {
   const { mutate: resetPassword } = useMutation({
     mutationFn: resetStudentPassword,
     onSuccess: () => {
-      setIsModalOpen(false);
+      setIsResetModalOpen(false);
+    },
+  });
+
+  const { mutate: deleteStu } = useMutation({
+    mutationFn: deleteStudent,
+    onSuccess: () => {
+      setIsDelModalOpen(false);
+      queryClient.invalidateQueries(['studentList', groupId]);
+      navigate(ABS_INS_URL.DYNAMIC.STUDENT_LIST(groupId))
     },
   });
 
@@ -28,11 +46,17 @@ const StudentBriefInfo = ({ studentId }) => {
     });
   }
 
+  const handleConfirmDeleteStudent = () => {
+    deleteStu({
+      stu_id: studentId
+    });
+  }
+
   return (
-    <Stack spacing={"5px"} direction={"row"} >
+    <Stack spacing={"5px"} direction={"row"} height="115px"  >
       {/* Avatar */}
       {!isStudentInfoCardLoading &&
-        <Box width={80} height={80} borderRadius={"8px"} overflow={"hidden"} >
+        <Box width={115} height={115} borderRadius={"8px"} overflow={"hidden"} >
           <img className="image-contain" src={!isStudentInfoCardLoading && studentInfoCardData?.stu_avatar ? `${import.meta.env.VITE_BACKEND_BASE_URL}/${studentInfoCardData["stu_avatar"]}` : avatarPlaceholder} alt="user avatar image" />
         </Box>
       }
@@ -44,7 +68,7 @@ const StudentBriefInfo = ({ studentId }) => {
 
       {/* Info */}
       <Stack className="outlined" bgcolor={"var(--mirage)"} padding={"10px 20px"} borderRadius={"8px"}
-        display="flex" flexDirection="row" width="510px" height="80px" alignItems="center" gap="20px" flexShrink={0} flex='1'
+        display="flex" flexDirection="row" width="510px" height="115px" alignItems="center" gap="20px" flexShrink={0} flex='1'
       >
         <Stack sx={{ display: 'flex', width: '265px', flexDirection: 'column', alignItems: 'flex-start', gap: '10px', flexShrink: '0' }}>
           <Stack width="100%" direction={"row"} spacing={"5px"} >
@@ -95,7 +119,7 @@ const StudentBriefInfo = ({ studentId }) => {
 
       {/* Role */}
       <Stack className="outlined" bgcolor={"var(--mirage)"} padding={"10px 20px"} borderRadius={"8px"}
-        display="flex" flexDirection="row" width="266px" height="80px" justifyContent="center" alignItems="center" gap="20px" flexShrink={0}
+        display="flex" flexDirection="row" width="266px" height="115px" justifyContent="center" alignItems="center" gap="20px" flexShrink={0}
       >
         <Typography variant="subitem2" color="primary" >Role</Typography>
         <Button
@@ -107,18 +131,27 @@ const StudentBriefInfo = ({ studentId }) => {
 
       {/* Reset */}
       <Stack className="outlined" bgcolor={"var(--mirage)"} padding={"10px 20px"} borderRadius={"8px"}
-        display="flex" flexDirection="column" width="266px" height="80px" justifyContent="center" alignItems="center" gap="20px" flexShrink={0}
+        display="flex" flexDirection="column" width="266px" height="115px" justifyContent="center" alignItems="center" gap="20px" flexShrink={0}
       >
-        <Button
-          variant="contained"
-          size="small"
-          onClick={() => setIsModalOpen(true)}
-          sx={{ textTransform: "none", fontSize: "16px", height: "40px", width: "200px" }}
-        >Reset Password</Button>
+        <Stack spacing="10px" >
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => setIsResetModalOpen(true)}
+            sx={{ textTransform: "none", fontSize: "16px", height: "40px", width: "160px" }}
+          >Reset Password</Button>
+          <Button
+            variant="contained"
+            size="small"
+            color="error"
+            onClick={() => { setIsDelModalOpen(true) }/* setIsResetModalOpen(true) */}
+            sx={{ textTransform: "none", fontSize: "16px", height: "40px", width: "160px" }}
+          >Delete Student</Button>
+        </Stack>
 
         <Modal
-          open={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          open={isResetModalOpen}
+          onClose={() => setIsResetModalOpen(false)}
         >
           <Stack spacing="20px" sx={{ ...modalStyle, paddingY: "25px", minWidth: "500px" }} >
             <Stack direction="row" spacing="10px" alignItems="center" >
@@ -131,10 +164,31 @@ const StudentBriefInfo = ({ studentId }) => {
             </Stack>
             <Stack spacing="10px" direction="row" justifyContent="flex-end" >
               <Button variant='contained' color="error" sx={{ width: '80px' }} onClick={handleConfirmResetPassword} >Yes</Button>
-              <Button variant="outlined" onClick={() => setIsModalOpen(false)} sx={{ width: '80px' }} >No</Button>
+              <Button variant="outlined" onClick={() => setIsResetModalOpen(false)} sx={{ width: '80px' }} >No</Button>
             </Stack>
           </Stack>
         </Modal>
+
+        <Modal
+          open={isDelModalOpen}
+          onClose={() => setIsDelModalOpen(false)}
+        >
+          <Stack spacing="20px" sx={{ ...modalStyle, paddingY: "25px", minWidth: "500px" }} >
+            <Stack direction="row" spacing="10px" alignItems="center" >
+              <ErrorIcon sx={(theme) => ({ fontSize: '32px', color: theme.palette.error.main })} />
+              <Typography variant='h5' color="error" sx={{ fontWeight: "bolder" }} >Delete Student</Typography>
+            </Stack>
+            <Stack spacing="5px" sx={{ fontSize: "15px", paddingX: "20px" }} >
+              <Typography >This action can not be undone !</Typography>
+              <Typography >Are you sure you want to delete this student and all his/her data ?</Typography>
+            </Stack>
+            <Stack spacing="10px" direction="row" justifyContent="flex-end" >
+              <Button variant='contained' color="error" sx={{ width: '80px' }} onClick={handleConfirmDeleteStudent} >Yes</Button>
+              <Button variant="outlined" onClick={() => setIsDelModalOpen(false)} sx={{ width: '80px' }} >No</Button>
+            </Stack>
+          </Stack>
+        </Modal>
+
       </Stack>
     </Stack>
   )
