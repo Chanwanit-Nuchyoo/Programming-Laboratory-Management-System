@@ -887,6 +887,7 @@ class Supervisor_rest extends MY_RestController
 				'stu_firstname' => $student_info['stu_firstname'],
 				'stu_lastname' => $student_info['stu_lastname'],
 				'stu_nickname' => $student_info['stu_nickname'],
+				'can_submit' => $student_info['can_submit'],
 				'stu_avatar' => $avatar,
 				'group_id' => $student_info['group_id'],
 				'group_no' => $student_info['group_no'],
@@ -1162,6 +1163,23 @@ class Supervisor_rest extends MY_RestController
 			$this->response([
 				'status' => TRUE,
 				'message' => 'Student deleted successfully',
+			], RestController::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
+		}
+	}
+
+	public function setStudentCanSubmit_post()
+	{
+		try {
+			$stu_id = $this->post('stu_id');
+			$can_submit = $this->post('can_submit');
+
+			$this->student_model_rest->set_student_can_submit($stu_id, $can_submit);
+
+			$this->response([
+				'status' => TRUE,
+				'message' => 'Student can submit status updated successfully',
 			], RestController::HTTP_OK);
 		} catch (Exception $e) {
 			return $this->handleError($e);

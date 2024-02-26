@@ -7,7 +7,7 @@ const onlineStatusDot = {
   width: "30px", height: "30px", bottom: "5px", borderRadius: "50%", right: "5px", zIndex: "10", position: "absolute"
 }
 
-const StudentAvatarCell = ({ groupId, stuId, avatar, onlineStudentsList }) => {
+const StudentAvatarCell = ({ groupId, stuId, avatar }) => {
   const navigate = useNavigate();
 
   const handleAvatarClick = () => {
@@ -25,7 +25,7 @@ const StudentAvatarCell = ({ groupId, stuId, avatar, onlineStudentsList }) => {
         alt="user avatar"
         style={{ borderRadius: '8px', objectFit: "cover", maxWidth: '100%', maxHeight: '100%', cursor: "pointer" }}
       />
-      <Box sx={{ ...onlineStatusDot, bgcolor: onlineStudentsList.includes(stuId) ? "#4CAF50" : "#F44336" }} />
+      {/* <Box sx={{ ...onlineStatusDot, bgcolor: onlineStudentsList.includes(stuId) ? "#4CAF50" : "#F44336" }} /> */}
     </Stack>
   )
 }

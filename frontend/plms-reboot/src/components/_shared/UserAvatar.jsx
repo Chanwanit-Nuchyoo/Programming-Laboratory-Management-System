@@ -59,7 +59,7 @@ const UserAvatar = () => {
           },
         }}
       >
-        <Avatar {...bindTrigger(userMenuState)} className={getClassNames(classes, "avatar-image")} src={user ? `${import.meta.env.VITE_BACKEND_BASE_URL}/${user.avatar}` : avatarPlaceholder} alt={user ? user.name : "Guest User"} sx={{ width: 60, height: 60 }} />
+        <Avatar {...bindTrigger(userMenuState)} className={getClassNames(classes, "avatar-image")} src={user ? `${user.avatar}` : avatarPlaceholder} alt={user ? user.name : "Guest User"} sx={{ width: 60, height: 60 }} />
         <Menu
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           transformOrigin={{ vertical: 'top', horizontal: 'right' }}

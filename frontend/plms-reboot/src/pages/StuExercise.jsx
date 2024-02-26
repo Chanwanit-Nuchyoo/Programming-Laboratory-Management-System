@@ -15,6 +15,7 @@ import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs'
 import ProblemPanel from '@/components/StuExercise/ProblemPanel'
 import WorkSpacePanel from '@/components/StuExercise/WorkSpacePanel'
 import SubmitPermissionInfoBox from "@/components/_shared/SubmitPermissionInfoBox"
+import useEventSource from "@/hooks/useEventSource"
 
 const StuExercise = () => {
   const [user] = useAtom(userAtom)
@@ -52,7 +53,11 @@ const StuExercise = () => {
 
   const { data: submissionList, isLoading: isSubmissionListLoading, refetch: refetchSubmissionList } = submissionListQuery;
 
-  useEffect(() => {
+  useEventSource(
+    `${import.meta.env.VITE_REALTIME_BASE_URL}/subscribe/chapter-permission/${groupId}?chapter_id=${chapterId}`,
+    chapterPermissionQuery.refetch
+  );
+  /* useEffect(() => {
     const eventSource = new EventSource(`${import.meta.env.VITE_REALTIME_BASE_URL}/subscribe/chapter-permission/${groupId}?chapter_id=${chapterId}`);
 
     eventSource.onmessage = (event) => {
@@ -62,7 +67,7 @@ const StuExercise = () => {
     return () => {
       eventSource.close();
     }
-  }, [])
+  }, []) */
 
   useEffect(() => {
     if (!isSubmissionListLoading && submissionList.length > 0 && shouldShowLatestSubmission) {

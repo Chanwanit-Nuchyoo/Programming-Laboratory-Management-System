@@ -210,8 +210,14 @@ class Student_rest extends MY_RestController
 
       $this->load->model('lab_model_rest');
 
+      $stu_row = $this->student_model_rest->get_student_record($stu_id);
+
+      if ($stu_row["can_submit"] == 'no') {
+        throw new Exception('Can not submit.', RestController::HTTP_FORBIDDEN);
+      }
+
       $exercise_id = $this->student_model_rest->get_student_assigned_exercise_id($stu_id, $chapter_id, $item_id);
-      $stu_group = $this->student_model_rest->get_student_record($stu_id)['stu_group'];
+      $stu_group = $stu_row['stu_group'];
       $permission = $this->lab_model_rest->get_group_permission($stu_group);
 
       $allow_submit_type = $permission[$chapter_id]['allow_submit_type'];

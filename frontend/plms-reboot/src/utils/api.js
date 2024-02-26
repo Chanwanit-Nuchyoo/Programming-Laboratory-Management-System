@@ -311,3 +311,11 @@ export const deleteStudent = async (formData) => {
   )
   return res.data;
 }
+
+export const setStudentCanSubmit = async (formData) => {
+  const res = await axios.post(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/setStudentCanSubmit`,
+    formData,
+    { withCredentials: true }
+  )
+  return res.data;
+}
