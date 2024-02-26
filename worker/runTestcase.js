@@ -3,7 +3,7 @@ import tmp from 'tmp';
 import { AppError, ERROR_NAME, runPythonScript } from './utils.js';
 
 
-async function updateTestcase(db_connection, exercise_id, testcase) {
+async function updateTestcase(db_pool, exercise_id, testcase) {
   const sql = `UPDATE exercise_testcase 
   SET testcase_id = ?, 
   exercise_id = ?, 
@@ -19,37 +19,47 @@ async function updateTestcase(db_connection, exercise_id, testcase) {
   const values = [testcase.testcase_id, exercise_id, testcase.testcase_content, 'yes', testcase.active, testcase.show_to_student, testcase.testcase_note, testcase.testcase_output, testcase.testcase_error, testcase.testcase_id, exercise_id]
 
   return new Promise((resolve, reject) => {
-    db_connection.beginTransaction(err => {
+    db_pool.getConnection((err, connection) => {
       if (err) {
-        console.log(err);
-        reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
-      } else {
-        db_connection.query(sql, values, (err, result) => {
-          if (err) {
-            console.log(err);
-            db_connection.rollback(() => {
-              reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
-            });
-          } else {
-            db_connection.commit(err => {
-              if (err) {
-                console.log(err);
-                db_connection.rollback(() => {
-                  reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
-                });
-              } else {
-                console.log("Number of records inserted: " + result.affectedRows);
-                resolve(result);
-              }
-            });
-          }
-        });
+        reject(new AppError(ERROR_NAME.DATABASE_ERROR, "Failed to connect to the database."));
       }
+
+      connection.beginTransaction(err => {
+        if (err) {
+          connection.release();
+          console.log(err);
+          reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
+        } else {
+          connection.query(sql, values, (err, result) => {
+            if (err) {
+              console.log(err);
+              connection.rollback(() => {
+                connection.release();
+                reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
+              });
+            } else {
+              connection.commit(err => {
+                if (err) {
+                  console.log(err);
+                  connection.rollback(() => {
+                    connection.release();
+                    reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
+                  });
+                } else {
+                  connection.release();
+                  console.log("Number of records inserted: " + result.affectedRows);
+                  resolve(result);
+                }
+              });
+            }
+          });
+        }
+      });
     });
   });
 }
 
-export async function addAndUpdateTestcase(channel, db_connection, msg, msg_body, redisClient) {
+export async function addAndUpdateTestcase(channel, db_pool, msg, msg_body, redisClient) {
   const { exercise_id, sourcecode, testcase_list, job_id } = msg_body;
 
   const publisher = redisClient.duplicate();
@@ -73,7 +83,7 @@ export async function addAndUpdateTestcase(channel, db_connection, msg, msg_body
         printMessage(`Output: `);
         printMessage(result.output.trimEnd());
 
-        await updateTestcase(db_connection, exercise_id, {
+        await updateTestcase(db_pool, exercise_id, {
           ...testcase_list[i],
           testcase_output: result.output.trimEnd(),
           testcase_error: null
@@ -82,7 +92,7 @@ export async function addAndUpdateTestcase(channel, db_connection, msg, msg_body
         printMessage(`Error in testcase ${i + 1}: ${err.message}`);
 
         // Update the failed testcase with the error message
-        await updateTestcase(db_connection, exercise_id, {
+        await updateTestcase(db_pool, exercise_id, {
           ...testcase_list[i],
           testcase_output: err instanceof AppError ? err.stdout : null,
           testcase_error: err.message
@@ -90,7 +100,7 @@ export async function addAndUpdateTestcase(channel, db_connection, msg, msg_body
 
         // Update the remaining testcases with a message indicating they did not run
         for (let j = i + 1; j < testcase_list.length; j++) {
-          await updateTestcase(db_connection, exercise_id, {
+          await updateTestcase(db_pool, exercise_id, {
             ...testcase_list[j],
             testcase_output: null,
             testcase_error: "Error occurred before this testcase"

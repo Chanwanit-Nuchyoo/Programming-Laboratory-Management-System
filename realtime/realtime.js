@@ -22,6 +22,7 @@ const REDIS_CONFIG = {
     port: 6379,
   }
 };
+
 const redisClient = redis.createClient(REDIS_CONFIG);
 
 redisClient.on('connect', function () {
@@ -34,20 +35,8 @@ redisClient.on('error', function (err) {
 
 await redisClient.connect();
 
-const db_connection = mysql.createConnection(DB_CONFIG);
-
-const connectToDatabase = () => {
-  db_connection.connect((err) => {
-    if (err) {
-      console.error('Failed to connect to the database. Retrying in 5 seconds...', err);
-      setTimeout(connectToDatabase, 5000);
-    } else {
-      console.log("Connected to the database!");
-    }
-  });
-};
-
-connectToDatabase();
+// Create a connection pool instead of a single connection
+const db_pool = mysql.createPool(DB_CONFIG);
 
 const app = express();
 
@@ -56,9 +45,8 @@ app.use(cors());
 app.get('/subscribe/testcase-result/:job_id', (req, res, next) => testcaseResult(req, res, next, redisClient))
 app.get('/subscribe/submission-result/:job_id', (req, res, next) => submissionResult(req, res, next, redisClient))
 app.get('/subscribe/chapter-permission/:group_id', (req, res, next) => chapterPermission(req, res, next, redisClient))
-app.get('/subscribe/online-students/:group_id', (req, res, next) => onlineStudents(req, res, next, db_connection, redisClient))
+app.get('/subscribe/online-students/:group_id', (req, res, next) => onlineStudents(req, res, next, db_pool, redisClient)) // Pass the connection pool instead of a single connection
 
 app.listen(3001, () => {
   console.log('Server is running on port 3001');
 });
-

@@ -45,15 +45,17 @@ const PermissionDisplay = ({ prefix, permissions, groupId, chapterId, lab }) => 
   }
 
   return (
-    <Stack direction={"row"} spacing={"20px"} justifyContent="flex-start" alignItems="center" paddingX="16px">
-      <ToggleSwitch
-        isChecked={isChecked}
-        onToggle={() => handleToggleSwitch()}
-      />
-      <Stack alignItems="flex-start" >
-        <PermissionText prefix={prefix} type={permissions[`allow_${prefix}_type`]} lab={lab} isInsPage={true} />
+    <Stack direction={"row"} spacing={"20px"} justifyContent="space-between" alignItems="center" paddingX="16px">
+      <Stack direction="row" spacing="10px" >
+        <ToggleSwitch
+          isChecked={isChecked}
+          onToggle={() => handleToggleSwitch()}
+        />
+        <Stack alignItems="flex-start" >
+          <PermissionText prefix={prefix} type={permissions[`allow_${prefix}_type`]} lab={lab} isInsPage={true} />
+        </Stack>
       </Stack>
-      <Box display="flex" flexGrow={1} justifyContent="flex-end" alignItems="center">
+      <Box display="flex" /* flexGrow={1} */ justifyContent="flex-end" alignItems="center">
         <IconButton onClick={() => setIsModalOpen(true)}>
           <AccessAlarmIcon color="primary" />
         </IconButton>

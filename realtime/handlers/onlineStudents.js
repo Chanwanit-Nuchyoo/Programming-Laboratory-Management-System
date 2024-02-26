@@ -1,4 +1,4 @@
-export default async function onlineStudents(req, res, next, db_connection, redisClient) {
+export default async function onlineStudents(req, res, next, db_pool, redisClient) {
   const subscriber = redisClient.duplicate();
   await subscriber.connect();
   res.set({
@@ -18,12 +18,20 @@ export default async function onlineStudents(req, res, next, db_connection, redi
   // Function to fetch online students from the database
   const fetchOnlineStudents = () => {
     return new Promise((resolve, reject) => {
-      db_connection.query(query, [group_id, 'online'], (err, results, fields) => {
+      db_pool.getConnection((err, connection) => {
         if (err) {
-          console.error(err);
-          reject([]);
+          reject(new Error("Failed to connect to the database."));
         }
-        resolve(results.map(row => String(row.id)));
+
+        connection.query(query, [group_id, 'online'], (err, results, fields) => {
+          if (err) {
+            console.error(err);
+            connection.release();
+            reject([]);
+          }
+          connection.release();
+          resolve(results.map(row => String(row.id)));
+        });
       });
     });
   };

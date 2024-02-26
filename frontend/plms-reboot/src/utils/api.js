@@ -303,3 +303,11 @@ export const getGroupChapterPermission = async (groupId) => {
   const res = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getGroupChapterPermission?group_id=${groupId}`, { withCredentials: true })
   return res.data;
 }
+
+export const deleteStudent = async (formData) => {
+  const res = await axios.post(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/deleteStudent`,
+    formData,
+    { withCredentials: true }
+  )
+  return res.data;
+}

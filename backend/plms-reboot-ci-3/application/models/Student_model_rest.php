@@ -153,4 +153,31 @@ class Student_model_rest extends CI_Model
 		$this->db->where("stu_id", $stu_id);
 		$query = $this->db->update($this->table);
 	}
+
+	public function delete_student($stu_id)
+	{
+		$this->db->trans_start(); // Start transaction
+
+		$this->db->where('id', $stu_id);
+		$this->db->delete('user');
+
+		$this->db->where('stu_id', $stu_id);
+		$this->db->delete('user_student');
+
+		$this->db->where('stu_id', $stu_id);
+		$this->db->delete('student_assigned_chapter_item');
+
+		$this->db->where('stu_id', $stu_id);
+		$this->db->delete('exercise_submission');
+
+		$this->db->trans_complete(); // Complete the transaction
+
+		if ($this->db->trans_status() === FALSE) {
+			// If the transaction failed
+			return false;
+		} else {
+			// If the transaction was successful
+			return true;
+		}
+	}
 }//class Student_model
