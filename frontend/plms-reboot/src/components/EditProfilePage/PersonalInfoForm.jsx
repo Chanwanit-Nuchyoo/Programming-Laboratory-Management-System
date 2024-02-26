@@ -17,7 +17,7 @@ const StyledDatePicker = styled(DatePicker)({
 const PersonalInfoForm = ({ formData }) => {
   const { control, formState: { errors } } = useFormContext();
 
-  const handlePreview = value => typeof value === "string" ? `${import.meta.env.VITE_BACKEND_BASE_URL}/${value}` : URL.createObjectURL(value);
+  const handlePreview = value => typeof value === "string" ? `${value}` : URL.createObjectURL(value);
 
   const renderTextField = (name, label, type = "text", rules = {}, disabled = false) => (
     <Controller

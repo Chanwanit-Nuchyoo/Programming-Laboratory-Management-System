@@ -42,7 +42,7 @@ const StudentScore = () => {
             studentId={studentId}
           />
 
-          <ExerciseChapterList isLoading={isChapterListLoading} data={chapterList} />
+          <ExerciseChapterList isLoading={isChapterListLoading} data={chapterList} insPage={true} />
 
         </Stack>
       </Container>

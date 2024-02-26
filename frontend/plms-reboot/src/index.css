@@ -293,7 +293,7 @@ body {
 ::-webkit-scrollbar-track {
   background: #222;
   border-radius: 100vw;
-  margin-block: .5em;
+  /* margin-block: .5em; */
 }
 
 ::-webkit-scrollbar-thumb {

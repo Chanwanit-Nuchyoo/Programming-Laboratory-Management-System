@@ -880,7 +880,7 @@ class Supervisor_rest extends MY_RestController
 
 			$student_info = $this->lab_model_rest->get_student_info($stu_id);
 
-			$avatar = empty($student_info['stu_avatar']) ? null : STUDENT_AVATAR_FOLDER . $student_info['stu_avatar'];
+			$avatar = empty($student_info['stu_avatar']) ? null : base_url() . STUDENT_AVATAR_FOLDER . $student_info['stu_avatar'];
 
 			$data = array(
 				'stu_id' => $student_info['stu_id'],

@@ -1,4 +1,4 @@
-import { Box, Button, Stack } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { Link, useParams } from "react-router-dom";
 import folderIcon from '@/assets/images/foldericon.svg';
 import { useState, useEffect } from "react";
@@ -10,8 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 // components
 import MyBreadCrumbs from "@/components/_shared/MyBreadCrumbs";
 import Header from "@/components/_shared/Header";
-import StudentListTableHead from "@/components/StudentList/StudentListTableHead";
-import StudentListTableBody from "@/components/StudentList/StudentListTableBody";
+import StudentListTable from "@/components/StudentList/StudentListTable";
 
 
 
@@ -21,17 +20,17 @@ const StudentList = () => {
 
   const { groupId } = useParams();
 
-  const { data: studentList = [], isLoading } = useQuery({
+  const { data: studentList = [], isPending } = useQuery({
     queryKey: ["studentList", groupId],
     queryFn: ({ queryKey }) => getStudentListInGroupWithLabScore(queryKey[1]),
   });
 
   useEffect(() => {
-    if (!isLoading && studentList) {
+    if (!isPending && studentList) {
       setLabInfo(studentList.lab_info);
       setStudents(studentList.student_list);
     }
-  }, [isLoading, studentList]);
+  }, [isPending, studentList]);
 
   return (
     <Box>
@@ -64,8 +63,7 @@ const StudentList = () => {
           </Link>
         </Box>
         <Stack spacing={"10px"} width="calc(100vw-256px)" height="800px" sx={{ overflowX: "auto", position: "relative" }} >
-          <StudentListTableHead isLoading={isLoading} labInfo={labInfo} />
-          <StudentListTableBody isLoading={isLoading} labInfo={labInfo} students={students} />
+          <StudentListTable isPending={isPending} labInfo={labInfo} data={students} />
         </Stack>
       </Stack>
     </Box >

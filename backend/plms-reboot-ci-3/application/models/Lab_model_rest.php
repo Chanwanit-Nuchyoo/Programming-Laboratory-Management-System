@@ -1042,10 +1042,20 @@ class Lab_model_rest extends CI_Model
 		$this->db->select('*')
 			->from('user_student')
 			->join('user', 'user.id = user_student.stu_id')
-
 			->where('stu_group', $stu_group_id);
-		$query = $this->db->get();
-		return $query->result_array();
+		$query = $this->db->get()->result_array();
+
+		// iterate through the result
+		foreach ($query as &$row) { // Note the & before $row
+			unset($row['password']);
+			unset($row['username']);
+
+			if (!empty($row['stu_avatar'])) {
+				$row['stu_avatar'] = base_url() . STUDENT_AVATAR_FOLDER . $row['stu_avatar'];
+			}
+		}
+
+		return $query;
 	}
 
 	public function get_class_schedule_by_group_id($group_id)
