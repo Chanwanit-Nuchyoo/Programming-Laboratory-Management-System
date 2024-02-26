@@ -3,7 +3,7 @@ import { Box, Stack, Typography } from "@mui/material"
 import ChapterListTableHead from "@/components/ExerciseChapterList/ChapterListTableHead"
 import ChapterListTableBody from "@/components/ExerciseChapterList/ChapterListTableBody"
 
-const ExerciseChapterList = ({ isLoading, data }) => {
+const ExerciseChapterList = ({ isLoading, data, insPage = false }) => {
 
   const calculateTotalScore = () => {
     let totalScore = 0
@@ -20,7 +20,7 @@ const ExerciseChapterList = ({ isLoading, data }) => {
       <ChapterListTableHead />
       {/* Table Body */}
       {!isLoading && data && data.map((chapter, index) => (
-        <ChapterListTableBody key={index} chapter={chapter} />
+        <ChapterListTableBody key={index} chapter={chapter} insPage={insPage} />
       ))}
       {!isLoading && data &&
         <Stack direction={"row"} spacing="5px">

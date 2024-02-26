@@ -8,7 +8,7 @@ import { useMemo } from "react"
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import PermissionText from "@/components/_shared/PermissionText"
 
-const ChapterListTableBody = ({ chapter }) => {
+const ChapterListTableBody = ({ chapter, insPage }) => {
   const { hash } = window.location
   const onStudentPage = hash.split("/")[1] === "stu"
   const currentTime = useCurrentTime()
@@ -48,7 +48,7 @@ const ChapterListTableBody = ({ chapter }) => {
     const args = onStudentPage ? [groupId, item.stu_lab.chapter_id, index + 1] : [item.group_id, item.stu_lab.stu_id, item.stu_lab.chapter_id, item.stu_lab.item_id];
 
     return (
-      <Link key={index} to={isAccessible() ? getUrl(...args) : ""}>
+      <Link key={index} to={isAccessible() || insPage ? getUrl(...args) : ""}>
         <Box className="item-score-box" sx={{ bgcolor: getItemScoreBoxBgColor(item) }}>
           <Typography>ข้อ {item.item_id}</Typography>
           <Typography>{item.stu_lab.marking}/{item.full_mark}</Typography>
@@ -59,8 +59,8 @@ const ChapterListTableBody = ({ chapter }) => {
 
   return (
     <Stack direction="row" spacing="5px" sx={{
-      pointerEvents: canEnter ? "auto" : "none",
-      opacity: canEnter ? 1 : 0.5,
+      pointerEvents: canEnter || insPage ? "auto" : "none",
+      opacity: canEnter || insPage ? 1 : 0.5,
     }} >
       <Stack spacing={1} direction='row' justifyContent="flex-start" alignItems="center" flex={1.5} className="row-info-box">
         <Typography>{chapter.chapter_id}. {chapter.chapter_name}</Typography>

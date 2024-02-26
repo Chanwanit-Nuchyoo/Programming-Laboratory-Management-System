@@ -133,7 +133,7 @@ class Auth_model_rest extends CI_Model
       return null;
     }
 
-    return $avatar_folder[$role] . $query[$select[$role]];
+    return base_url() . $avatar_folder[$role] . $query[$select[$role]];
   }
 
   public function get_user_row()

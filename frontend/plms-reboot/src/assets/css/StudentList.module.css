@@ -1,0 +1,7 @@
+.student-rows td {
+  background-color: #172242;
+}
+
+.student-rows:hover td {
+  background-color: var(--hover);
+}
