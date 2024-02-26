@@ -38,7 +38,7 @@ const SignIn = () => {
         setUser(response.data.payload);
       }
     } catch (error) {
-      console.log(error)
+      /* console.log(error) */
       // Set error message in the errors object of react-hook-form
       alert(error.response.data.message)
       setUser(null);

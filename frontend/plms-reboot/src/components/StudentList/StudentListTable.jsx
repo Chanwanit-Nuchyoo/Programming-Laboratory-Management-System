@@ -1,5 +1,7 @@
-import { Box, Stack } from '@mui/material';
+import { Box, Button, Stack } from '@mui/material';
+import CircleIcon from '@mui/icons-material/Circle';
 import { useReactTable, flexRender, getCoreRowModel } from '@tanstack/react-table';
+import useSetStudentCanSubmitMutation from '@/hooks/useSetStudentCanSubmitMutation';
 import { getClassNames } from "@/utils";
 import { useMemo } from "react"
 import { useParams } from "react-router-dom";
@@ -58,6 +60,7 @@ import StudentAvatarCell from '@/components/StudentList/StudentAvatarCell';
 */
 const columnStyles = {
   "Avatar": { width: '130px' },
+  "Status": { width: '150px' },
   "Student ID": { width: '150px' },
   "Name": { width: '300px' },
   "lab": { width: '100px' }
@@ -66,6 +69,14 @@ const columnStyles = {
 const StudentListTable = ({ isPending, labInfo, data }) => {
   const { groupId } = useParams();
   const onlineStudentsList = useOnlineStudentsList(groupId);
+  const setStuCanSubmitMutation = useSetStudentCanSubmitMutation(groupId);
+
+  const handleToggleCanSubmit = (stuId, canSubmit) => {
+    setStuCanSubmitMutation.mutate({
+      stu_id: stuId,
+      can_submit: canSubmit ? "no" : "yes"
+    })
+  }
 
   /** @type import('@tanstack/react-table).ColumnDef<any> */
   const columns = useMemo(() => [
@@ -77,12 +88,55 @@ const StudentListTable = ({ isPending, labInfo, data }) => {
       }),
       cell: (info) => {
         const { stu_id, stu_avatar } = info.getValue()
-        return (<StudentAvatarCell groupId={groupId} stuId={stu_id} avatar={stu_avatar} onlineStudentsList={onlineStudentsList} />)
+        return (<StudentAvatarCell groupId={groupId} stuId={stu_id} avatar={stu_avatar} /* onlineStudentsList={onlineStudentsList} */ />)
+      }
+    },
+    {
+      header: "Status",
+      accessorFn: (row) => ({
+        stuId: row.stu_id,
+        canSubmit: row.can_submit === "yes",
+      }),
+      cell: (info) => {
+        const { canSubmit, stuId } = info.getValue()
+        return (
+          <Stack width="100%" justifyContent="center" alignItems="flex-start" spacing="10px" >
+            <Button
+              variant='outlined'
+              color={onlineStudentsList.includes(stuId) ? "success" : "error"}
+              startIcon={<CircleIcon color={onlineStudentsList.includes(stuId) ? "success" : "error"} />}
+              sx={{ borderRadius: "30px", color: "white", fontSize: "12px", textAlign: "left", justifyContent: "flex-start", pointerEvents: "none" }}
+            >
+              {onlineStudentsList.includes(stuId) ? "Online" : "Offline"}
+            </Button>
+            <Button
+              variant='outlined'
+              color={canSubmit ? "success" : "error"}
+              startIcon={<CircleIcon color={canSubmit ? "success" : "error"} />}
+              onClick={() => handleToggleCanSubmit(stuId, canSubmit)}
+              sx={{ borderRadius: "30px", color: "white", fontSize: "12px", textAlign: "left", justifyContent: "flex-start" }}
+            >
+              {canSubmit ? "Can Submit" : "Can't Submit"}
+            </Button>
+          </Stack>
+        )
       }
     },
     {
       header: "Student ID",
-      accessorKey: "stu_id",
+      accessorFn: (row) => ({
+        stu_id: row.stu_id,
+        can_submit: row.can_submit,
+      }),
+      cell: (info) => {
+        const { stu_id, can_submit } = info.getValue()
+        return (
+          <Stack width="100%" justifyContent="center" alignItems="center" spacing="10px" >
+            <Box>{stu_id}</Box>
+            {/* <Button variant='contained' color={can_submit === "yes" ? "success" : "error"} sx={{ width: "130px" }} >{can_submit ? "Can Submit" : "Can't Submit"}</Button> */}
+          </Stack>
+        )
+      }
     },
     {
       header: "Name",
@@ -108,7 +162,7 @@ const StudentListTable = ({ isPending, labInfo, data }) => {
       header: "Total",
       accessorFn: (row) => Object.values(row.chapter_score).reduce((acc, score) => acc + score, 0),
     }
-  ], [labInfo])
+  ], [labInfo, onlineStudentsList])
 
   const { getHeaderGroups, getRowModel } = useReactTable({
     columns,
@@ -125,15 +179,15 @@ const StudentListTable = ({ isPending, labInfo, data }) => {
               <th
                 key={header.id}
                 style={{
-                  ...(['Avatar', 'Student ID', 'Name'].includes(header.column.columnDef.header) ?
+                  ...(['Avatar', 'Status', 'Student ID', 'Name'].includes(header.column.columnDef.header) ?
                     { ...columnStyles[header.column.columnDef.header], minWidth: '150px' }
                     :
                     { ...columnStyles['lab'], minWidth: '150px' }),
                   position: 'sticky',
                   top: 0, // stick to top
-                  left: index < 3 ? `${index * 150 - (index >= 1 && 20)}px` : 'auto',
+                  left: index < 4 ? `${index * 150 - (index >= 1 && 20)}px` : 'auto',
                   background: "var(--mirage)",
-                  zIndex: index < 3 ? 20 : 15,
+                  zIndex: index < 4 ? 20 : 15,
                 }}
               >
                 {flexRender(
@@ -152,8 +206,8 @@ const StudentListTable = ({ isPending, labInfo, data }) => {
               return (
                 <td key={cell.id} style={{
                   position: 'sticky',
-                  left: index < 3 ? `${index * 150 - (index >= 1 && 20)}px` : 'auto',
-                  zIndex: index < 3 ? 10 : 0,
+                  left: index < 4 ? `${index * 150 - (index >= 1 && 20)}px` : 'auto',
+                  zIndex: index < 4 ? 10 : 0,
                 }}>
                   {flexRender(
                     cell.column.columnDef.cell,

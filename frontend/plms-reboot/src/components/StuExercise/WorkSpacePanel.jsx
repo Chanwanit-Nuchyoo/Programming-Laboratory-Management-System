@@ -45,6 +45,7 @@ const WorkSpacePanel = ({ exerciseQuery, submitPermission, submissionList, selec
     onError: (err) => {
       alert(err.response.data.message)
       eventSourceRef.current.close();
+      selectedTab.setValue(0);
       eventSourceRef.current = null;
     }
   });

@@ -21,7 +21,7 @@ const SubmissionHistory = () => {
   })
 
   const { data: exercise, isLoading: isExerciseLoading } = useQuery({
-    queryKey: ['assignedStudentExercise', studentId, chapterId],
+    queryKey: ['assignedStudentExercise', studentId, chapterId, itemId],
     queryFn: () => getAssignedStudentExercise(studentId, chapterId, itemId).then(res => {
       if (res.exercise) {
         return res.exercise

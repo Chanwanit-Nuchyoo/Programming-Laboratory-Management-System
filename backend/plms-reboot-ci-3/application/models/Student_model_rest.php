@@ -180,4 +180,25 @@ class Student_model_rest extends CI_Model
 			return true;
 		}
 	}
+
+	public function set_student_can_submit($stu_id, $can_submit)
+	{
+		$this->db->where('stu_id', $stu_id)
+			->update('user_student', [
+				'can_submit' => $can_submit
+			]);
+
+		if ($this->db->affected_rows() == 0) {
+			// No rows were updated, handle as needed
+			return false;
+		}
+
+		// Check for any database errors
+		if ($error = $this->db->error()) {
+			// Handle error - log it, display it, etc
+			echo "Error: " . $error['message'];
+		}
+
+		return true;
+	}
 }//class Student_model
