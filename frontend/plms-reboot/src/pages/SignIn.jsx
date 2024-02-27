@@ -6,14 +6,16 @@ import lockpadIcon from '@/assets/images/lockpadicon.svg'
 import axios from "axios";
 import { useNavigate } from "react-router";
 import { useAtom } from 'jotai';
-import { userAtom } from '@/store/store';
+import { userAtom, serverTimeOffsetAtom } from '@/store/store';
 import { useEffect } from "react";
 import { PREFIX } from "@/utils/constants/routeConst";
 import { useForm, Controller } from "react-hook-form"
+import moment from "moment";
 
 const SignIn = () => {
   const navigate = useNavigate()
   const [user, setUser] = useAtom(userAtom);
+  const [serverTimeOffset, setServerTimeOffset] = useAtom(serverTimeOffsetAtom);
   const { control, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
       username: "",
@@ -32,16 +34,21 @@ const SignIn = () => {
       const response = await axios.post(import.meta.env.VITE_BACKEND_BASE_URL + "/index.php/auth_rest/login", {
         ...data
       }, { withCredentials: true });
+      const clientDatetime = moment().valueOf();
 
       // Set userAtom with the user data returned from the server
       if (response.data.status) {
         setUser(response.data.payload);
+        const offset = moment(response.data.server_time, 'YYYY-MM-DD HH:mm:ss').valueOf() - clientDatetime;
+        setServerTimeOffset(offset);
       }
+
     } catch (error) {
       /* console.log(error) */
       // Set error message in the errors object of react-hook-form
       alert(error.response.data.message)
       setUser(null);
+      setServerTimeOffset(null);
     }
   }
   // hi

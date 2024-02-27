@@ -2,10 +2,14 @@
 import { Stack, Paper } from '@mui/material'
 /* import { DateTimeField } from '@mui/x-date-pickers' */
 import { Controller } from 'react-hook-form'
-import moment from 'moment';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { serverTimeOffsetAtom } from "@/store/store";
+import { useAtom } from "jotai";
+import moment from 'moment';
 
 const DateTimeFields = ({ prefix, control }) => {
+  const [serverTimeOffset, setServerTimeOffset] = useAtom(serverTimeOffsetAtom);
+
   return (
     <Paper sx={{
       display: 'flex',
@@ -17,7 +21,7 @@ const DateTimeFields = ({ prefix, control }) => {
         <Controller
           name={`${prefix}_time_start`}
           control={control}
-          defaultValue={moment().startOf('minute')}
+          defaultValue={moment().add(serverTimeOffset, 'milliseconds').startOf('minute')}
           render={({ field }) => (
             <DateTimePicker
               label="Start date"
@@ -32,7 +36,7 @@ const DateTimeFields = ({ prefix, control }) => {
         <Controller
           name={`${prefix}_time_end`}
           control={control}
-          defaultValue={moment().startOf('minute')}
+          defaultValue={moment().add(serverTimeOffset, 'milliseconds').startOf('minute')}
           render={({ field }) => (
             <DateTimePicker
               label="End date"

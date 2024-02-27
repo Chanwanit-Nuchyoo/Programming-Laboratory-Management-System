@@ -1,11 +1,8 @@
 import { buttonStyle } from "@/utils";
 import { Button, Typography, Box, Stack } from "@mui/material";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { useState } from "react";
-import { useFormContext } from "react-hook-form";
 import { statusProperties } from "@/utils";
-import moment from 'moment';
 import SubmissionInfo from "@/components/StuExercise/SubmissionInfo";
+import moment from 'moment';
 
 const col_width = ["120px", "180px", "100px", "250px", ""];
 

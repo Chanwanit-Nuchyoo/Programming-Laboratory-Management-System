@@ -1,8 +1,10 @@
 /* eslint-disable react/prop-types */
 import { Stack, Box, Typography, Button, FormControlLabel, Checkbox } from "@mui/material";
 import { useForm, Controller, FormProvider } from "react-hook-form";
-import checked from '@/assets/images/allowsubmit.svg';
+import { serverTimeOffsetAtom } from "@/store/store";
+import { useAtom } from "jotai";
 import { modalStyle } from '@/utils';
+import checked from '@/assets/images/allowsubmit.svg';
 import DateTimeFields from "@/components/InsGroupPage/DateTimeFields";
 import useChapterPermissionMutation from '@/hooks/useChapterPermissionMutation';
 import AllowTypeOptions from "@/components/InsGroupPage/AllowTypeOptions";
@@ -24,6 +26,8 @@ const buttonStyle = {
 }
 
 const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
+  const [serverTimeOffset, setServerTimeOffset] = useAtom(serverTimeOffsetAtom);
+
   const handleClose = (buttonType) => {
     if (buttonType === 'cancel') {
       reset();
@@ -61,10 +65,10 @@ const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
       sync: data.sync,
     };
 
-    const currentTime = moment();
+    const currentTime = moment().add(serverTimeOffset, 'milliseconds');
 
     if (data[`allow_${prefix}_type`] === 'timer') {
-      form[`${prefix}_time_start`] = formatDate(moment());
+      form[`${prefix}_time_start`] = formatDate(currentTime);
       form[`${prefix}_time_end`] = formatDate(currentTime.add(moment.duration(getValues("hours"), "hours")).add(moment.duration(getValues("minutes"), "minutes")).add(moment.duration(getValues("seconds"), "seconds")));
     } else if (data[`allow_${prefix}_type`] === 'datetime') {
       form[`${prefix}_time_start`] = formatDate(data[`${prefix}_time_start`]);
@@ -84,7 +88,7 @@ const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
       sync: data.sync,
     };
 
-    const currentTime = moment();
+    const currentTime = moment().add(serverTimeOffset, 'milliseconds');
 
     if (data[`allow_${prefix}_type`] === 'timer') {
       if (lab[`${prefix}_time_start`] && lab[`${prefix}_time_end`]) {
@@ -100,7 +104,7 @@ const AllowTypeForm = ({ lab, groupId, chapterId, prefix, title, open }) => {
           form[`${prefix}_time_end`] = formatDate(endTime.add(moment.duration(getValues("hours"), "hours")).add(moment.duration(getValues("minutes"), "minutes")).add(moment.duration(getValues("seconds"), "seconds")));
         }
       } else {
-        form[`${prefix}_time_start`] = formatDate(moment());
+        form[`${prefix}_time_start`] = formatDate(currentTime);
         form[`${prefix}_time_end`] = formatDate(currentTime.add(moment.duration(getValues("hours"), "hours")).add(moment.duration(getValues("minutes"), "minutes")).add(moment.duration(getValues("seconds"), "seconds")));
       }
     }

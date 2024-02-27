@@ -1,14 +1,14 @@
 import { Box, Button, Stack, Typography } from "@mui/material"
-import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
-import MyCodeEditor from "@/components/_shared/MyCodeEditor";
 import { statusProperties, markingBgColor } from "@/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import MyDiff from "@/components/_shared/MyDiff";
 import { useAtom } from 'jotai';
 import { userAtom } from '@/store/store';
 import { useParams } from "react-router-dom";
-import moment from 'moment';
+import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
+import MyCodeEditor from "@/components/_shared/MyCodeEditor";
 import TerminalBlock from "@/components/_shared/TerminalBlock";
+import MyDiff from "@/components/_shared/MyDiff";
+import moment from 'moment';
 
 const SubmissionInfo = ({ selectedSubmission }) => {
   const [user,] = useAtom(userAtom)

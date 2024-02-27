@@ -1,7 +1,7 @@
 import { Container, Stack, Skeleton, Box, Typography } from "@mui/material";
 import slideShow from '@/assets/images/slideshowicon.svg';
-import { useSetAtom } from "jotai";
-import { sidebarSelectedAtom } from "@/store/store";
+import { useSetAtom, useAtom } from "jotai";
+import { sidebarSelectedAtom, serverTimeOffsetAtom } from "@/store/store";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
@@ -13,6 +13,7 @@ import { getGroupListById } from "@/utils/api";
 
 function MyGroups() {
   const setSelected = useSetAtom(sidebarSelectedAtom);
+  const [serverTimeOffset, setServerTimeOffset] = useAtom(serverTimeOffsetAtom);
 
   const groupListQuery = useQuery({
     queryKey: ['groupList', import.meta.env.VITE_YEAR],

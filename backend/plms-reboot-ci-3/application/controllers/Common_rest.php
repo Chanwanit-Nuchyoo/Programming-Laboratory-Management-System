@@ -344,4 +344,13 @@ class Common_rest extends MY_RestController
 
     $this->response($submission_list, RestController::HTTP_OK);
   }
+
+  public function getInitialServerDateTime_get()
+  {
+    try {
+      $this->response(['server_time' => date("Y-m-d H:i:s")], RestController::HTTP_OK);
+    } catch (Exception $e) {
+      $this->handleError($e);
+    }
+  }
 }
