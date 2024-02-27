@@ -7,6 +7,8 @@ import PlayCircleFilledWhiteOutlinedIcon from '@mui/icons-material/PlayCircleFil
 import { setChapterPermission } from "@/utils/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { secondsToDhms } from "@/utils";
+import { serverTimeOffsetAtom } from "@/store/store";
+import { useAtom } from "jotai";
 import moment from 'moment';
 
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -23,6 +25,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
 const PermissionText = ({ prefix, type, lab, isInsPage }) => {
   const currentTime = useCurrentTime();
   const queryClient = useQueryClient();
+  const [serverTimeOffset, setServerTimeOffset] = useAtom(serverTimeOffsetAtom);
 
   const { mutate } = useMutation({
     mutationFn: setChapterPermission,
@@ -40,7 +43,7 @@ const PermissionText = ({ prefix, type, lab, isInsPage }) => {
       chapter_id: lab.chapter_id,
       prefix: prefix,
       [`allow_${prefix}_type`]: 'timer-paused',
-      [`${prefix}_time_start`]: moment().format('YYYY-MM-DD HH:mm:ss'),
+      [`${prefix}_time_start`]: moment().add(serverTimeOffset, 'milliseconds').format('YYYY-MM-DD HH:mm:ss'),
     })
   }
 
@@ -52,8 +55,8 @@ const PermissionText = ({ prefix, type, lab, isInsPage }) => {
       chapter_id: lab.chapter_id,
       prefix: prefix,
       [`allow_${prefix}_type`]: 'timer',
-      [`${prefix}_time_start`]: moment().format('YYYY-MM-DD HH:mm:ss'),
-      [`${prefix}_time_end`]: moment().add(timeEnd.diff(timeStart)).format('YYYY-MM-DD HH:mm:ss'),
+      [`${prefix}_time_start`]: moment().add(serverTimeOffset, 'milliseconds').format('YYYY-MM-DD HH:mm:ss'),
+      [`${prefix}_time_end`]: moment().add(serverTimeOffset, 'milliseconds').add(timeEnd.diff(timeStart)).format('YYYY-MM-DD HH:mm:ss'),
     })
   }
 

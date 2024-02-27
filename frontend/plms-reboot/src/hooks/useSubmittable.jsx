@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { getChapterPermission } from '@/utils/api';
 import { useQuery } from "@tanstack/react-query"
+import { serverTimeOffsetAtom } from "@/store/store";
+import { useAtom } from 'jotai';
 import moment from 'moment';
 
 export default function useSubmittable(groupId, chapterId) {
@@ -24,7 +26,7 @@ export default function useSubmittable(groupId, chapterId) {
   const accessEndTime = useMemo(() => moment(access_time_end), [access_time_end]);
 
   const checkSubmittableStatus = useCallback(() => {
-    const currentTime = moment();
+    const currentTime = moment().add(serverTimeOffset, 'milliseconds');
 
     if (currentTime.isBefore(exerciseStartTime)) {
       setSubmitPermissionStatus("notStarted");
@@ -39,7 +41,7 @@ export default function useSubmittable(groupId, chapterId) {
   }, [exerciseStartTime, exerciseEndTime]);
 
   const checkAccessStatus = useCallback(() => {
-    const currentTime = moment();
+    const currentTime = moment().add(serverTimeOffset, 'milliseconds');
 
     if (currentTime.isBefore(accessStartTime)) {
       setAccessPermissionStatus("notStarted");

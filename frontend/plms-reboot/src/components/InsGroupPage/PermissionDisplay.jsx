@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { Box, IconButton, Modal, Stack } from '@mui/material'
 import { checkIsAccessible } from "@/utils";
+import { useQueryClient } from "@tanstack/react-query";
 import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import ToggleSwitch from '@/components/InsGroupPage/ToggleSwitch';
 import PermissionText from '@/components/_shared/PermissionText';
 import AllowTypeForm from '@/components/InsGroupPage/AllowTypeForm';
 import useCurrentTime from '@/hooks/useCurrentTime';
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { setChapterPermission } from "@/utils/api";
 import useChapterPermissionMutation from '@/hooks/useChapterPermissionMutation';
 import moment from 'moment';
 

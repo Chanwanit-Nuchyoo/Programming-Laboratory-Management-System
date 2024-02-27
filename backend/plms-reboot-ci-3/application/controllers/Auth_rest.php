@@ -35,12 +35,14 @@ class Auth_rest extends MY_RestController
       $this->response([
         'status' => TRUE,
         'message' => "already logged in",
-        'payload' => $_SESSION
+        'payload' => $_SESSION,
+        'server_time' => date("Y-m-d H:i:s")
       ], RestController::HTTP_OK);
     } else {
       $this->response([
         'status' => FALSE,
         'message' => "session expired.",
+        'server_time' => date("Y-m-d H:i:s")
       ], RestController::HTTP_OK);
     }
   }
@@ -144,6 +146,7 @@ class Auth_rest extends MY_RestController
         'status' => TRUE,
         'message' => 'Login successful!',
         'payload' => $this->session->userdata(),
+        'server_time' => date("Y-m-d H:i:s"),
       ], RestController::HTTP_OK);
     } catch (Exception $e) {
       // Handle exceptions here

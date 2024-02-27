@@ -17,3 +17,5 @@ export const user_defined_constraintsstraints = atom(defaultCon);
 export const userAtom = atomWithStorage('user', null);
 
 export const sidebarSelectedAtom = atom(0);
+
+export const serverTimeOffsetAtom = atomWithStorage('serverTimeOffset', null);
