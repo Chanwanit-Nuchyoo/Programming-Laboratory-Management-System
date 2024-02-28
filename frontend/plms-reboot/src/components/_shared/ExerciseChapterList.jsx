@@ -6,11 +6,6 @@ import useEventSource from "@/hooks/useEventSource"
 
 const ExerciseChapterList = ({ isLoading, data, insPage = false }) => {
 
-  /* useEventSource(
-    `${import.meta.env.VITE_REALTIME_BASE_URL}/subscribe/chapter-permission/${groupId}?chapter_id=${chapterId}`,
-    () => { }
-  );
- */
   const calculateTotalScore = () => {
     let totalScore = 0
     data.forEach(chapter => {
