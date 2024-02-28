@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import { TextareaAutosize } from "@mui/material";
 
 const InputTerminalBlock = ({ value, onChange, style, ...props }) => {
   const inputStyle = {
@@ -21,7 +20,7 @@ const InputTerminalBlock = ({ value, onChange, style, ...props }) => {
   };
 
   return (
-    <TextareaAutosize
+    <textarea
       value={value}
       onChange={onChange}
       style={{ ...inputStyle, ...style }}
