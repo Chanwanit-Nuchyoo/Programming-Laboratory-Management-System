@@ -1,18 +1,20 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useRef, useEffect } from "react";
-import { Stack, Typography, Button, TextField, Box } from "@mui/material";
+import { Stack, Typography, Button, TextField, Box, Modal } from "@mui/material";
 import Grid from '@mui/material/Unstable_Grid2';
 import { defaultCon } from '@/store/store';
 import MyRte from '@/components/_shared/MyRte';
 import MyCodeEditor from '@/components/_shared/MyCodeEditor';
-import { useForm, Controller } from 'react-hook-form'
+import { useForm, Controller, set } from 'react-hook-form'
 import KwCategory from '@/components/_shared/KwCategory';
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createExercise, updateExercise, getKeywordList, checkKeyword } from "@/utils/api";
+import { createExercise, updateExercise, getKeywordList, checkKeyword, deleteExercise } from "@/utils/api";
 import { getConstraintsFailedMessage } from '@/utils';
+import { modalStyle } from '@/utils';
 import { ABS_INS_URL } from "@/utils/constants/routeConst";
 import levelIcon from '@/assets/images/levelicon.svg'
+import ErrorIcon from '@mui/icons-material/Error';
 import suggestedIcon from '@/assets/images/suggestedicon.svg'
 import addfileIcon from '@/assets/images/addfileicon.svg'
 import codingIcon from '@/assets/images/codingicon.svg'
@@ -42,6 +44,7 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { chapterId, level, groupId, exerciseId } = useParams()
+  const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
   const { control, handleSubmit, getValues, setValue, watch, reset, formState: { isValid, errors, isDirty } } = useForm({ defaultValues: formData, mode: 'onBlur' });
   const [editable, setEditable] = useState(onAddExercisePage);
   const [isPyodideReady, setIsPyodideReady] = useState(false);
@@ -56,6 +59,16 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
     },
     onError: (err) => {
       console.log(err)
+    }
+  })
+
+  const { mutate: deleteEx } = useMutation({
+    mutationFn: deleteExercise,
+    onSuccess: (data) => {
+      navigate(ABS_INS_URL.DYNAMIC.CHAPTER(groupId, chapterId))
+    },
+    onError: (err) => {
+      alert(err.response.data.message)
     }
   })
 
@@ -136,6 +149,11 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
     })
   }
 
+  const handleDeleteExercise = () => {
+    deleteEx({ exercise_id: exerciseId });
+    setConfirmDeleteModal(false);
+  }
+
   const onSubmit = onAddExercisePage ? handleCreateExercise : handleUpdateExercise;
 
   useEffect(() => {
@@ -207,17 +225,53 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
       );
     } else {
       return (
-
-        <Button variant="contained" size="medium"
-          sx={{
-            width: '120px',
-            height: '40px',
-            fontSize: '16px',
-            textTransform: 'none'
-          }}
-          onClick={() => setEditable(true)}
-        >Edit</Button>
-
+        <Stack direction="row" spacing={1}>
+          <Button variant="contained" size="medium"
+            sx={{
+              width: '120px',
+              height: '40px',
+              fontSize: '16px',
+              textTransform: 'none'
+            }}
+            onClick={() => setEditable(true)}
+          >Edit</Button>
+          <Button variant="contained" color="error" size="medium"
+            onClick={() => setConfirmDeleteModal(true)}
+            sx={{
+              width: '120px',
+              height: '40px',
+              fontSize: '16px',
+              textTransform: 'none'
+            }}
+          >
+            Delete
+          </Button>
+          <Modal
+            open={confirmDeleteModal}
+            onClose={() => setConfirmDeleteModal(false)}
+          >
+            <Stack spacing="20px" sx={{ ...modalStyle, paddingY: "25px", minWidth: "500px" }} >
+              <Stack direction="row" spacing="10px" alignItems="center" >
+                <ErrorIcon sx={(theme) => ({ fontSize: '32px', color: theme.palette.error.main })} />
+                <Typography variant='h5' color="error" sx={{ fontWeight: "bolder" }} >Delete Exercise</Typography>
+              </Stack>
+              <Stack spacing="5px" sx={{ fontSize: "15px", paddingX: "20px" }} >
+                <Typography>Note :</Typography>
+                <Box width="500px" paddingLeft="30px" >
+                  <ul>
+                    <li>Once deleted, this can not be recovered.</li>
+                    <li>You can't delete exercise that is still being assigned to student.</li>
+                  </ul>
+                </Box>
+              </Stack>
+              <Typography paddingX="20px" >Are you sure you want to delete this exercise?</Typography>
+              <Stack spacing="10px" direction="row" justifyContent="flex-end" >
+                <Button variant='contained' color="error" sx={{ width: '80px' }} onClick={handleDeleteExercise} >Yes</Button>
+                <Button variant="outlined" onClick={() => setConfirmDeleteModal(false)} sx={{ width: '80px' }} >No</Button>
+              </Stack>
+            </Stack>
+          </Modal>
+        </Stack>
       );
     }
   };
