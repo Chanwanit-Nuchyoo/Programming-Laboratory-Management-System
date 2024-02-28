@@ -1039,9 +1039,7 @@ class Supervisor_rest extends MY_RestController
 
 		$file_name = $this->lab_model_rest->get_sourcecode_filename($exercise_id);
 
-		$role = $this->session->userdata('role');
-
-		$directory_path = $role == "student" ? STUDENT_CFILES_FOLDER : SUPERVISOR_CFILES_FOLDER;
+		$directory_path = SUPERVISOR_CFILES_FOLDER;
 
 		// Prepare source code file
 		$file_to_run = $directory_path . $file_name;
@@ -1181,6 +1179,27 @@ class Supervisor_rest extends MY_RestController
 				'status' => TRUE,
 				'message' => 'Student can submit status updated successfully',
 			], RestController::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
+		}
+	}
+
+	public function deleteExercise_post()
+	{
+		try {
+			$exercise_id = $this->post('exercise_id');
+			$sourcecode_filename = $this->lab_model_rest->get_sourcecode_filename($exercise_id);
+
+			$success = $this->lab_model_rest->delete_exercise($exercise_id, $sourcecode_filename);
+
+			if ($success) {
+				$this->response([
+					'status' => TRUE,
+					'message' => 'Exercise deleted successfully',
+				], RestController::HTTP_OK);
+			} else {
+				throw new Exception('This exercise is still being used.', RestController::HTTP_INTERNAL_ERROR);
+			}
 		} catch (Exception $e) {
 			return $this->handleError($e);
 		}

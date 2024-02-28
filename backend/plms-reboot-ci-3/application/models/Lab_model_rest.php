@@ -1967,4 +1967,26 @@ class Lab_model_rest extends CI_Model
 		$query = $this->db->get();
 		return $query->row_array();
 	}
+
+	public function delete_exercise($exercise_id, $sourcecode_filename)
+	{
+		$this->db->where('exercise_id', $exercise_id)->delete('lab_exercise');
+
+		if ($this->db->error()) {
+			return false;
+		}
+
+		$success = $this->db->affected_rows() > 0;
+
+		if ($success) {
+			// Delete the sourcecode file
+			$sourcecode_path = SUPERVISOR_CFILES_FOLDER . $sourcecode_filename;
+			if (file_exists($sourcecode_path)) {
+				unlink($sourcecode_path);
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
 }//class Lab_model
