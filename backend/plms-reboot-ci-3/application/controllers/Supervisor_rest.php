@@ -323,7 +323,7 @@ class Supervisor_rest extends MY_RestController
 
 			$redis = $this->get_redis_instance();
 
-			$redis->publish("chapter-permission:$class_id:chap-$chapter_id", "permission updated");
+			$redis->publish("chapter-permission:$class_id", json_encode($update_row));
 
 			$redis->close();
 

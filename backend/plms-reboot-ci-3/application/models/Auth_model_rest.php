@@ -33,6 +33,7 @@ class Auth_model_rest extends CI_Model
       $query = $this->db->get()->first_row("array");
       if ($query['allow_login'] == 'no')
         return ERR_CLASS_LOGIN_NOT_ALLOW;
+      $_SESSION['stu_group'] = $query['stu_group'];
     }
 
 

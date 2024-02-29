@@ -10,8 +10,8 @@ export default async function chapterPermission(req, res, next, redisClient) {
   const { group_id } = req.params;
   const { chapter_id } = req.query;
 
-  subscriber.subscribe(`chapter-permission:${group_id}:chap-${chapter_id}`, (message) => {
-    console.log(`chapter-permission:${group_id}:chap-${chapter_id}`, message);
+  subscriber.subscribe(`chapter-permission:${group_id}`, (message) => {
+    console.log(`chapter-permission:${group_id}`, message);
     res.write(`data: ${message}\n\n`);
   });
 

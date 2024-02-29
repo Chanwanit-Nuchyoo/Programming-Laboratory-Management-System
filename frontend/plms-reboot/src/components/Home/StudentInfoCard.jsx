@@ -15,7 +15,7 @@ const StudentInfoCard = ({ user }) => {
     <Box bgcolor={"var(--ebony)"} borderRadius={"8px"} padding={"20px"} >
       <Stack direction={"row"} justifyContent={"space-between"} >
         <Stack spacing={"10px"} justifyContent={"space-between"}  >
-          <Avatar src={user ? `${import.meta.env.VITE_BACKEND_BASE_URL}/${user.avatar}` : avatarPlaceholder} alt={user ? user.name : "Avatar Image"} variant="rounded" sx={{ width: 150, height: 150 }} />
+          <Avatar src={user ? `${user.avatar}` : avatarPlaceholder} alt={user ? user.name : "Avatar Image"} variant="rounded" sx={{ width: 150, height: 150 }} />
           <Stack justifyContent={"center"} alignItems={"center"} width={"150px"} height={"30px"} sx={{ textAlign: "center" }} paddingY={"5px"} borderRadius={"8px"} bgcolor={"rgba(78, 199, 83, 0.50)"} >
             <Typography>{!isLoading && studentCard && studentCard.stu_ip}</Typography>
           </Stack>

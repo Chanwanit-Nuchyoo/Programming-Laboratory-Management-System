@@ -21,22 +21,32 @@ const getItemScoreBoxBgColor = (item) => {
   }
 };
 
-const ChapterListTableBody = ({ chapter, insPage }) => {
+const ChapterListTableBody = ({ chapter, insPage, examFlag = null }) => {
   const { hash } = window.location
   const onStudentPage = hash.split("/")[1] === "stu"
   const currentTime = useCurrentTime()
   const getUrl = onStudentPage ? ABS_STU_URL.DYNAMIC.EXERCISE : ABS_INS_URL.DYNAMIC.STUDENT_SUBMIT_HISTORY
 
   const isAccessible = useMemo(() => {
+    if (examFlag === null || examFlag === undefined) {
+      return false
+    }
+
+    if (examFlag) {
+      if (chapter.chapter_name.split(' ')[0] !== "Quiz") {
+        return false
+      }
+    }
+
     if (chapter.allow_access_type === "always" || chapter.allow_access_type === "timer_paused") {
       return true
-    } else if (chapter.allow_access_type === "timer") {
+    } else if (['timer', 'datetime'].includes(chapter.allow_access_type)) {
       const timeStart = moment(chapter.access_time_start)
       const timeEnd = moment(chapter.access_time_end)
       return currentTime.isBetween(timeStart, timeEnd)
     }
     return false
-  }, [chapter, currentTime]);
+  }, [chapter, currentTime, examFlag]);
 
   const totalMarking = useMemo(() => {
     return chapter?.items ? chapter.items.reduce((acc, object) => acc + parseInt(object.stu_lab.marking), 0) : 0;
