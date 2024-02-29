@@ -1,15 +1,16 @@
 import { Stack } from "@mui/material"
 import Split from 'react-split'
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { getStudentAssignedExercise, getStudentSubmissionList } from '@/utils/api'
 import { useParams } from "react-router-dom"
 import { useAtom } from "jotai"
 import { userAtom, serverTimeOffsetAtom } from "@/store/store"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo, useCallback } from "react"
 import { useForm, FormProvider } from "react-hook-form";
 import useSubmittable from '@/hooks/useSubmittable';
 import { useNavigate } from "react-router-dom";
 import { ABS_STU_URL } from '@/utils/constants/routeConst';
+import { getChapterPermission } from '@/utils/api';
 
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs'
 import ProblemPanel from '@/components/StuExercise/ProblemPanel'
@@ -24,12 +25,30 @@ const StuExercise = () => {
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [shouldShowLatestSubmission, setShouldShowLatestSubmission] = useState(false);
   const [serverTimeOffset] = useAtom(serverTimeOffsetAtom)
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    return () => {
+      queryClient.removeQueries(['chapter-permission', groupId]);
+    };
+  }, []);
+
+  const chapterPermissionQuery = useQuery({
+    queryKey: ['chapter-permission', groupId],
+    queryFn: () => getChapterPermission(groupId),
+  });
+
+  const { ...permission } = useSubmittable(groupId, chapterId, chapterPermissionQuery);
+
+  useEventSource(
+    `${import.meta.env.VITE_REALTIME_BASE_URL}/subscribe/chapter-permission/${groupId}`,
+    chapterPermissionQuery.refetch
+  );
 
   const exerciseQuery = useQuery({
     queryKey: ['student-exercise', user.id, chapterId, itemId],
     queryFn: () => getStudentAssignedExercise(user.id, chapterId, itemId),
-    staleTime: Infinity,
   })
 
   const submissionListQuery = useQuery({
@@ -37,27 +56,40 @@ const StuExercise = () => {
     queryFn: () => getStudentSubmissionList(user.id, chapterId, itemId),
   })
 
-  const { chapterPermissionQuery, ...permission } = useSubmittable(groupId, chapterId);
 
   const { data: submissionList, isLoading: isSubmissionListLoading, refetch: refetchSubmissionList } = submissionListQuery;
 
-  useEventSource(
-    `${import.meta.env.VITE_REALTIME_BASE_URL}/subscribe/chapter-permission/${groupId}`,
-    chapterPermissionQuery.refetch
-  );
 
-  useEffect(() => {
+  const latestSubmission = useMemo(() => submissionList && submissionList.length > 0 ? submissionList.slice(-1)[0] : null, [submissionList]);
+
+  const handleExamFlag = useCallback(() => {
+    /* console.log('handleExamFlag', permission.examFlag, chapterPermissionQuery.isPending, chapterPermissionQuery.data); */
+    if (permission.examFlag && !chapterPermissionQuery.isPending && chapterPermissionQuery.data) {
+      if (chapterPermissionQuery.data[parseInt(chapterId) - 1].chapter_name.split(' ')[0] !== 'Quiz') {
+        navigate(ABS_STU_URL.STATIC.EXERCISE_LIST);
+      }
+    }
+  }, [permission.examFlag, chapterPermissionQuery, navigate, chapterId]);
+
+  useEffect(handleExamFlag, [handleExamFlag]);
+
+  const handleSubmissionListLoading = useCallback(() => {
     if (!isSubmissionListLoading && submissionList.length > 0 && shouldShowLatestSubmission) {
       setSelectedSubmission(submissionList.length - 1);
       setShouldShowLatestSubmission(false);
     }
-  }, [isSubmissionListLoading, submissionList]);
+  }, [isSubmissionListLoading, submissionList, shouldShowLatestSubmission]);
 
-  useEffect(() => {
-    if (permission.accessPermissionStatus !== 'loading' && ['inaccessible', 'ended'].includes(permission.accessPermissionStatus)) {
+  useEffect(handleSubmissionListLoading, [handleSubmissionListLoading]);
+
+  const handlePermissionStatus = useCallback(() => {
+    /* console.log('handlePermissionStatus', permission.accessPermissionStatus); */
+    if (permission.accessPermissionStatus !== 'loading' && ['notStarted', 'inaccessible', 'ended'].includes(permission.accessPermissionStatus)) {
       navigate(ABS_STU_URL.STATIC.EXERCISE_LIST);
     }
-  }, [permission.accessPermissionStatus])
+  }, [permission.accessPermissionStatus, navigate]);
+
+  useEffect(handlePermissionStatus, [handlePermissionStatus]);
 
   const methods = useForm({
     defaultValues: {
@@ -65,10 +97,9 @@ const StuExercise = () => {
     }
   });
 
-  const latestSubmission = submissionList && submissionList.length > 0 ? submissionList.slice(-1)[0] : null;
-
   return <>
     < SubmitPermissionInfoBox
+      chapterId={chapterId}
       chapterPermissionQuery={chapterPermissionQuery}
       submitPermissionStatus={permission.submitPermissionStatus}
       secondsLeftBeforeSubmittable={permission.secondsLeftBeforeSubmittable}

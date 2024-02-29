@@ -69,6 +69,7 @@ const CountDownTimer = ({ timeLeft }) => {
 }
 
 const SubmitPermissionInfoBox = ({
+  chapterId,
   chapterPermissionQuery,
   submitPermissionStatus,
   secondsLeftBeforeSubmittable,
@@ -96,7 +97,8 @@ const SubmitPermissionInfoBox = ({
     return null;
   }
 
-  const { data: { allow_submit_type } } = chapterPermissionQuery;
+  const { data } = chapterPermissionQuery;
+  const { allow_submit_type } = data[parseInt(chapterId) - 1]
 
   const bgcolor = (submitPermissionStatus === "unsubmittable" || submitPermissionStatus === "ended") ? "#e74c3c" : "var(--chathamBlue)";
 

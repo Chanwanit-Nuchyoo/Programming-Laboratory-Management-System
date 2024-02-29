@@ -1,34 +1,50 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from "@tanstack/react-query";
-import { getChapterPermission } from '@/utils/api';
+
 import { serverTimeOffsetAtom } from "@/store/store";
 import { useAtom } from 'jotai';
+import { checkExamFlag } from "@/utils";
 import moment from 'moment';
 
 // Helper function to calculate time difference using moment.js
 const calculateTimeDiff = (startTime, endTime) => {
   const diff = endTime.diff(startTime, 'seconds');
-  return diff >= 0 ? diff : null;
+  return diff;
 };
 
-export default function useSubmittable(groupId, chapterId) {
+export default function useSubmittable(groupId, chapterId, chapterPermissionQuery) {
   const [submitPermissionStatus, setSubmitPermissionStatus] = useState('loading');
   const [accessPermissionStatus, setAccessPermissionStatus] = useState('loading');
   const [secondsLeftBeforeSubmittable, setSecondsLeftBeforeSubmittable] = useState(null);
   const [secondsLeftBeforeUnsubmittable, setSecondsLeftBeforeUnsubmittable] = useState(null);
   const [secondsLeftBeforeAccessible, setSecondsLeftBeforeAccessible] = useState(null);
   const [secondsLeftBeforeInaccessible, setSecondsLeftBeforeInaccessible] = useState(null);
+  const [examFlag, setExamFlag] = useState(null);
   const [serverTimeOffset] = useAtom(serverTimeOffsetAtom);
 
-  const chapterPermissionQuery = useQuery({
-    queryKey: ['chapter-permission', groupId, chapterId],
-    queryFn: () => getChapterPermission(groupId, chapterId),
-    onError: (error) => {
-      console.error('Error fetching chapter permission:', error);
-      setSubmitPermissionStatus('error');
-      setAccessPermissionStatus('error');
-    },
-  });
+  useEffect(() => {
+    let intervalId = null;
+
+    if (!chapterPermissionQuery.isPending && chapterPermissionQuery.data) {
+      const examChapters = chapterPermissionQuery.data.filter(chapter => chapter.chapter_name.split(" ")[0] === "Quiz");
+
+      if (examChapters && examChapters.length > 0) {
+        intervalId = setInterval(() => {
+          const flag = examChapters.some((chapter) => checkExamFlag(chapter, serverTimeOffset));
+          setExamFlag(flag);
+        }, 1000);
+      } else {
+        setExamFlag(null);
+      }
+    } else {
+      setExamFlag(null);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    }
+  }, [chapterPermissionQuery.isPending, chapterPermissionQuery.data]);
 
   useEffect(() => {
     const updatePermissions = async () => {
@@ -45,7 +61,7 @@ export default function useSubmittable(groupId, chapterId) {
         return;
       }
 
-      const { allow_submit_type, submit_time_start, submit_time_end, allow_access_type, access_time_start, access_time_end } = data || {};
+      const { allow_submit_type, submit_time_start, submit_time_end, allow_access_type, access_time_start, access_time_end } = data[parseInt(chapterId) - 1] || {};
 
       // Update submittable status
       if (allow_submit_type === "deny") {
@@ -90,10 +106,10 @@ export default function useSubmittable(groupId, chapterId) {
 
   useEffect(() => {
     if (!chapterPermissionQuery.isPending) {
-      if (['timer', 'datetime'].includes(chapterPermissionQuery.data.allow_access_type)) {
-        if (secondsLeftBeforeAccessible > 0) {
+      if (['timer', 'datetime'].includes(chapterPermissionQuery.data[parseInt(chapterId) - 1].allow_access_type)) {
+        if (secondsLeftBeforeAccessible && secondsLeftBeforeAccessible > 0) {
           setAccessPermissionStatus('notStarted');
-        } else if (secondsLeftBeforeInaccessible > 0) {
+        } else if (secondsLeftBeforeInaccessible && secondsLeftBeforeInaccessible > 0) {
           setAccessPermissionStatus('accessible');
         } else {
           setAccessPermissionStatus('ended');
@@ -106,10 +122,10 @@ export default function useSubmittable(groupId, chapterId) {
 
   useEffect(() => {
     if (!chapterPermissionQuery.isPending) {
-      if (['timer', 'datetime'].includes(chapterPermissionQuery.data.allow_submit_type)) {
-        if (secondsLeftBeforeSubmittable > 0) {
+      if (['timer', 'datetime'].includes(chapterPermissionQuery.data[parseInt(chapterId) - 1].allow_submit_type)) {
+        if (secondsLeftBeforeSubmittable && secondsLeftBeforeSubmittable > 0) {
           setSubmitPermissionStatus('notStarted');
-        } else if (secondsLeftBeforeUnsubmittable > 0) {
+        } else if (secondsLeftBeforeUnsubmittable && secondsLeftBeforeUnsubmittable > 0) {
           setSubmitPermissionStatus('submittable');
         } else {
           setSubmitPermissionStatus('ended');
@@ -128,5 +144,6 @@ export default function useSubmittable(groupId, chapterId) {
     secondsLeftBeforeUnsubmittable,
     secondsLeftBeforeAccessible,
     secondsLeftBeforeInaccessible,
+    examFlag,
   };
 }
