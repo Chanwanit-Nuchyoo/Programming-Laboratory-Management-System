@@ -92,7 +92,7 @@ const SubmitPermissionInfoBox = ({
     }
   }, [submitPermissionStatus, secondsLeftBeforeSubmittable, secondsLeftBeforeUnsubmittable]);
 
-  if (chapterPermissionQuery.isLoading || submitPermissionStatus === "loading") {
+  if (chapterPermissionQuery.isPending || submitPermissionStatus === "loading") {
     return null;
   }
 
