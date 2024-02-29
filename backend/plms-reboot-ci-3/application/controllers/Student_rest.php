@@ -315,10 +315,9 @@ class Student_rest extends MY_RestController
   {
     try {
       $group_id = $this->query("group_id");
-      $chapter_id = $this->query("chapter_id");
       $this->load->model('lab_model_rest');
       $permission = $this->lab_model_rest->get_group_permission($group_id);
-      $this->response($permission[$chapter_id], RestController::HTTP_OK);
+      $this->response(array_values($permission), RestController::HTTP_OK);
     } catch (Exception $e) {
       return $this->handleError($e);
     }

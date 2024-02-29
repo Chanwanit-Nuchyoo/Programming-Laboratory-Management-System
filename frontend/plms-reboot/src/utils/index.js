@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export const getClassNames = (classes, ...classNames) => classNames.map(className => classes[className]).join(' ')
 export const buttonStyle = { height: "100%", color: "white" };
 
@@ -117,3 +119,16 @@ export function secondsToDhms(seconds) {
   const sDisplay = s > 0 ? s.toString().padStart(2, '0') : '00';
   return { d: dDisplay, h: hDisplay, m: mDisplay, s: sDisplay };
 }
+
+export const checkExamFlag = (chapter, serverTimeOffset) => {
+  if (["always", "timer-paused"].includes(chapter.allow_access_type)) {
+    return true;
+  } else if (chapter.allow_access_type === "deny") {
+    return false;
+  } else {
+    const now = moment().add(serverTimeOffset, "milliseconds");
+    const start = moment(chapter.access_time_start);
+    const end = moment(chapter.access_time_end);
+    return now.isBetween(start, end);
+  }
+};
