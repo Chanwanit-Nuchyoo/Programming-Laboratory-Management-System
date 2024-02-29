@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Container, Stack } from "@mui/material"
 import Header from "@/components/_shared/Header"
 import ExerciseChapterList from "@/components/_shared/ExerciseChapterList"
@@ -13,17 +13,23 @@ import { useQueryClient } from "@tanstack/react-query"
 const StuExerciseList = () => {
   const [user] = useAtom(userAtom)
   const setSelected = useSetAtom(sidebarSelectedAtom);
+  const [examChapters, setExamChapters] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
     setSelected('stu_exercise_list');
   }, [])
 
-  const { data: chapterList, isLoading: isChapterListLoading } = useQuery({
+  const { data: chapterList, isLoading: isChapterListLoading, refetch: refetchChapterList } = useQuery({
     queryKey: ["chapterList", user?.id],
     queryFn: () => getChapterList(user?.id),
-    refetchInterval: 1000 * 60,
   })
+
+  useEffect(() => {
+    if (!isChapterListLoading && chapterList) {
+      setExamChapters(chapterList.filter(chapter => chapter.chapter_name.split(" ")[0] === "Quiz"));
+    }
+  }, [isChapterListLoading, chapterList])
 
   return (
     <Container>
@@ -36,7 +42,7 @@ const StuExerciseList = () => {
             logoSrc={codingIcon}
             title="Exercise List"
           />
-          <ExerciseChapterList isLoading={isChapterListLoading} data={chapterList} />
+          {!isChapterListLoading && <ExerciseChapterList cacheKey={["chapterList", user?.id]} refetch={refetchChapterList} isLoading={isChapterListLoading} examChapters={examChapters} data={chapterList} />}
         </Stack>
       </Stack>
     </Container>

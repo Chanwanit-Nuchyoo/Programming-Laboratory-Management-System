@@ -15,7 +15,7 @@ import StudentBriefInfo from "@/components/_shared/StudentBriefInfo"
 const StudentScore = () => {
   const { studentId, groupId } = useParams();
 
-  const { data: chapterList, isLoading: isChapterListLoading } = useQuery({
+  const { data: chapterList, isLoading: isChapterListLoading, refetch: refetchChapterList } = useQuery({
     queryKey: ["chapterList", studentId],
     queryFn: () => getChapterList(studentId),
   })
@@ -42,7 +42,7 @@ const StudentScore = () => {
             studentId={studentId}
           />
 
-          <ExerciseChapterList isLoading={isChapterListLoading} data={chapterList} insPage={true} />
+          <ExerciseChapterList cacheKey={["chapterList", studentId]} refetch={refetchChapterList} isLoading={isChapterListLoading} data={chapterList} insPage={true} />
 
         </Stack>
       </Container>

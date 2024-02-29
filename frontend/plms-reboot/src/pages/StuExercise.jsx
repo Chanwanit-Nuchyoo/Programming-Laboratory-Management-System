@@ -34,19 +34,6 @@ const StuExercise = () => {
   const submissionListQuery = useQuery({
     queryKey: ['submission-list', user.id, chapterId, itemId],
     queryFn: () => getStudentSubmissionList(user.id, chapterId, itemId),
-    /* refetchInterval: ({ state: { data } }) => {
-      if (data && Array.isArray(data) && data.length !== 0) {
-        if (data.every(submission => submission.status !== "pending")) {
-          return false;
-        } else {
-          return 1000;
-        }
-      } else if (data && Array.isArray(data)) {
-        return false;
-      } else {
-        return 1000;
-      }
-    } */
   })
 
   const { chapterPermissionQuery, ...permission } = useSubmittable(groupId, chapterId);
@@ -54,20 +41,9 @@ const StuExercise = () => {
   const { data: submissionList, isLoading: isSubmissionListLoading, refetch: refetchSubmissionList } = submissionListQuery;
 
   useEventSource(
-    `${import.meta.env.VITE_REALTIME_BASE_URL}/subscribe/chapter-permission/${groupId}?chapter_id=${chapterId}`,
+    `${import.meta.env.VITE_REALTIME_BASE_URL}/subscribe/chapter-permission/${groupId}`,
     chapterPermissionQuery.refetch
   );
-  /* useEffect(() => {
-    const eventSource = new EventSource(`${import.meta.env.VITE_REALTIME_BASE_URL}/subscribe/chapter-permission/${groupId}?chapter_id=${chapterId}`);
-
-    eventSource.onmessage = (event) => {
-      chapterPermissionQuery.refetch();
-    }
-
-    return () => {
-      eventSource.close();
-    }
-  }, []) */
 
   useEffect(() => {
     if (!isSubmissionListLoading && submissionList.length > 0 && shouldShowLatestSubmission) {
