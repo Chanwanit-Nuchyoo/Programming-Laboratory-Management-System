@@ -45,7 +45,7 @@ const PermissionDisplay = ({ prefix, permissions, groupId, chapterId, lab }) => 
 
   return (
     <Stack direction={"row"} spacing={"20px"} justifyContent="space-between" alignItems="center" paddingX="16px">
-      <Stack direction="row" spacing="10px" >
+      <Stack direction="row" spacing="10px" alignItems="center" >
         <ToggleSwitch
           isChecked={isChecked}
           onToggle={() => handleToggleSwitch()}

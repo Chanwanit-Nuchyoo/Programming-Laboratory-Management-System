@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import { getStudentAssignedExercise, getStudentSubmissionList } from '@/utils/api'
 import { useParams } from "react-router-dom"
 import { useAtom } from "jotai"
-import { userAtom } from "@/store/store"
+import { userAtom, serverTimeOffsetAtom } from "@/store/store"
 import { useEffect, useState } from "react"
 import { useForm, FormProvider } from "react-hook-form";
 import useSubmittable from '@/hooks/useSubmittable';
@@ -23,6 +23,7 @@ const StuExercise = () => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [shouldShowLatestSubmission, setShouldShowLatestSubmission] = useState(false);
+  const [serverTimeOffset] = useAtom(serverTimeOffsetAtom)
   const navigate = useNavigate();
 
   const exerciseQuery = useQuery({
@@ -67,7 +68,7 @@ const StuExercise = () => {
   const latestSubmission = submissionList && submissionList.length > 0 ? submissionList.slice(-1)[0] : null;
 
   return <>
-    <SubmitPermissionInfoBox
+    < SubmitPermissionInfoBox
       chapterPermissionQuery={chapterPermissionQuery}
       submitPermissionStatus={permission.submitPermissionStatus}
       secondsLeftBeforeSubmittable={permission.secondsLeftBeforeSubmittable}
@@ -101,7 +102,6 @@ const StuExercise = () => {
           <WorkSpacePanel
             exerciseQuery={exerciseQuery}
             submitPermission={permission.submitPermissionStatus}
-            chapterPermissionQuery={chapterPermissionQuery}
             submissionList={{ isLoading: isSubmissionListLoading, value: submissionList, refetch: refetchSubmissionList, latest: latestSubmission }}
             selectedTab={{ value: selectedTab, setValue: setSelectedTab }}
             shouldShowLatestSubmission={{ value: shouldShowLatestSubmission, setValue: setShouldShowLatestSubmission }}

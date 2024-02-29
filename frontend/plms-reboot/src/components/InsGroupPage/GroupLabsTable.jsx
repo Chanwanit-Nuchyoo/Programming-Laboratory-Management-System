@@ -11,8 +11,8 @@ import PermissionDisplay from '@/components/InsGroupPage/PermissionDisplay';
 const columnStyles = {
   Chapter: { minWidth: '' },
   Score: { minWidth: '80px' },
-  ["Allow submit"]: { width: '340px' },
-  ["Access exercise"]: { width: '340px' }
+  ["Allow submit"]: { width: '350px', whiteSpace: 'nowrap' },
+  ["Access exercise"]: { width: '350px', whiteSpace: 'nowrap' }
 }
 
 const permissionAccessorFn = (row, prefix) => {
