@@ -1,17 +1,24 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { Container, Stack } from '@mui/material';
 import Header from '@/components/_shared/Header';
 /* import Testcases from '@/components/AddExercisePage/Testcases'; */
-import chapterIcon from '@/assets/images/chaptericon.svg';
-import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs';
-import ExerciseInfoForm from '@/components/_shared/ExerciseInfoForm';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getBreadCrumbs } from '@/utils/api';
+import { useSetAtom } from "jotai";
+import { sidebarSelectedAtom } from "@/store/store";
 
+import chapterIcon from '@/assets/images/chaptericon.svg';
+import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs';
+import ExerciseInfoForm from '@/components/_shared/ExerciseInfoForm';
 
 const AddExercise = () => {
   const { groupId, chapterId, level } = useParams();
+  const setSelected = useSetAtom(sidebarSelectedAtom);
+
+  useEffect(() => {
+    setSelected('my_groups');
+  }, []);
 
   const breadCrumbsId = useMemo(() => {
     return {

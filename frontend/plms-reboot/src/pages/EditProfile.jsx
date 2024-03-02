@@ -1,11 +1,14 @@
 /* eslint-disable react/prop-types */
-import { Box, Container, Stack, } from "@mui/material";
+import { Box, Container, Stack } from "@mui/material";
 import PersonIcon from '@mui/icons-material/Person';
 import Header from '@/components/_shared/Header';
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getProfileFormData } from '@/utils/api';
 import { useAtom } from "jotai";
 import { userAtom } from "@/store/store";
+import { useSetAtom } from "jotai";
+import { sidebarSelectedAtom } from "@/store/store";
 import EditProfileForm from "@/components/EditProfilePage/EditProfileForm";
 import moment from "moment";
 
@@ -23,6 +26,11 @@ const defaultValue = {
 
 const EditProfile = () => {
   const [user] = useAtom(userAtom);
+  const setSelected = useSetAtom(sidebarSelectedAtom);
+
+  useEffect(() => {
+    setSelected('');
+  }, []);
 
   const { data: formData, isLoading } = useQuery({
     queryKey: ['profileFormData', user.id],

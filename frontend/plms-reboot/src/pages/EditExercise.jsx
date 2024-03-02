@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { defaultCon } from '@/store/store';
 import { Box, Container, Stack } from '@mui/material';
 import ExerciseInfoForm from '@/components/_shared/ExerciseInfoForm';
@@ -9,10 +9,17 @@ import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getBreadCrumbs, getExerciseFormData } from '@/utils/api';
+import { useSetAtom } from "jotai";
+import { sidebarSelectedAtom } from "@/store/store";
+
 
 const EditExercise = () => {
-  // Params
   const { groupId, level, chapterId, exerciseId } = useParams();
+  const setSelected = useSetAtom(sidebarSelectedAtom);
+
+  useEffect(() => {
+    setSelected('my_groups');
+  }, []);
 
   const breadCrumbsId = useMemo(() => {
     return {
@@ -61,7 +68,7 @@ const EditExercise = () => {
   let testcaseData = []
 
   // Render
-  return ( 
+  return (
     <Box>
       <Container>
         <Stack spacing={2}>

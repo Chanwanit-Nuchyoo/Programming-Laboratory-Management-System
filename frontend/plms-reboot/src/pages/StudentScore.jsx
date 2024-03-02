@@ -4,7 +4,10 @@ import folderIcon from '@/assets/images/foldericon.svg'
 import { getChapterList, getBreadCrumbs } from "@/utils/api"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "react-router-dom"
+import { useEffect } from "react"
 import { ABS_INS_URL } from "@/utils/constants/routeConst"
+import { useSetAtom } from "jotai";
+import { sidebarSelectedAtom } from "@/store/store";
 
 // components
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs'
@@ -14,6 +17,11 @@ import StudentBriefInfo from "@/components/_shared/StudentBriefInfo"
 
 const StudentScore = () => {
   const { studentId, groupId } = useParams();
+  const setSelected = useSetAtom(sidebarSelectedAtom);
+
+  useEffect(() => {
+    setSelected('my_groups');
+  }, []);
 
   const { data: chapterList, isLoading: isChapterListLoading, refetch: refetchChapterList } = useQuery({
     queryKey: ["chapterList", studentId],

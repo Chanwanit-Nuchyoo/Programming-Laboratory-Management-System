@@ -13,7 +13,6 @@ import { getGroupListById } from "@/utils/api";
 
 function MyGroups() {
   const setSelected = useSetAtom(sidebarSelectedAtom);
-  const [serverTimeOffset, setServerTimeOffset] = useAtom(serverTimeOffsetAtom);
 
   const groupListQuery = useQuery({
     queryKey: ['groupList', import.meta.env.VITE_YEAR],
@@ -22,7 +21,7 @@ function MyGroups() {
 
   useEffect(() => {
     setSelected('my_groups');
-  }, [setSelected]);
+  }, []);
 
   const items = [{ label: 'My Groups', href: '/ins' }];
 

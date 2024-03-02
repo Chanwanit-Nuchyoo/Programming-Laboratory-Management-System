@@ -1,11 +1,13 @@
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack } from "@mui/material";
 import { Link, useParams } from "react-router-dom";
 import folderIcon from '@/assets/images/foldericon.svg';
 import { useState, useEffect } from "react";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { getStudentListInGroupWithLabScore } from "@/utils/api";
 import { ABS_INS_URL } from "@/utils/constants/routeConst";
 import { useQuery } from "@tanstack/react-query";
+import { useSetAtom } from "jotai";
+import { sidebarSelectedAtom } from "@/store/store";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 
 // components
 import MyBreadCrumbs from "@/components/_shared/MyBreadCrumbs";
@@ -17,7 +19,7 @@ import StudentListTable from "@/components/StudentList/StudentListTable";
 const StudentList = () => {
   const [labInfo, setLabInfo] = useState([]);
   const [students, setStudents] = useState([]);
-
+  const setSelected = useSetAtom(sidebarSelectedAtom);
   const { groupId } = useParams();
 
   const { data: studentList = [], isPending } = useQuery({
@@ -31,6 +33,10 @@ const StudentList = () => {
       setStudents(studentList.student_list);
     }
   }, [isPending, studentList]);
+
+  useEffect(() => {
+    setSelected('my_groups');
+  }, []);
 
   return (
     <Box>
