@@ -1972,7 +1972,9 @@ class Lab_model_rest extends CI_Model
 	{
 		$this->db->where('exercise_id', $exercise_id)->delete('lab_exercise');
 
-		if ($this->db->error()) {
+		$error = $this->db->error()['message'];
+
+		if ($error) {
 			return false;
 		}
 
@@ -1984,6 +1986,29 @@ class Lab_model_rest extends CI_Model
 			if (file_exists($sourcecode_path)) {
 				unlink($sourcecode_path);
 			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public function cancle_student_submission($submission_id)
+	{
+		$this->db->SET([
+			'status' => 'rejected',
+			'marking' => '0',
+		])
+			->where('submission_id', $submission_id)
+			->update('exercise_submission');
+
+		$error = $this->db->error()['message'];
+		if ($error) {
+			return false;
+		}
+
+		$success = $this->db->affected_rows() > 0;
+
+		if ($success) {
 			return true;
 		} else {
 			return false;

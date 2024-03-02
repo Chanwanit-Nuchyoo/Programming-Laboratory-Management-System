@@ -32,7 +32,7 @@ const SubmissionHistory = () => {
   })
 
   const { data: subHistory, isLoading: isSubHistoryLoading } = useQuery({
-    queryKey: ['studentSubmissionList', studentId, chapterId, itemId],
+    queryKey: ['submission-list', studentId, chapterId, itemId],
     queryFn: () => getStudentSubmissionList(studentId, chapterId, itemId),
   })
 

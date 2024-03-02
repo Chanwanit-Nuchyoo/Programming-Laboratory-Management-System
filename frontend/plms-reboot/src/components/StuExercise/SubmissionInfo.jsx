@@ -1,6 +1,5 @@
 import { Box, Button, Stack, Typography } from "@mui/material"
 import { statusProperties, markingBgColor } from "@/utils";
-import { useQueryClient } from "@tanstack/react-query";
 import { useAtom } from 'jotai';
 import { userAtom } from '@/store/store';
 import { useParams } from "react-router-dom";
@@ -10,11 +9,9 @@ import TerminalBlock from "@/components/_shared/TerminalBlock";
 import MyDiff from "@/components/_shared/MyDiff";
 import moment from 'moment';
 
-const SubmissionInfo = ({ selectedSubmission }) => {
+const SubmissionInfo = ({ submissionList, selectedSubmission, insPage = false }) => {
   const [user,] = useAtom(userAtom)
-  const { chapterId, itemId } = useParams();
-  const queryClient = useQueryClient();
-  const submissionList = queryClient.getQueryData(['submission-list', user.id, chapterId, itemId]);
+  const { chapterId, itemId, studentId } = useParams();
   const submission = submissionList[selectedSubmission.value] || null;
 
   if (submission === null) {
@@ -24,11 +21,15 @@ const SubmissionInfo = ({ selectedSubmission }) => {
 
     return (
       <Box>
-        <Stack direction="row" spacing="20px" alignItems="center" sx={{ position: "sticky", top: 0 }} >
-          <Button onClick={() => selectedSubmission.setValue(null)} startIcon={<KeyboardBackspaceIcon />} sx={{ color: "white" }} >Back</Button>
-        </Stack>
+        {!insPage &&
+          <Stack direction="row" spacing="20px" alignItems="center" sx={{ position: "sticky", top: 0 }} >
+            <Button onClick={() => selectedSubmission.setValue(null)} startIcon={<KeyboardBackspaceIcon />} sx={{ color: "white" }} >Back</Button>
+          </Stack>
+        }
         <Stack sx={{ paddingX: "20px" }} >
-          <Typography variant="h6" sx={{ fontWeight: "bold" }} >Submission #{selectedSubmission.value + 1}</Typography>
+          <Stack direction="row" justifyContent="space-between" alignItems="center" marginY="20px">
+            <Typography variant="h6" sx={{ fontWeight: "bold" }} >Submission #{selectedSubmission.value + 1}</Typography>
+          </Stack>
 
           <Stack spacing="20px" padding="10px" >
             <Stack direction="row" spacing="10px" alignItems="baseline" justifyContent="space-between" >
@@ -37,7 +38,7 @@ const SubmissionInfo = ({ selectedSubmission }) => {
                   <Typography  >{message}</Typography>
                 </Box>
                 <Typography sx={{ fontSize: "14px" }} >
-                  Submitted at {moment(submission.time_submitted).format('MMM D, YYYY HH:mm')}
+                  Submitted at {moment(submission.time_submit).format('MMM D, YYYY HH:mm')}
                 </Typography>
               </Stack>
 
@@ -66,7 +67,7 @@ const SubmissionInfo = ({ selectedSubmission }) => {
                     <>
                       {submission.result.length === 0 && <TerminalBlock text="No output" hug />}
                       {submission.result.length > 0 &&
-                        submission.result.map((r, i) => <MyDiff key={i} isPassed={r.is_passed} actual={r.actual} expected={r.expected} testcaseNo={r.testcase_no} />)
+                        submission.result.map((r, i) => <MyDiff key={i} insPage={insPage} isPassed={r.is_passed} actual={r.actual} expected={r.expected} testcaseNo={r.testcase_no} />)
                       }
                     </>
                   }

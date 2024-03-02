@@ -68,7 +68,7 @@ const StudentBriefInfo = ({ studentId }) => {
   const isOnline = onlineStudentsList?.includes(studentId);
 
   return (
-    <Stack spacing={"5px"} direction={"row"} height="115px"  >
+    <Stack spacing={"5px"} direction={"row"} height="115px">
       {/* Avatar */}
       {!isStudentInfoCardLoading &&
         <Box width={115} height={115} borderRadius={"8px"} overflow={"hidden"} >
@@ -83,9 +83,9 @@ const StudentBriefInfo = ({ studentId }) => {
 
       {
         isStudentInfoCardLoading && <>
-          <Skeleton variant="text" width={510} height={115} />
-          <Skeleton variant="text" width={266} height={115} />
-          <Skeleton variant="text" width={266} height={115} />
+          <Skeleton variant="circular" width={510} height="100%" />
+          <Skeleton variant="circular" width={266} height="100%" />
+          <Skeleton variant="circular" width={266} height="100%" />
         </>
       }
 

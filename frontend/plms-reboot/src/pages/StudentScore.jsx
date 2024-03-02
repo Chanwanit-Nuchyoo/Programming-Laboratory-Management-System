@@ -42,7 +42,7 @@ const StudentScore = () => {
             studentId={studentId}
           />
 
-          <ExerciseChapterList cacheKey={["chapterList", studentId]} refetch={refetchChapterList} isLoading={isChapterListLoading} data={chapterList} insPage={true} />
+          {!isChapterListLoading && <ExerciseChapterList cacheKey={["chapterList", studentId]} refetch={refetchChapterList} isLoading={isChapterListLoading} data={chapterList} insPage={true} />}
 
         </Stack>
       </Container>

@@ -10,7 +10,7 @@ const Original = CodeMirrorMerge.Original;
 const Modified = CodeMirrorMerge.Modified;
 
 
-const MyDiff = ({ isPassed, expected, actual, testcaseNo }) => {
+const MyDiff = ({ isPassed, expected, actual, testcaseNo, insPage = false }) => {
   const iconPath = isPassed ? correct : incorrect;
   const alt = isPassed ? "correct" : "incorrect";
 
@@ -21,7 +21,7 @@ const MyDiff = ({ isPassed, expected, actual, testcaseNo }) => {
         <Typography>Testcase {testcaseNo}</Typography>
       </Stack>
 
-      <Box flex={1} padding={2} bgcolor={"#1e1e1e"} borderRadius={"0px 0px 8px 8px"} >
+      <Box flex={1} padding={2} bgcolor={insPage ? "black" : "#1e1e1e"} borderRadius={"0px 0px 8px 8px"} >
         <Stack direction={"row"} spacing={"5px"} marginBottom={1} >
           <Typography sx={{ flex: 1 }}>Actual output</Typography>
           <Typography sx={{ flex: 1 }}>Expected output</Typography>
