@@ -11,17 +11,16 @@ const headers = [
   { title: "Status", width: col_width[1] },
   { title: "Score", width: col_width[2] },
   { title: "Submitted Time", width: col_width[3] },
-  { title: "Feedback", width: col_width[4] },
 ];
 
 const extendedButtonStyle = { ...buttonStyle, textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", minWidth: "290-content", bgcolor: "var(--mirage)" }
 const boxStyle = { display: "flex", alignItems: "center", justifyContent: "center", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "auto" }
 
 const TableHeader = ({ header }) => {
-  const feedback = header.title === "Feedback" ? { flex: 1, minWidth: "290px" } : {};
+  const submitted = header.title === "Submitted Time" ? { flex: 1, borderTopRightRadius: "8px" } : {};
 
   return (
-    <Button variant="contained" sx={{ ...extendedButtonStyle, width: header.width, flexShrink: 0, borderRadius: "0px", ...feedback }} >
+    <Button variant="contained" sx={{ ...extendedButtonStyle, width: header.width, flexShrink: 0, borderRadius: "0px", ...submitted }} >
       <Typography>{header.title}</Typography>
     </Button>
   )
@@ -40,7 +39,7 @@ const TableRow = ({ submission, index, setSelected }) => {
   return (
     <Stack
       direction="row"
-      width="100%"
+      width="10"
       sx={{
         paddingY: "10px",
         bgcolor: rowBgColor,
@@ -60,11 +59,8 @@ const TableRow = ({ submission, index, setSelected }) => {
       <Box sx={{ ...boxStyle, flexShrink: 0, width: col_width[2] }} >
         <Typography>{submission.marking}/2</Typography>
       </Box>
-      <Box sx={{ ...boxStyle, flexShrink: 0, width: col_width[3] }} >
+      <Box sx={{ ...boxStyle, flexShrink: 0, width: col_width[3], maxWidth: "400px" }} >
         <Typography>{moment(submission.time_submit).format('MMM D, YYYY HH:mm:ss')}</Typography>
-      </Box>
-      <Box sx={{ ...boxStyle, paddingX: "10px", justifyContent: "flex-start", flexShrink: 0, width: col_width[4], flex: 1, minWidth: "290px" }} >
-        <Typography sx={{ color: submission.feedback ? "white" : "#ccc" }} >{submission.feedback ? submission.feedback : "No feedback.."}</Typography>
       </Box>
     </Stack>
   )
