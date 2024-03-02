@@ -76,7 +76,7 @@ const SubmissionList = ({ submissionList, selectedSubmission }) => {
     <Stack spacing="0px" sx={{ borderRadius: "8px", overflow: "hidden" }}  >
       {selectedSubmission.value !== null ?
         <>
-          <SubmissionInfo selectedSubmission={selectedSubmission} />
+          <SubmissionInfo submissionList={submissionList.value} selectedSubmission={selectedSubmission} />
         </>
         :
         <>

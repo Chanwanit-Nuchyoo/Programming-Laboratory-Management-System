@@ -31,6 +31,7 @@ const WorkSpacePanel = ({ exerciseQuery, submitPermission, submissionList, selec
 
     eventSourceRef.current.onmessage = (event) => {
       submissionList.refetch();
+      shouldShowLatestSubmission.setValue(true);
       eventSourceRef.current.close();
       eventSourceRef.current = null;
     }
@@ -40,7 +41,6 @@ const WorkSpacePanel = ({ exerciseQuery, submitPermission, submissionList, selec
     mutationFn: studentExerciseSubmit,
     onSuccess: () => {
       queryClient.invalidateQueries(['submission-list', user.id, chapterId, itemId]);
-      shouldShowLatestSubmission.setValue(true);
     },
     onError: (err) => {
       alert(err.response.data.message)

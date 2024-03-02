@@ -30,14 +30,7 @@ const ExerciseInfoBox = ({ exercise, isExerciseLoading }) => {
   return (
     <Stack spacing={"20px"} sx={{ position: "relative", padding: "20px", border: "1px solid var(--raven)", borderRadius: "8px" }}>
       <Stack direction={'row'} justifyContent={"space-between"} alignItems="center" >
-        <Typography>Item {itemId}</Typography>
-        {/*!isExerciseLoading && exercise &&
-          <Stack direction={"row"} spacing={"20px"}>
-            <Button variant="contained" color="success"
-              sx={{ height: '40px', width: '120px', fontSize: '16px', pointerEvents: 'none' }}>2/2</Button>
-            <Button variant="contained" color="error">Deny this submission</Button>
-          </Stack>
-  */}
+        <Typography variant="h6" fontWeight="600" >Item {itemId}</Typography>
       </Stack>
 
       {/* Loading */}

@@ -328,3 +328,11 @@ export const deleteExercise = async (formData) => {
 
   return res.data;
 }
+
+export const cancleStudentSubmission = async (formData) => {
+  const res = await axios.post(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/cancleStudentSubmission`,
+    formData,
+    { withCredentials: true }
+  )
+  return res.data;
+}

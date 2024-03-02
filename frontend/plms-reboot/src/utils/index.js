@@ -36,23 +36,27 @@ export const checkIsAccessible = (type, currentTime, startTime, endTime) => {
 export const statusProperties = {
   "accepted": {
     message: "Accepted",
-    color: "#4CAF50" // Green color for Accepted status
+    color: "#4CAF50"
   },
   "wrong_answer": {
     message: "Wrong Answer",
-    color: "#F44336" // Red color for Wrong Answer status
+    color: "#F44336"
   },
   "pending": {
     message: "Pending",
-    color: "#FFC107" // Orange color for Pending status
+    color: "#607D8B"
   },
   "constraint_failed": {
     message: "Constraint Failed",
-    color: "#9C27B0" // Purple color for Constraint Failed status
+    color: "#9C27B0"
   },
   "error": {
     message: "Error",
-    color: "#FF5722" // Deep Orange color for Error status
+    color: "#FF5722"
+  },
+  "rejected": {
+    message: "Rejected",
+    color: "#FF5722"
   }
 }
 

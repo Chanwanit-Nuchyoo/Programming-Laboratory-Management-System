@@ -1204,4 +1204,19 @@ class Supervisor_rest extends MY_RestController
 			return $this->handleError($e);
 		}
 	}
+
+	public function cancleStudentSubmission_post()
+	{
+		try {
+			$submission_id = $this->post('submission_id');
+			$status = $this->lab_model_rest->cancle_student_submission($submission_id);
+
+			$this->response([
+				'status' => TRUE,
+				'message' => 'Submission canceled successfully',
+			], RestController::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
+		}
+	}
 }
