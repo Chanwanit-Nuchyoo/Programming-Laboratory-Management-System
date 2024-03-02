@@ -4,7 +4,8 @@ import { useParams } from 'react-router-dom';
 import { addStudent } from '@/utils/api';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getBreadCrumbs } from '@/utils/api';
-import React, { useState, useMemo } from 'react';
+import { ABS_INS_URL } from "@/utils/constants/routeConst"
+import { useState, useMemo } from 'react';
 // components
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs'
 import Header from "@/components/_shared/Header"
@@ -45,7 +46,9 @@ const AddStudent = () => {
         <MyBreadCrumbs items={[
 
           { label: 'My Groups', href: '/ins' },
-          { label: `Group ${!isBcLoading ? bc.group_no : "..."} `, href: '#' },
+          { label: `Group ${!isBcLoading ? bc.group_no : "..."} `, href: ABS_INS_URL.DYNAMIC.GROUP(groupId) },
+          { label: 'Student List', href: ABS_INS_URL.DYNAMIC.STUDENT_LIST(groupId) },
+          { label: 'Add Student', href: '#' }
         ]} />
 
         <Header logoSrc={blueFolder} title={`Group ${!isBcLoading ? bc.group_no : "..."}`} />

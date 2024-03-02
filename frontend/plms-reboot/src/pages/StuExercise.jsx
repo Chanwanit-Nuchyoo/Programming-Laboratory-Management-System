@@ -107,8 +107,8 @@ const StuExercise = () => {
     />
     <Stack spacing={"20px"} height={"calc(100% - 96px)"} position={"absolute"} sx={{ width: "calc(100% - 64px)" }} >
       <MyBreadCrumbs items={[
-        { label: 'Exercise List', href: '#' },
-        !exerciseQuery.isError && { label: `Item ${itemId}: ${!exerciseQuery.isLoading && exerciseQuery.data.lab_name}`, href: '#' },
+        { label: 'Exercise List', href: ABS_STU_URL.STATIC.EXERCISE_LIST },
+        !exerciseQuery.isError && { label: `Chapter ${chapterId} Item ${itemId}: ${!exerciseQuery.isLoading && exerciseQuery.data.lab_name}`, href: '#' },
       ]} />
 
       <FormProvider {...methods} >

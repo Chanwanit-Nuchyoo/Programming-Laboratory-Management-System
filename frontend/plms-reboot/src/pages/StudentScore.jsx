@@ -1,10 +1,10 @@
 import { Box, Container, Stack } from "@mui/material"
 import ExerciseChapterList from "@/components/_shared/ExerciseChapterList"
 import folderIcon from '@/assets/images/foldericon.svg'
-import avatarPlaceHolder from "@/assets/images/avatarplaceholder.svg"
 import { getChapterList, getBreadCrumbs } from "@/utils/api"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "react-router-dom"
+import { ABS_INS_URL } from "@/utils/constants/routeConst"
 
 // components
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs'
@@ -30,11 +30,12 @@ const StudentScore = () => {
     <Box>
       <Container>
         <Stack spacing={"20px"} >
-          <MyBreadCrumbs
-            items={[
-              { label: "My Groups", href: "/ins" },
-            ]}
-          />
+          <MyBreadCrumbs items={[
+            { label: 'My Groups', href: '#' },
+            { label: isBreadcrumbLoading ? 'Group ...' : `Group ${breadCrumbsData.group_no}`, href: ABS_INS_URL.DYNAMIC.GROUP(groupId) },
+            { label: 'Student List', href: ABS_INS_URL.DYNAMIC.STUDENT_LIST(groupId) },
+            { label: studentId, href: "#" }
+          ]} />
 
           <Header logoSrc={folderIcon} title={isBreadcrumbLoading ? "Group ... (Student)" : `Group ${breadCrumbsData.group_no} (Student)`} />
 
