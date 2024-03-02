@@ -1,10 +1,11 @@
-import { Container, Stack, Skeleton, Box, Typography } from "@mui/material";
+import { Container, Stack, Skeleton, Box, Typography,Button } from "@mui/material";
 import slideShow from '@/assets/images/slideshowicon.svg';
 import { useSetAtom, useAtom } from "jotai";
 import { sidebarSelectedAtom, serverTimeOffsetAtom } from "@/store/store";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-
+import { ABS_INS_URL } from "@/utils/constants/routeConst";
+import { Link } from "react-router-dom";
 // components
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs';
 import Header from '@/components/_shared/Header';
@@ -29,7 +30,12 @@ function MyGroups() {
     <Container>
       <Stack spacing="20px">
         <MyBreadCrumbs items={items} />
-        <Header logoSrc={slideShow} title="My Groups" />
+        <div style={{display: 'flex', gap:"10px", alignItems:"center"}}>
+          <Header logoSrc={slideShow} title="My Groups"/>
+          <Link to={ABS_INS_URL.STATIC.ADDGROUP}>
+            <Button variant="contained" type="button">Add Group</Button>
+          </Link>
+        </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: "10px", width: '100%', flexDirection: "row", justifyContent: "flex-start" }}>
 
 

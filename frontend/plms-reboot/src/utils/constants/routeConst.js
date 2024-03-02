@@ -14,6 +14,7 @@ export const ABS_INS_URL = {
     "INSTRUCTION": `${PREFIX[USER_ROLES.SUPERVISOR]}/instruction`,
     "EXAMINATION": `${PREFIX[USER_ROLES.SUPERVISOR]}/examination`,
     "FAQ": `${PREFIX[USER_ROLES.SUPERVISOR]}/faq`,
+    "ADDGROUP": `${PREFIX[USER_ROLES.SUPERVISOR]}/addgroup`,
   },
   "DYNAMIC": {
     "GROUP": (groupId = ":groupId") =>
@@ -45,6 +46,7 @@ export const REL_INS_URL = {
     "INSTRUCTION": `instruction`,
     "EXAMINATION": `examination`,
     "FAQ": `faq`,
+    "ADDGROUP": `addgroup`,
   },
   "DYNAMIC": {
     "GROUP": (groupId = ":groupId") =>
