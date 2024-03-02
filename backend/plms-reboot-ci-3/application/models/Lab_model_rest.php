@@ -925,7 +925,25 @@ class Lab_model_rest extends CI_Model
 
 		return $query;
 	}
+	public function group_add($group_data)
+	{
+		$table = 'class_schedule';
+		
+		// Check if group_id and group_no exist in $group_data
+		if (isset($group_data['group_id']) && isset($group_data['group_no'])) {
+			$this->db->where('group_id', $group_data['group_id']);
+			$this->db->where('group_no', $group_data['group_no']);
+			$query = $this->db->get($table);
 
+			// If group_id and group_no do not exist, insert the new group_data
+			if ($query->num_rows() < 1) {
+				$this->db->insert($table, $group_data);
+			}
+		}
+		
+		// Return the post data
+		return $group_data;
+	}
 	public function exercise_testcase_add($exercise_id)
 	{
 		$table = 'exercise_testcase';
@@ -1037,6 +1055,8 @@ class Lab_model_rest extends CI_Model
 		return $query;
 	}
 
+
+
 	public function get_students_by_group_id($stu_group_id)
 	{
 		$this->db->select('*')
@@ -1083,6 +1103,8 @@ class Lab_model_rest extends CI_Model
 
 		return $result;
 	}
+
+
 
 	public function get_count_of_students($stu_group_id)
 	{

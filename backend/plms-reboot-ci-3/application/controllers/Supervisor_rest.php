@@ -1219,4 +1219,37 @@ class Supervisor_rest extends MY_RestController
 			return $this->handleError($e);
 		}
 	}
+	public function createGroup_post() {
+		$postData = $this->post();
+		print_r($postData);
+		$group_data = array(
+			'group_id' => $postData['group_id'],
+			'group_no' => $postData['group_no'],
+			'group_name' => $postData['group_name'],
+			'department' => $postData['department'],
+			'lecturer' => $postData['lecturer'],
+			'day_of_week' => $postData['day_of_week'],
+			'time_start' => $postData['time_start'],
+			'time_end' => $postData['time_end'],
+			'year' => $postData['year'],
+			'semester' => $postData['semester'],
+			'allow_upload_pic' => "yes",
+			'allow_submit' => "yes",
+			'allow_login' => "yes",
+			'allow_exercise' => "yes",
+			
+		);
+		print_r($postData);
+		$this->load->model('lab_model_rest');
+		$data = $this->lab_model_rest->group_add($group_data);
+		$this->lab_model_rest->create_selected_exercise_for_group($postData['group_id']);
+		$this->lab_model_rest->assign_group_item($postData['group_id']);
+		$this->set_default_for_group_permission($postData['group_id']);
+		
+		$this->response([
+			'status' => TRUE,
+			'message' => 'Group created successfully',
+			'group_id' => $data,
+		], RestController::HTTP_OK);
+	}
 }
