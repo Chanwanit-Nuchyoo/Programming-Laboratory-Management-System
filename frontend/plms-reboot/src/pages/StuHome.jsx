@@ -5,13 +5,16 @@ import StudentInfoCard from "@/components/Home/StudentInfoCard"
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import Assignments from "@/components/Home/Assignments"
 import ComputerEng from "@/assets/images/logologin.svg"
-import happyCoding from "@/assets/images/happycoding.png" 
+import happyCoding from "@/assets/images/happycoding.png"
 import { useAtomValue, useSetAtom } from "jotai"
 import { userAtom, sidebarSelectedAtom } from "@/store/store"
+import { useNavigate } from "react-router-dom";
+import { ABS_STU_URL } from "@/utils/constants/routeConst"
 
 const StuHome = () => {
   const user = useAtomValue(userAtom)
   const setSelected = useSetAtom(sidebarSelectedAtom);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setSelected('stu_home');
@@ -25,7 +28,7 @@ const StuHome = () => {
             <Grid xs={12} md={8} >
               <Stack spacing={"20px"} >
                 <Box>
-                  <Typography style={{ fontSize: '24px'}} >Wellcome to,</Typography>
+                  <Typography style={{ fontSize: '24px' }} >Wellcome to,</Typography>
                   <Typography color={"var(--cerulean)"} style={{ fontSize: '40px', fontWeight: 'bold' }} >Computer Programming Python.</Typography>
                 </Box>
                 <StudentInfoCard user={user} />
@@ -38,7 +41,7 @@ const StuHome = () => {
             </Grid>
           </Grid>
         </Box>
-        <Assignments />
+        {/* <Assignments /> */}
         <Stack direction="row" borderRadius="16px" overflow="hidden" bgcolor={"var(--biscay)"} >
           <Stack flex={1} justifyContent='center' alignItems='center' bgcolor="#133558" >
             <img src={happyCoding} alt="happy coding" />
@@ -49,7 +52,7 @@ const StuHome = () => {
               <Typography variant="h3" color="var(--cerulean)" >&quot;Learning by doing&quot;</Typography>
             </Stack>
             <Button variant="contained" sx={{ paddingX: "25px", alignmentBaseline: "baseline", height: "40px" }} endIcon={<KeyboardDoubleArrowRightIcon />} >
-              <Typography >Let&apos;s start doing exercises !</Typography>
+              <Typography onClick={() => { navigate(ABS_STU_URL.STATIC.EXERCISE_LIST) }} >Let&apos;s start doing exercises !</Typography>
             </Button>
           </Stack>
         </Stack>
