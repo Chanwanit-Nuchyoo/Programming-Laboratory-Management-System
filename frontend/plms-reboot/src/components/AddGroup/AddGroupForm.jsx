@@ -144,8 +144,8 @@ const AddGroupForm = ({defaultValue}) => {
           {renderTextField(`group_name`, "Group Name*", "text", { required: 'Group name is required' }, false)}
         </Stack>
         <Stack direction={'row'} spacing="10px" sx={{ mb: 2 }}>
-          {renderTextField(`group_id`, "GroupId*", "text", { required: 'groupId is required' }, false)}
-          {renderTextField(`group_no`, "Group No*", "text", { required: 'Group No is required' }, false)}
+        {renderTextField(`group_id`, "GroupId*", "text", { required: 'groupId is required', pattern: { value: /^[0-9]{8}$/, message: 'GroupId must be exactly 8 digits' } }, false)}
+        {renderTextField(`group_no`, "Group No*", "text", { required: 'Group No is required', pattern: { value: /^[0-9]*$/, message: 'Only numbers are allowed' } }, false)}
         </Stack>
         <Stack direction={'row'} spacing="10px" sx={{ mb: 2 }}>
         {isDepLoading ? (<p>Loading...</p>) : (
@@ -159,7 +159,7 @@ const AddGroupForm = ({defaultValue}) => {
           {renderTimePicker(`time_end`, "TimeEnd", { required: 'time_end is required' }, false)}
         </Stack>
         <Stack direction={'row'} spacing="10px" sx={{ mb: 2 }}>
-          {renderTextField(`year`, "Year*", "text", { required: 'Department is required' }, false)}
+          {renderTextField(`year`, "Year*", "text", { required: 'Year is required', pattern: { value: /^[0-9]{4}$/, message: 'Year must be exactly 4 digits' } }, false)}
           {renderSelectField(`semester`, "Semester", [1, 2, 3], { required: 'Semester is required' }, false,
           "semester","semester-label")}
         </Stack>
