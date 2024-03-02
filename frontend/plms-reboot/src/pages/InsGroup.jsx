@@ -1,10 +1,12 @@
-import { Box, Button, Container, Stack, Skeleton } from "@mui/material"
+import { Box, Container, Stack, Skeleton } from "@mui/material"
 import folderIcon from '@/assets/images/foldericon.svg';
 import { useParams } from "react-router-dom"
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import useOnlineStudentsList from "@/hooks/useOnlineStudentsList";
 import useGroupDataQuery from "@/hooks/useGroupDataQuery";
 import useGroupChapterPermissionQuery from "@/hooks/useGroupChapterPermissionQuery";
+import { useSetAtom } from "jotai";
+import { sidebarSelectedAtom } from "@/store/store";
 
 import Header from "@/components/_shared/Header"
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs'
@@ -16,8 +18,12 @@ import GroupLabsTable from "@/components/InsGroupPage/GroupLabsTable";
 const InsGroup = () => {
   const { groupId } = useParams();
   const onlineStudentsList = useOnlineStudentsList(groupId);
+  const setSelected = useSetAtom(sidebarSelectedAtom);
 
-  // TODO: Do something with this later
+  useEffect(() => {
+    setSelected('my_groups');
+  }, []);
+
   const { data: groupData, isLoading: isClassLoading } = useGroupDataQuery(groupId);
 
   const { data: labData, isLoading: isLabChapterLoading } = useGroupChapterPermissionQuery(groupId);

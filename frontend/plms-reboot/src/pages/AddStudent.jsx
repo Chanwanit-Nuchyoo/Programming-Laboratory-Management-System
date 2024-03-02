@@ -5,7 +5,10 @@ import { addStudent } from '@/utils/api';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getBreadCrumbs } from '@/utils/api';
 import { ABS_INS_URL } from "@/utils/constants/routeConst"
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSetAtom } from "jotai";
+import { sidebarSelectedAtom } from "@/store/store";
+
 // components
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs'
 import Header from "@/components/_shared/Header"
@@ -21,6 +24,11 @@ const placeholder = `Copy from Excel and paste here
 const AddStudent = () => {
   const { groupId } = useParams();
   const [student_data, setStudentData] = useState('');
+  const setSelected = useSetAtom(sidebarSelectedAtom);
+
+  useEffect(() => {
+    setSelected('my_groups');
+  }, []);
 
   const breadCrumbsId = useMemo(() => {
     return {

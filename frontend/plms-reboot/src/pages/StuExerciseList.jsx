@@ -14,7 +14,6 @@ const StuExerciseList = () => {
   const [user] = useAtom(userAtom)
   const setSelected = useSetAtom(sidebarSelectedAtom);
   const [examChapters, setExamChapters] = useState(null);
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     setSelected('stu_exercise_list');

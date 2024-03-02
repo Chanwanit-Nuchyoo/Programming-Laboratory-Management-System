@@ -3,8 +3,8 @@ import Split from 'react-split'
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { getStudentAssignedExercise, getStudentSubmissionList } from '@/utils/api'
 import { useParams } from "react-router-dom"
-import { useAtom } from "jotai"
-import { userAtom, serverTimeOffsetAtom } from "@/store/store"
+import { useAtom, useSetAtom } from "jotai"
+import { userAtom, sidebarSelectedAtom } from "@/store/store"
 import { useEffect, useState, useMemo, useCallback } from "react"
 import { useForm, FormProvider } from "react-hook-form";
 import useSubmittable from '@/hooks/useSubmittable';
@@ -23,12 +23,14 @@ const StuExercise = () => {
   const { chapterId, itemId, groupId } = useParams();
   const [selectedTab, setSelectedTab] = useState(0);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
+  const setSelected = useSetAtom(sidebarSelectedAtom);
   const [shouldShowLatestSubmission, setShouldShowLatestSubmission] = useState(false);
-  const [serverTimeOffset] = useAtom(serverTimeOffsetAtom)
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   useEffect(() => {
+    setSelected('stu_exercise_list');
+
     return () => {
       queryClient.removeQueries(['chapter-permission', groupId]);
     };

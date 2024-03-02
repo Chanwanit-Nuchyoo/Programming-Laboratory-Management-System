@@ -8,10 +8,18 @@ import { useParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getLabChapterInfo, updateAllGroupAssignedChapterItem } from "@/utils/api"
 import { useEffect, useState } from 'react';
+import { useSetAtom } from "jotai";
+import { sidebarSelectedAtom } from "@/store/store";
 
 const Chapter = () => {
   const queryClient = useQueryClient();
   const { groupId, chapterId } = useParams();
+  const setSelected = useSetAtom(sidebarSelectedAtom);
+
+  useEffect(() => {
+    setSelected('my_groups');
+  }, []);
+
   const { data: labChapterInfo, isPending } = useQuery({
     queryKey: ['labChapterInfo', groupId, chapterId],
     queryFn: ({ queryKey }) => getLabChapterInfo(queryKey[1], queryKey[2]),
