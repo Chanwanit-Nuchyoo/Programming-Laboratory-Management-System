@@ -4,19 +4,29 @@ import { Controller, useForm ,FormProvider} from "react-hook-form";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllDepartment } from "@/utils/api";
-import { createGroup } from "@/utils/api";
+import { editGroup } from "@/utils/api";
 import { useAtom } from "jotai";
 import { userAtom } from "@/store/store";
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
 import { ABS_INS_URL } from "@/utils/constants/routeConst";
 
 const AddGroupForm = ({form}) => {
+  if (form) {
+    if (form.time_start) {
+      form.time_start = moment(form.time_start, 'HH:mm:ss');
+    }
+    if (form.time_end) {
+      form.time_end = moment(form.time_end, 'HH:mm:ss');
+    }
+  }
   const navigate = useNavigate();
-  const { control, handleSubmit, formState: { errors } ,reset} = useForm();
+  const { control, handleSubmit, formState: { errors } ,reset} = useForm({
+    defaultValues: form
+  });
   const [user] = useAtom(userAtom);
   const queryClient = useQueryClient();
-  
   const boxStyle = {
     padding: "20px",
     border: "1px solid var(--raven)",
@@ -29,16 +39,17 @@ const AddGroupForm = ({form}) => {
     queryFn: getAllDepartment,
   })
 
-  const {mutate :createGroupMutation} = useMutation({
-    mutationFn:createGroup,
+  const {mutate :editGroupMutation} = useMutation({
+    mutationFn:editGroup,
     onSuccess: () =>{
       queryClient.invalidateQueries('groupdata');
       navigate(ABS_INS_URL.STATIC.MY_GROUPS);
       reset();
     },
     onError: (err) => {
-      alert(err.response.data.message)
-    }
+        alert(err.response.data.message)
+        reset();
+      }
   })
 
   const renderTextField = (name, label, type = "text", rules = {}, disabled = false) => (
@@ -139,11 +150,11 @@ const AddGroupForm = ({form}) => {
 
   const onSubmit = (data) => {
     data.lecturer = user.id;
+    data.old_group_id = form.group_id;
     data.time_start = data.time_start.format('HH:mm:ss');
     data.time_end = data.time_end.format('HH:mm:ss');
-    createGroupMutation(data);
+    editGroupMutation(data);
   };
-
   return (
       <Box sx={boxStyle}>
         <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
@@ -169,10 +180,10 @@ const AddGroupForm = ({form}) => {
           {renderTextField(`year`, "Year*", "text", { required: 'Year is required', pattern: { value: /^[0-9]{4}$/, message: 'Year must be exactly 4 digits' } }, false)}
           {renderSelectField(`semester`, "Semester", [1, 2, 3], { required: 'Semester is required' }, false,
           "semester","semester-label")}
-        </Stack>
-        <Button type="submit" variant="contained" color="primary">
-          Submit
-        </Button>
+        </Stack>  
+            <Button type="submit" variant="contained" color="primary">
+            Submit
+            </Button>
         </form>
       </Box>
   );

@@ -4,6 +4,7 @@ import { dayColor } from "@/utils/constants/common";
 import { ABS_INS_URL } from "@/utils/constants/routeConst";
 import { Link } from "react-router-dom";
 import folderIcon from '@/assets/images/foldericon.svg';
+import EditIcon from '@mui/icons-material/Edit';
 
 const GroupCard = ({ id, groupNo, schedule, year, semester, department }) => {
   const day = schedule.split(",")[0];
@@ -22,9 +23,14 @@ const GroupCard = ({ id, groupNo, schedule, year, semester, department }) => {
         transition: "all ease-in-out 0.2s"
       }}>
         
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt="Folder Icon" src={folderIcon} sx={{ width: 32, height: 32, marginRight: '8px' }} />
-          <Typography fontSize="24px" color="white" style={{ marginBottom: '0', paddingBottom: '0' }}>Group {groupNo}</Typography>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px'}}>
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+                <Avatar alt="Folder Icon" src={folderIcon} sx={{ width: 32, height: 32, marginRight: '8px' }} />
+                <Typography fontSize="24px" color="white" style={{ marginBottom: '0', paddingBottom: '0' }}>Group {groupNo}</Typography>
+            </div>
+            <Link to={ABS_INS_URL.DYNAMIC.EDITGROUP(id)}>
+                <EditIcon/>
+            </Link>
         </div>
 
         <Box sx={{
