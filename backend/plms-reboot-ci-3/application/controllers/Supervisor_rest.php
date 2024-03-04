@@ -1224,7 +1224,7 @@ class Supervisor_rest extends MY_RestController
 		$postData = $this->post();
 		$group_id = $postData['group_id'];
 
-		$existingGroup = $this->lab_model_rest->get_class_schedule_by_group_id($group_id);
+		$existingGroup = $this->lab_model_rest->check_class_schedule_by_group_id($group_id);
         if ($existingGroup) {
             $this->response([
                 'status' => FALSE,
@@ -1281,7 +1281,7 @@ class Supervisor_rest extends MY_RestController
 		$postData = $this->post();
 		$group_id = $postData['group_id'];
 
-		$existingGroup = $this->lab_model_rest->get_class_schedule_by_group_id($group_id);
+		$existingGroup = $this->lab_model_rest->check_class_schedule_by_group_id($group_id);
         if ($existingGroup) {
             $this->response([
                 'status' => FALSE,
