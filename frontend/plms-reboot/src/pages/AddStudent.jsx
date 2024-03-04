@@ -8,7 +8,7 @@ import { ABS_INS_URL } from "@/utils/constants/routeConst"
 import { useState, useMemo, useEffect } from 'react';
 import { useSetAtom } from "jotai";
 import { sidebarSelectedAtom } from "@/store/store";
-
+import { redirect } from "react-router-dom";
 // components
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs'
 import Header from "@/components/_shared/Header"
@@ -25,7 +25,7 @@ const AddStudent = () => {
   const { groupId } = useParams();
   const [student_data, setStudentData] = useState('');
   const setSelected = useSetAtom(sidebarSelectedAtom);
-
+  
   useEffect(() => {
     setSelected('my_groups');
   }, []);
@@ -78,6 +78,8 @@ const AddStudent = () => {
             onClick={() => {
               AddStudentMutation({ student_data, group_id: groupId });
               setStudentData('');
+              console.log(ABS_INS_URL.STATIC.MY_GROUPS);
+              // history.push(ABS_INS_URL.STATIC.MY_GROUPS);
             }}>Submit</Button>
         </Stack>
 

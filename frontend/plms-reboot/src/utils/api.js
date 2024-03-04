@@ -344,3 +344,18 @@ export const createGroup = async (formData) => {
   )
   return res.data;
 }
+
+export const editGroup = async (formData) => {
+  const res = await axios.post(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/editGroup`,
+    formData,
+    { withCredentials: true }
+  )
+  return res.data;
+}
+
+export const getClassSchedule = async (group_id) => {
+  const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getClassSchedule?group_id=${group_id}`,
+    { withCredentials: true }
+  )
+  return data ;
+}
