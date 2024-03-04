@@ -1149,6 +1149,20 @@ class Lab_model_rest extends CI_Model
 		return $result;
 	}
 
+	public function check_class_schedule_by_group_id($group_id)
+	{
+
+		$this->db->select('*')
+			->from('class_schedule')
+			->join('user_supervisor', 'class_schedule.lecturer = user_supervisor.supervisor_id')
+			->join('department', 'class_schedule.department = department.dept_id')
+			->where('group_id', $group_id);
+
+		$query = $this->db->get();
+		$result = $query->first_row('array');
+
+		return $result;
+	}
 
 
 	public function get_count_of_students($stu_group_id)
