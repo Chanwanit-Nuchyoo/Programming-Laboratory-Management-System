@@ -1252,7 +1252,7 @@ class Supervisor_rest extends MY_RestController
 		);
 		$data = $this->lab_model_rest->group_add($group_data);
 		$this->lab_model_rest->create_selected_exercise_for_group($postData['group_id']);
-		$this->lab_model_rest->assign_group_item($postData['group_id']);
+		$this->lab_model_rest->assign_group_item_create_group($postData['group_id']);
 		$this->set_default_for_group_permission($postData['group_id']);
 		
 		$this->response([
