@@ -20,12 +20,13 @@ const EditGroup = () => {
             "group_name": classScheduleData.payload.group_name,
             "group_no": classScheduleData.payload.group_no,
             "department": classScheduleData.payload.department,
-            // "lecturer": classScheduleData.payload.group_id,
+            "lecturer": classScheduleData.payload.lecturer,
             "day_of_week": classScheduleData.payload.day_of_week,
             "time_start": classScheduleData.payload.time_start,
             "time_end": classScheduleData.payload.time_end,
             "year": classScheduleData.payload.year,
             "semester": classScheduleData.payload.semester,
+            "staff_id": classScheduleData.payload.lab_staff.map(staff => staff.staff_id)
         };
         return (
             <Container>
