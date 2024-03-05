@@ -475,6 +475,10 @@ class Supervisor_rest extends MY_RestController
 
 			// commit transaction
 			$this->db->trans_complete();
+			$this->response([
+				'status' => TRUE,
+				'message' => 'updated All AssignedChapterItem successfully',
+			], RestController::HTTP_OK);
 		} catch (Exception $e) {
 			$this->db->trans_rollback();
 			return $this->handleError($e);
@@ -1283,38 +1287,34 @@ class Supervisor_rest extends MY_RestController
 	{
 		$postData = $this->post();
 		$group_id = $postData['group_id'];
-
-		$existingGroup = $this->lab_model_rest->check_class_schedule_by_group_id($group_id);
-		if ($existingGroup) {
+		try {
+		
+		$group_data = array(
+			'group_id' => $postData['group_id'],
+			'group_no' => $postData['group_no'],
+			'group_name' => $postData['group_name'],
+			'department' => $postData['department'],
+			'lecturer' => $postData['lecturer'],
+			'day_of_week' => $postData['day_of_week'],
+			'time_start' => $postData['time_start'],
+			'time_end' => $postData['time_end'],
+			'year' => $postData['year'],
+			'semester' => $postData['semester'],
+		);
+		$data = $this->lab_model_rest->edit_group($group_data);
+		if ($data === false){
 			$this->response([
 				'status' => FALSE,
-				'message' => 'Group with the given group Id already exists please try another group Id.',
+				'message' => 'Group not found',
 			], RestController::HTTP_BAD_REQUEST);
-			return;
-		}
-		try {
-
-			$group_data = array(
-				'old_group_id' => $postData['old_group_id'],
-				'group_id' => $postData['group_id'],
-				'group_no' => $postData['group_no'],
-				'group_name' => $postData['group_name'],
-				'department' => $postData['department'],
-				'lecturer' => $postData['lecturer'],
-				'day_of_week' => $postData['day_of_week'],
-				'time_start' => $postData['time_start'],
-				'time_end' => $postData['time_end'],
-				'year' => $postData['year'],
-				'semester' => $postData['semester'],
-			);
-			$data = $this->lab_model_rest->edit_group($group_data);
-			$this->response([
-				'status' => TRUE,
-				'message' => 'Group updated successfully',
-				'group_id' => $data,
-			], RestController::HTTP_OK);
-		} catch (Exception $e) {
-			return $this->handleError($e);
-		}
+			}
+		$this->response([
+			'status' => TRUE,
+			'message' => 'Group updated successfully',
+			'group_id' => $data,
+		], RestController::HTTP_OK);
+			} catch (Exception $e) {
+				return $this->handleError($e);
+			}
 	}
 }

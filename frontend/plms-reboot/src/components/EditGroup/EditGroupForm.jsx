@@ -150,7 +150,6 @@ const AddGroupForm = ({form}) => {
 
   const onSubmit = (data) => {
     data.lecturer = user.id;
-    data.old_group_id = form.group_id;
     data.time_start = data.time_start.format('HH:mm:ss');
     data.time_end = data.time_end.format('HH:mm:ss');
     editGroupMutation(data);
@@ -162,7 +161,7 @@ const AddGroupForm = ({form}) => {
           {renderTextField(`group_name`, "Group Name*", "text", { required: 'Group name is required' }, false)}
         </Stack>
         <Stack direction={'row'} spacing="10px" sx={{ mb: 2 }}>
-        {renderTextField(`group_id`, "GroupId*", "text", { required: 'groupId is required', pattern: { value: /^[0-9]{8}$/, message: 'GroupId must be exactly 8 digits' } }, false)}
+        {renderTextField(`group_id`, "GroupId*", "text", { required: 'groupId is required'}, true)}
         {renderTextField(`group_no`, "Group No*", "text", { required: 'Group No is required', pattern: { value: /^[0-9]*$/, message: 'Only numbers are allowed' } }, false)}
         </Stack>
         <Stack direction={'row'} spacing="10px" sx={{ mb: 2 }}>
