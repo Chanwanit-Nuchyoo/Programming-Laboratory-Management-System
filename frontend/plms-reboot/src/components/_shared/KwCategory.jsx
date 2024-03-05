@@ -23,7 +23,7 @@ const KwCategory = ({ title, editable, name, control, category, getValues, side,
     } else {
       setIsExpanded(false);
     }
-  }, [fields]);
+  }, [fields, category]);
 
   return <Accordion expanded={isExpanded} onChange={() => { setIsExpanded(prev => !prev) }} sx={{ borderRadius: "8px", overflow: "hidden" }} disableGutters>
     <AccordionSummary
@@ -35,7 +35,6 @@ const KwCategory = ({ title, editable, name, control, category, getValues, side,
     <AccordionDetails sx={{ bgcolor: side === "user_defined" ? "var(--hover)" : "" }} >
       <Stack>
         <Stack spacing={1} >
-
           {/* Suggested Keyword Constraints */}
           {side === "suggested" && fields.length !== 0 && fields?.map((rule, index) => (
             <SuggestedRule key={index} editable={editable} control={control} name={name} index={index} append={appendUserDefined} getValues={getValues} />

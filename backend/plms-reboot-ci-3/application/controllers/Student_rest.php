@@ -270,6 +270,11 @@ class Student_rest extends MY_RestController
       $inserted_row = $this->lab_model_rest->exercise_submission_add($submission);
 
       $testcase_list = $this->lab_model_rest->get_testcase_array($exercise_id);
+
+      $testcase_list = array_filter($testcase_list, function ($testcase) {
+        return isset($testcase['active']) && $testcase['active'] == 'yes';
+      });
+
       $exercise =  $this->lab_model_rest->get_exercise_by_id($exercise_id);
 
       try {
