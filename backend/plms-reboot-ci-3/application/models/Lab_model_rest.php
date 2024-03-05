@@ -948,43 +948,21 @@ class Lab_model_rest extends CI_Model
 	public function edit_group($group_data)
 	{
 		$table = 'class_schedule';
-		$old_group_id = $group_data['old_group_id'];
-		unset($group_data['old_group_id']);
-		print_r($group_data);
+		$group_id = $group_data['group_id'];
 		// Check if group_id exist in $group_data
 		if (isset($group_data['group_id'])) {
-			$this->db->where('group_id', $old_group_id);
+			$this->db->where('group_id', $group_id);
 			$query = $this->db->get($table);
 
 			// If group_id and group_no exist, update the group_data
 			if ($query->num_rows() > 0) {
-				echo "work";
-				$this->db->where('group_id',$old_group_id);
+				$this->db->where('group_id',$group_id);
 				$this->db->update($table, $group_data);
-
-				// Update the stu_group field in the user_student table
-				$this->db->set('stu_group', $group_data['group_id']);
-				$this->db->where('stu_group', $old_group_id);
-				$this->db->update('user_student');
-				
-				// Update the class_id field in the group_chapter_permission table
-				$this->db->set('class_id', $group_data['group_id']);
-				$this->db->where('class_id', $old_group_id);
-				$this->db->update('group_chapter_permission');
-			
-				// Update the group_id field in the group_assigned_exercise table
-				$this->db->set('group_id', $group_data['group_id']);
-				$this->db->where('group_id', $old_group_id);
-				$this->db->update('group_assigned_exercise');
-
-				// Update the group_id field in the group_assigned_chapter_item table
-				$this->db->set('group_id', $group_data['group_id']);
-				$this->db->where('group_id',$old_group_id);
-				$this->db->update('group_assigned_chapter_item');
 			}
-
+			else {
+				return false;
+			}
 		}
-		
 		// Return the post data
 		return $group_data;
 	}
