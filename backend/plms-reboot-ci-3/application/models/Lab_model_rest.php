@@ -1225,6 +1225,40 @@ class Lab_model_rest extends CI_Model
 		return $query->result_array();
 	}
 
+	public function assign_group_item_create_group($stu_group_id)
+{
+    $class_schedule = $this->get_class_schedule_by_group_id($stu_group_id);
+    for ($chapter_id = 1; $chapter_id <= $this->get_number_of_chapters(); $chapter_id++) {
+        for ($item_id = 1; $item_id <= 5; $item_id++) {
+            $this->db->where('group_id', $stu_group_id);
+            $this->db->where('chapter_id', $chapter_id);
+            $this->db->where('item_id', $item_id);
+            $query = $this->db->get('group_assigned_chapter_item');
+            $query = $query->first_row('array');
+            if (empty($query)) {
+                $status = 'closed';
+
+                $data = array(
+                    'group_id'			=>	$stu_group_id,
+                    'chapter_id'		=>	$chapter_id,
+                    'item_id'			=>	$item_id,
+                    'full_mark'			=>	2,
+                    'exercise_id_list'	=>	serialize([]),
+                    'time_start'		=>	$class_schedule['time_start'],
+                    'time_end'			=>	$class_schedule['time_end'],
+                    'status'			=>	$status
+                );
+                $query = $this->db->insert('group_assigned_chapter_item', $data);
+            }
+        }
+    }
+    $this->db->where('group_id', $stu_group_id);
+    $this->db->order_by('chapter_id');
+    $this->db->order_by('item_id');
+    $query = $this->db->get('group_assigned_chapter_item');
+    return $query->result_array();
+}
+
 	public function set_group_status_open($supervisor_id, $stu_group_id, $lab_no)
 	{
 		//check for supervisor access right
