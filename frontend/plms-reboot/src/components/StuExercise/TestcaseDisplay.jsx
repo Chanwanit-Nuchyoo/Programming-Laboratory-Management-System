@@ -5,9 +5,14 @@ import TerminalBlock from "@/components/_shared/TerminalBlock";
 
 const Testcase = ({ testcase, index }) => {
   return <Stack>
-    <Box padding={"10px"} bgcolor={"var(--biscay)"} borderRadius={"8px 8px 0px 0px"} >
+    <Stack direction="row" spacing="10px" alignItems="center" padding={"10px"} bgcolor={"var(--biscay)"} borderRadius={"8px 8px 0px 0px"} >
       <Typography>Testcase {index + 1}:</Typography>
-    </Box>
+      {testcase.active === "no" &&
+        <Box sx={{ display: "flex", alignItems: "center", padding: "2.5px 10px", bgcolor: "#e84736", borderRadius: "20px" }} >
+          <Typography>Not scored</Typography>
+        </Box>
+      }
+    </Stack>
 
     <TerminalBlock text={testcase.show_to_student === 'yes' ? testcase.testcase_output : "Hidden testcase"} hug="true" style={{ borderRadius: "0px 0px 8px 8px" }} />
   </Stack>

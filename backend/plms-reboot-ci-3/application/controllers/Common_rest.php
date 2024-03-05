@@ -233,6 +233,12 @@ class Common_rest extends MY_RestController
     $sourcecode = $this->post('sourcecode');
     $exercise_kw_list = $this->post('exercise_kw_list');
 
+    foreach ($exercise_kw_list as &$category) {
+      $category = array_filter($category, function ($kw) {
+        return isset($kw['active']) && $kw['active'] === true;
+      });
+    }
+
     if (empty($sourcecode) || empty($exercise_kw_list)) {
       return $this->response([
         'status' => 'failed',
