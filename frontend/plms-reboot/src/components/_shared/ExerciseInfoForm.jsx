@@ -170,7 +170,7 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
     if (onAddExercisePage) {
       return (
         <Stack direction="row" spacing={1}>
-          <Button disabled={!isValid} type='submit' variant="contained" size="medium"
+          <Button disabled={!isValid} onClick={handleSubmit(onSubmit)} variant="contained" size="medium"
             sx={{
               width: '120px',
               height: '40px',
@@ -193,7 +193,7 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
     } else if (editable) {
       return (
         <Stack direction="row" spacing={1}>
-          <Button disabled={!isValid || !isDirty} type='submit' variant="contained" size="medium"
+          <Button disabled={!isValid || !isDirty} onClick={handleSubmit(onSubmit)} variant="contained" size="medium"
             sx={{
               width: '120px',
               height: '40px',
@@ -283,7 +283,7 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} >
+    <form>
 
       <Stack sx={{ padding: '20px', bgcolor: 'var(--biscay)', borderRadius: '8px' }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">

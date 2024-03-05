@@ -1,15 +1,16 @@
-import { Stack, Typography, ToggleButtonGroup, ToggleButton, Button, Box, FormControl, InputLabel, Select, MenuItem } from "@mui/material"
+import { Stack, Typography, ToggleButtonGroup, ToggleButton, Button, Box, FormControl, InputLabel, Select, MenuItem, Modal } from "@mui/material"
 import CodeMirrorMerge from 'react-codemirror-merge';
 import { githubDark } from "@uiw/codemirror-theme-github"
 import { useEffect, useState } from "react";
 import { EditorView } from 'codemirror';
 import { EditorState } from '@codemirror/state';
 import { python } from '@codemirror/lang-python';
+import { modalStyle } from '@/utils';
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { cancleStudentSubmission } from "@/utils/api"
 import SubmissionInfo from "@/components/StuExercise/SubmissionInfo";
-
+import ErrorIcon from '@mui/icons-material/Error';
 
 const Original = CodeMirrorMerge.Original;
 const Modified = CodeMirrorMerge.Modified;
@@ -23,6 +24,7 @@ const SubmissionHistoryBox = ({ subHistory, isSubHistoryLoading }) => {
   const [singleSelected, setSingleSelected] = useState(0);
   const queryClient = useQueryClient();
   const { studentId, chapterId, itemId } = useParams();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!isSubHistoryLoading && subHistory.length > 0) {
@@ -231,9 +233,27 @@ const SubmissionHistoryBox = ({ subHistory, isSubHistoryLoading }) => {
                   </Select>
                 </FormControl>
                 {singleSelected !== null && subHistory[singleSelected].status === "accepted" &&
-                  <Button variant="contained" color="error" sx={{ width: "100px" }} onClick={handleReject} >
-                    Reject
-                  </Button>
+                  <>
+                    <Button variant="contained" color="error" onClick={() => setIsModalOpen(true)} sx={{ width: "100px" }} >
+                      Reject
+                    </Button>
+                    <Modal
+                      open={isModalOpen}
+                      onClose={() => setIsModalOpen(false)}
+                    >
+                      <Stack spacing="20px" sx={{ ...modalStyle, paddingY: "25px", minWidth: "500px" }} >
+                        <Stack direction="row" spacing="10px" alignItems="center" >
+                          <ErrorIcon sx={(theme) => ({ fontSize: '32px', color: theme.palette.error.main })} />
+                          <Typography variant='h5' color="error" sx={{ fontWeight: "bolder" }} >Reject Submission</Typography>
+                        </Stack>
+                        <Typography paddingX="20px" >Are you sure you want to reject this submission?</Typography>
+                        <Stack spacing="10px" direction="row" justifyContent="flex-end" >
+                          <Button variant='contained' color="error" sx={{ width: '80px' }} onClick={handleReject} >Yes</Button>
+                          <Button variant="outlined" onClick={() => setIsModalOpen(false)} sx={{ width: '80px' }} >No</Button>
+                        </Stack>
+                      </Stack>
+                    </Modal>
+                  </>
                 }
               </Stack>
             </Box>
