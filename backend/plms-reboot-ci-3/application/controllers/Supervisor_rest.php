@@ -1329,13 +1329,23 @@ class Supervisor_rest extends MY_RestController
 	public function addLabStaff($staff_ids, $group_id)
 	{
 		$staff_data_array = [];
-		foreach ($staff_ids as $staff_id) {
+
+		if (empty($staff_ids)) {
 			$staff_data = array(
-				'staff_id' => $staff_id,
+				'staff_id' => '',
 				'class_id' => $group_id,
 			);
 			$staff_data_array[] = $staff_data;
+		} else {
+			foreach ($staff_ids as $staff_id) {
+				$staff_data = array(
+					'staff_id' => $staff_id,
+					'class_id' => $group_id,
+				);
+				$staff_data_array[] = $staff_data;
+			}
 		}
+
 		$this->lab_model_rest->set_staff($staff_data_array);
 	}
 }
