@@ -4,6 +4,7 @@ import { Controller, useForm ,FormProvider} from "react-hook-form";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllDepartment } from "@/utils/api";
+import { getAllLabStaff } from "@/utils/api";
 import { createGroup } from "@/utils/api";
 import { useAtom } from "jotai";
 import { userAtom } from "@/store/store";
@@ -28,6 +29,11 @@ const AddGroupForm = ({form}) => {
   const { data: departments, isLoading: isDepLoading } = useQuery({
     queryKey: ['departments'],
     queryFn: getAllDepartment,
+  })
+
+  const { data: AllLabStaffdata, isLoading: isStaffLoading } = useQuery({
+    queryKey: ['AllLabStaff'],
+    queryFn: getAllLabStaff,
   })
 
   const {mutate :createGroupMutation , isPending : createGroupPending} = useMutation({
@@ -136,6 +142,34 @@ const AddGroupForm = ({form}) => {
     />
   );
 
+  const renderMultipleSelectField = (name, label, options, rules = {}, disabled = false, id, labelId) => (
+    <Controller
+      name={name}
+      control={control}
+      rules={rules}
+      render={({ field }) => (
+        <FormControl sx={{ flex: 1 }}>
+          <InputLabel id={labelId}>{label}</InputLabel>
+          <Select
+            labelId={labelId}
+            id={id}
+            multiple
+            value={field.value || []}
+            onChange={e => field.onChange(e.target.value)}
+            disabled={disabled}
+            error={!!errors[name]}
+          >
+            {options.map((option, index) => (
+              <MenuItem key={index} value={option.supervisor_id}>
+                {option.supervisor_firstname} {option.supervisor_lastname}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
+    />
+  );
+
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   const onSubmit = (data) => {
@@ -144,7 +178,6 @@ const AddGroupForm = ({form}) => {
     data.time_end = data.time_end.format('HH:mm:ss');
     createGroupMutation(data);
   };
-
   return (
       <Box sx={boxStyle}>
         <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
@@ -171,7 +204,13 @@ const AddGroupForm = ({form}) => {
           {renderSelectField(`semester`, "Semester", [1, 2, 3], { required: 'Semester is required' }, false,
           "semester","semester-label")}
         </Stack>
-        <Button type="submit" variant="contained" color="primary" disabled ={createGroupPending} startIcon={createGroupPending && <CircularProgress size = {30}/>}>
+        <Stack direction={'row'} spacing="10px" sx={{ mb: 2 }}>
+        {isStaffLoading ? (<p>Loading...</p>) : (
+          renderMultipleSelectField(`staff_id`, "Staff", AllLabStaffdata.payload.lab_staff, {}, false,
+          "staff","staff-label")
+          )}
+        </Stack>
+        <Button type="submit" variant="contained" color="primary" disabled={createGroupPending} startIcon={createGroupPending && <CircularProgress size={30}/>}>
           {createGroupPending ? "Loading..." : "Submit"}
         </Button>
         </form>

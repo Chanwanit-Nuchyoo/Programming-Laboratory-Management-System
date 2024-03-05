@@ -171,6 +171,14 @@ export const getAllDepartment = async () => {
   return data;
 }
 
+export const getAllLabStaff = async () => {
+  const { data } = await axios.get(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getAllLabStaff`,
+    { withCredentials: true }
+  );
+  return data;
+}
+
 export const updateProfile = async (formData) => {
   const { data } = await axios.post(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/common_rest/updateProfile`,
@@ -359,3 +367,4 @@ export const getClassSchedule = async (group_id) => {
   )
   return data ;
 }
+

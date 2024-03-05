@@ -1077,6 +1077,57 @@ class Lab_model_rest extends CI_Model
 
 		return $query;
 	}
+	public function get_all_staff()
+	{
+		$this->db->select('*')
+				 ->from('user_supervisor');
+		$query = $this->db->get();
+		$query = $query->result_array();
+	
+		// Initialize $result as an empty array
+		$result = [];
+	
+		// Merge lab_staff to $result
+		$result['lab_staff'] = $query;
+	
+		return $result;
+	}
+
+	public function set_staff($staff_data)
+	{
+		// Get all staff_ids from the input data
+		$staff_ids = array_column($staff_data, 'staff_id');
+		
+		foreach ($staff_data as $data) {
+			// Check if the data already exists
+			$this->db->where('staff_id', $data['staff_id']);
+			$this->db->where('class_id', $data['class_id']);
+			$query = $this->db->get('class_lab_staff');
+	
+			// If the data does not exist, insert it
+			if ($query->num_rows() == 0) {
+				$this->db->insert('class_lab_staff', $data);
+			}
+		}
+		$this->db->where('class_id', $data['class_id']);
+		$this->db->where_not_in('staff_id', $staff_ids);
+		$this->db->delete('class_lab_staff');
+	}
+
+	public function class_lab_staff_add($data)
+	{
+		$table = 'class_lab_staff';
+		$this->db->where('staff_id', $data['staff_id']);
+		$this->db->where('class_id', $data['class_id']);
+		$query = $this->db->get($table);
+
+		if ($query->num_rows() == 0) {
+			$this->db->insert($table, $data);
+		} else {
+			// Optional: return a message if the data already exists
+			return false;
+		}
+	}
 
 
 

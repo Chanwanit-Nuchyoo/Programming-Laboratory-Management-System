@@ -1259,7 +1259,7 @@ class Supervisor_rest extends MY_RestController
 		$this->lab_model_rest->create_selected_exercise_for_group($postData['group_id']);
 		$this->lab_model_rest->assign_group_item_create_group($postData['group_id']);
 		$this->set_default_for_group_permission($postData['group_id']);
-		
+		$this ->addLabStaff($postData['staff_id'],$postData['group_id']);
 		$this->response([
 			'status' => TRUE,
 			'message' => 'Group created successfully',
@@ -1302,6 +1302,7 @@ class Supervisor_rest extends MY_RestController
 			'semester' => $postData['semester'],
 		);
 		$data = $this->lab_model_rest->edit_group($group_data);
+		$this ->addLabStaff($postData['staff_id'],$postData['group_id']);
 		if ($data === false){
 			$this->response([
 				'status' => FALSE,
@@ -1316,5 +1317,25 @@ class Supervisor_rest extends MY_RestController
 			} catch (Exception $e) {
 				return $this->handleError($e);
 			}
+	}
+	public function getAllLabStaff_get(){
+		$allStaff = $this->lab_model_rest->get_all_staff();
+		$this->response([
+			'status' => TRUE,
+			'message' => 'Staff fetched successfully',
+			'payload' => $allStaff,
+		], RestController::HTTP_OK);
+	}
+	public function addLabStaff($staff_ids, $group_id)
+	{
+		$staff_data_array = [];
+		foreach ($staff_ids as $staff_id) {
+			$staff_data = array(
+				'staff_id' => $staff_id,
+				'class_id' => $group_id,
+			);
+			$staff_data_array[] = $staff_data;
+		}
+		$this->lab_model_rest->set_staff($staff_data_array);
 	}
 }
