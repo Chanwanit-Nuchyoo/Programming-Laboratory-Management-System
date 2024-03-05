@@ -502,7 +502,7 @@ class Supervisor_rest extends MY_RestController
 
 				$lab_exercise['sourcecode_content'] = $sourcecode_content;
 			} else {
-				$lab_exercise['sourcecode_content'] = "Cannot find the file . . .";
+				$lab_exercise['sourcecode_content'] = "# Cannot find the file . . .";
 			}
 
 			$lab_exercise['sourcecode_output'] = $this->get_sourcecode_output_no_testcase($exercise_id);
@@ -632,7 +632,7 @@ class Supervisor_rest extends MY_RestController
 
 				$formdata['sourcecode_content'] = $sourcecode_content;
 			} else {
-				$formdata['sourcecode_content'] = "Cannot find the file . . .";
+				$formdata['sourcecode_content'] = "# Cannot find the file . . .";
 			}
 
 			$default_constraints = array(
@@ -1219,19 +1219,20 @@ class Supervisor_rest extends MY_RestController
 			return $this->handleError($e);
 		}
 	}
-	public function createGroup_post() {
+	public function createGroup_post()
+	{
 		try {
-		$postData = $this->post();
-		$group_id = $postData['group_id'];
+			$postData = $this->post();
+			$group_id = $postData['group_id'];
 
-		$existingGroup = $this->lab_model_rest->check_class_schedule_by_group_id($group_id);
-        if ($existingGroup) {
-            $this->response([
-                'status' => FALSE,
-                'message' => 'Group with the given group Id already exists please try another group Id.',
-            ], RestController::HTTP_BAD_REQUEST);
-            return;
-        }
+			$existingGroup = $this->lab_model_rest->check_class_schedule_by_group_id($group_id);
+			if ($existingGroup) {
+				$this->response([
+					'status' => FALSE,
+					'message' => 'Group with the given group Id already exists please try another group Id.',
+				], RestController::HTTP_BAD_REQUEST);
+				return;
+			}
 
 		$group_data = array(
 			'group_id' => $postData['group_id'],
@@ -1264,54 +1265,56 @@ class Supervisor_rest extends MY_RestController
 				return $this->handleError($e);
 			}
 	}
-	public function getClassSchedule_get() {
+	public function getClassSchedule_get()
+	{
 		try {
-		$group_id = $this->query('group_id');
-		$data = $this->lab_model_rest->get_class_schedule_by_group_id($group_id);
-		$this->response([
-			'status' => TRUE,
-			'message' => 'Class schedule fetched successfully',
-			'payload' => $data,
-		], RestController::HTTP_OK);
+			$group_id = $this->query('group_id');
+			$data = $this->lab_model_rest->get_class_schedule_by_group_id($group_id);
+			$this->response([
+				'status' => TRUE,
+				'message' => 'Class schedule fetched successfully',
+				'payload' => $data,
+			], RestController::HTTP_OK);
 		} catch (Exception $e) {
 			return $this->handleError($e);
 		}
 	}
-	public function editGroup_post() {
+	public function editGroup_post()
+	{
 		$postData = $this->post();
 		$group_id = $postData['group_id'];
 
 		$existingGroup = $this->lab_model_rest->check_class_schedule_by_group_id($group_id);
-        if ($existingGroup) {
-            $this->response([
-                'status' => FALSE,
-                'message' => 'Group with the given group Id already exists please try another group Id.',
-            ], RestController::HTTP_BAD_REQUEST);
-            return;
-        }
+		if ($existingGroup) {
+			$this->response([
+				'status' => FALSE,
+				'message' => 'Group with the given group Id already exists please try another group Id.',
+			], RestController::HTTP_BAD_REQUEST);
+			return;
+		}
 		try {
-		
-		$group_data = array(
-			'old_group_id' => $postData['old_group_id'],
-			'group_id' => $postData['group_id'],
-			'group_no' => $postData['group_no'],
-			'group_name' => $postData['group_name'],
-			'department' => $postData['department'],
-			'lecturer' => $postData['lecturer'],
-			'day_of_week' => $postData['day_of_week'],
-			'time_start' => $postData['time_start'],
-			'time_end' => $postData['time_end'],
-			'year' => $postData['year'],
-			'semester' => $postData['semester'],
-		);
-		$data = $this->lab_model_rest->edit_group($group_data);
-		$this->response([
-			'status' => TRUE,
-			'message' => 'Group updated successfully',
-			'group_id' => $data,
-		], RestController::HTTP_OK);
-			} catch (Exception $e) {
-				return $this->handleError($e);
-			}
+
+			$group_data = array(
+				'old_group_id' => $postData['old_group_id'],
+				'group_id' => $postData['group_id'],
+				'group_no' => $postData['group_no'],
+				'group_name' => $postData['group_name'],
+				'department' => $postData['department'],
+				'lecturer' => $postData['lecturer'],
+				'day_of_week' => $postData['day_of_week'],
+				'time_start' => $postData['time_start'],
+				'time_end' => $postData['time_end'],
+				'year' => $postData['year'],
+				'semester' => $postData['semester'],
+			);
+			$data = $this->lab_model_rest->edit_group($group_data);
+			$this->response([
+				'status' => TRUE,
+				'message' => 'Group updated successfully',
+				'group_id' => $data,
+			], RestController::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
+		}
 	}
 }
