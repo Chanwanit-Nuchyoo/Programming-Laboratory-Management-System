@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Box, TextField, Stack } from "@mui/material";
+import { Button, Box, TextField, Stack, CircularProgress } from "@mui/material";
 import { Controller, useForm ,FormProvider} from "react-hook-form";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -39,7 +39,7 @@ const AddGroupForm = ({form}) => {
     queryFn: getAllDepartment,
   })
 
-  const {mutate :editGroupMutation} = useMutation({
+  const {mutate :editGroupMutation ,isPending:editGroupPending} = useMutation({
     mutationFn:editGroup,
     onSuccess: () =>{
       queryClient.invalidateQueries('groupdata');
@@ -180,9 +180,9 @@ const AddGroupForm = ({form}) => {
           {renderSelectField(`semester`, "Semester", [1, 2, 3], { required: 'Semester is required' }, false,
           "semester","semester-label")}
         </Stack>  
-            <Button type="submit" variant="contained" color="primary">
-            Submit
-            </Button>
+        <Button type="submit" variant="contained" color="primary" disabled ={editGroupPending} startIcon={editGroupPending && <CircularProgress size = {30}/>}>
+          {editGroupPending ? "Loading..." : "Submit"}
+        </Button>
         </form>
       </Box>
   );

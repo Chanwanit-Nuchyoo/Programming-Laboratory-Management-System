@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Box, TextField, Stack } from "@mui/material";
+import { Button, Box, TextField, Stack, CircularProgress  } from "@mui/material";
 import { Controller, useForm ,FormProvider} from "react-hook-form";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -10,6 +10,7 @@ import { userAtom } from "@/store/store";
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { useNavigate } from 'react-router-dom';
 import { ABS_INS_URL } from "@/utils/constants/routeConst";
+
 
 const AddGroupForm = ({form}) => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const AddGroupForm = ({form}) => {
     queryFn: getAllDepartment,
   })
 
-  const {mutate :createGroupMutation} = useMutation({
+  const {mutate :createGroupMutation , isPending : createGroupPending} = useMutation({
     mutationFn:createGroup,
     onSuccess: () =>{
       queryClient.invalidateQueries('groupdata');
@@ -170,8 +171,8 @@ const AddGroupForm = ({form}) => {
           {renderSelectField(`semester`, "Semester", [1, 2, 3], { required: 'Semester is required' }, false,
           "semester","semester-label")}
         </Stack>
-        <Button type="submit" variant="contained" color="primary">
-          Submit
+        <Button type="submit" variant="contained" color="primary" disabled ={createGroupPending} startIcon={createGroupPending && <CircularProgress size = {30}/>}>
+          {createGroupPending ? "Loading..." : "Submit"}
         </Button>
         </form>
       </Box>
