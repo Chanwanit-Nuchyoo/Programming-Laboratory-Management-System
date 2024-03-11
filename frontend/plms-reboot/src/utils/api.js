@@ -7,8 +7,8 @@ export const getLabChapterInfo = async (groupId, labNo) => {
   return data.payload
 }
 
-export const getAllAvailableGroups = async () => {
-  const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getAllAvailableGroups?year=${import.meta.env.VITE_YEAR}`, { withCredentials: true });
+export const getAllAvailableGroups = async (queryString) => {
+  const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getAllAvailableGroups?${queryString}`, { withCredentials: true });
   return data.payload
 }
 
@@ -365,6 +365,6 @@ export const getClassSchedule = async (group_id) => {
   const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/getClassSchedule?group_id=${group_id}`,
     { withCredentials: true }
   )
-  return data ;
+  return data;
 }
 

@@ -45,8 +45,9 @@ class Supervisor_rest extends MY_RestController
 			}
 
 			$this->update_last_seen();
-			$year = $this->query('year');
+
 			$class_schedule = $this->supervisor_model_rest->get_class_schedule();
+			$instructor_list = $this->supervisor_model_rest->get_all_instructor_list();
 
 			for ($i = 0; $i < sizeof($class_schedule); $i++) {
 				$group_id = $class_schedule[$i]['group_id'];
@@ -57,7 +58,47 @@ class Supervisor_rest extends MY_RestController
 				$class_schedule[$i]['lecturer_name'] = $lecturer;
 			}
 
-			$data = $class_schedule;
+			// get unique year from $original_class_schedule array
+			$year_list = array_unique(array_column($class_schedule, 'year'));
+			// Reindex the keys of the array
+			$year_list = array_values($year_list);
+			sort($year_list);
+
+			// turn string to array by splitting ,
+			$year = $this->query('year') !== '' ? explode(',', $this->query('year')) : [];
+			$semester = $this->query('sem') !== '' ? explode(',', $this->query('sem')) : [];
+			$day = $this->query('day') !== '' ? explode(',', $this->query('day')) : [];
+			$instructor = $this->query('ins') !== '' ? explode(',', $this->query('ins')) : [];
+
+			// filter the array based on the query parameters if they exist
+			$class_schedule = array_filter($class_schedule, function ($class) use ($year, $semester, $day, $instructor) {
+				return (empty($year) || in_array((string)$class['year'], $year)) &&
+					(empty($semester) || in_array((string)$class['semester'], $semester)) &&
+					(empty($day) || in_array((string)$class['day_of_week'], $day)) &&
+					(empty($instructor) || in_array((string)$class['lecturer_name'], $instructor));
+			});
+
+			// pagination
+			$per_page = $this->query('perPage') ? $this->query('perPage') : 10;
+			$page = $this->query('page');
+
+			if (isset($page)) {
+				$offset = ($page - 1) * $per_page;
+				$paginated_list = array_slice($class_schedule, $offset, $per_page);
+				$filtered_list_size =  sizeof($class_schedule);
+
+				$data = array(
+					'group_list' => $paginated_list,
+					'number_of_pages' => ceil($filtered_list_size / $per_page),
+					'current_page' => $page,
+					'per_page' => $per_page,
+				);
+			} else {
+				$data = array();
+			}
+
+			$data['instructor_list'] = $instructor_list;
+			$data['year_list'] = $year_list;
 
 			return $this->response([
 				'status' => TRUE,
@@ -1238,36 +1279,36 @@ class Supervisor_rest extends MY_RestController
 				return;
 			}
 
-		$group_data = array(
-			'group_id' => $postData['group_id'],
-			'group_no' => $postData['group_no'],
-			'group_name' => $postData['group_name'],
-			'department' => $postData['department'],
-			'lecturer' => $postData['lecturer'],
-			'day_of_week' => $postData['day_of_week'],
-			'time_start' => $postData['time_start'],
-			'time_end' => $postData['time_end'],
-			'year' => $postData['year'],
-			'semester' => $postData['semester'],
-			'allow_upload_pic' => "yes",
-			'allow_submit' => "yes",
-			'allow_login' => "yes",
-			'allow_exercise' => "yes",
-			
-		);
-		$data = $this->lab_model_rest->group_add($group_data);
-		$this->lab_model_rest->create_selected_exercise_for_group($postData['group_id']);
-		$this->lab_model_rest->assign_group_item_create_group($postData['group_id']);
-		$this->set_default_for_group_permission($postData['group_id']);
-		$this ->addLabStaff($postData['staff_id'],$postData['group_id']);
-		$this->response([
-			'status' => TRUE,
-			'message' => 'Group created successfully',
-			'group_id' => $data,
-		], RestController::HTTP_OK);
-			} catch (Exception $e) {
-				return $this->handleError($e);
-			}
+			$group_data = array(
+				'group_id' => $postData['group_id'],
+				'group_no' => $postData['group_no'],
+				'group_name' => $postData['group_name'],
+				'department' => $postData['department'],
+				'lecturer' => $postData['lecturer'],
+				'day_of_week' => $postData['day_of_week'],
+				'time_start' => $postData['time_start'],
+				'time_end' => $postData['time_end'],
+				'year' => $postData['year'],
+				'semester' => $postData['semester'],
+				'allow_upload_pic' => "yes",
+				'allow_submit' => "yes",
+				'allow_login' => "yes",
+				'allow_exercise' => "yes",
+
+			);
+			$data = $this->lab_model_rest->group_add($group_data);
+			$this->lab_model_rest->create_selected_exercise_for_group($postData['group_id']);
+			$this->lab_model_rest->assign_group_item_create_group($postData['group_id']);
+			$this->set_default_for_group_permission($postData['group_id']);
+			$this->addLabStaff($postData['staff_id'], $postData['group_id']);
+			$this->response([
+				'status' => TRUE,
+				'message' => 'Group created successfully',
+				'group_id' => $data,
+			], RestController::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
+		}
 	}
 	public function getClassSchedule_get()
 	{
@@ -1288,37 +1329,38 @@ class Supervisor_rest extends MY_RestController
 		$postData = $this->post();
 		$group_id = $postData['group_id'];
 		try {
-		
-		$group_data = array(
-			'group_id' => $postData['group_id'],
-			'group_no' => $postData['group_no'],
-			'group_name' => $postData['group_name'],
-			'department' => $postData['department'],
-			'lecturer' => $postData['lecturer'],
-			'day_of_week' => $postData['day_of_week'],
-			'time_start' => $postData['time_start'],
-			'time_end' => $postData['time_end'],
-			'year' => $postData['year'],
-			'semester' => $postData['semester'],
-		);
-		$data = $this->lab_model_rest->edit_group($group_data);
-		$this ->addLabStaff($postData['staff_id'],$postData['group_id']);
-		if ($data === false){
+
+			$group_data = array(
+				'group_id' => $postData['group_id'],
+				'group_no' => $postData['group_no'],
+				'group_name' => $postData['group_name'],
+				'department' => $postData['department'],
+				'lecturer' => $postData['lecturer'],
+				'day_of_week' => $postData['day_of_week'],
+				'time_start' => $postData['time_start'],
+				'time_end' => $postData['time_end'],
+				'year' => $postData['year'],
+				'semester' => $postData['semester'],
+			);
+			$data = $this->lab_model_rest->edit_group($group_data);
+			$this->addLabStaff($postData['staff_id'], $postData['group_id']);
+			if ($data === false) {
+				$this->response([
+					'status' => FALSE,
+					'message' => 'Group not found',
+				], RestController::HTTP_BAD_REQUEST);
+			}
 			$this->response([
-				'status' => FALSE,
-				'message' => 'Group not found',
-			], RestController::HTTP_BAD_REQUEST);
-			}
-		$this->response([
-			'status' => TRUE,
-			'message' => 'Group updated successfully',
-			'group_id' => $data,
-		], RestController::HTTP_OK);
-			} catch (Exception $e) {
-				return $this->handleError($e);
-			}
+				'status' => TRUE,
+				'message' => 'Group updated successfully',
+				'group_id' => $data,
+			], RestController::HTTP_OK);
+		} catch (Exception $e) {
+			return $this->handleError($e);
+		}
 	}
-	public function getAllLabStaff_get(){
+	public function getAllLabStaff_get()
+	{
 		$allStaff = $this->lab_model_rest->get_all_staff();
 		$this->response([
 			'status' => TRUE,
