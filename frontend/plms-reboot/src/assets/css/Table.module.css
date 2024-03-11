@@ -44,3 +44,7 @@
   border-bottom-right-radius: 8px;
   border-top-right-radius: 8px;
 }
+
+.hoverable:hover {
+  background-color: var(--hover);
+}

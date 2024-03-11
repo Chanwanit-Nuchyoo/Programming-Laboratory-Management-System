@@ -64,6 +64,13 @@ class Supervisor_model_rest extends CI_Model
 	} //public function update_supervisor_profile()
 
 
+	public function get_all_instructor_list()
+	{
+		$this->db->select('*');
+		$query = $this->db->get('user_supervisor');
+		return $query->result_array();
+	}
+
 	public function get_data()
 	{
 		return $this->_data;
