@@ -359,4 +359,11 @@ class Common_rest extends MY_RestController
       $this->handleError($e);
     }
   }
+
+  public function logAction_post()
+  {
+    $_SESSION['page_name'] = $this->post('page_name') ? $this->post('page_name') : 'none';
+    $action = $this->post('action') ? $this->post('action') : 'test';
+    $this->createLogFile($action);
+  }
 }

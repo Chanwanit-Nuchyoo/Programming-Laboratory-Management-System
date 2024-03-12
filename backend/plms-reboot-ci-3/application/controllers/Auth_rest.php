@@ -74,9 +74,14 @@ class Auth_rest extends MY_RestController
 
       // Validate the user's credentials
       $status = $this->auth->validate($username, $password);
-
       // Check if the username or password is invalid
       if ($status == ERR_INVALID_USERNAME || $status == ERR_INVALID_PASSWORD) {
+
+        $_SESSION['username'] = $username;
+        $_SESSION['page_name'] = 'login';
+
+        $this->createLogFile("username or password is not correct.");
+
         throw new Exception('Username or password is not correct.', RestController::HTTP_UNAUTHORIZED);
       }
 
@@ -135,6 +140,13 @@ class Auth_rest extends MY_RestController
       // Set the session data
       $this->session->set_userdata($this->auth->get_data());
       $this->session->set_userdata("logged_in", true);
+
+      $_SESSION['username'] = $user['username'];
+      $_SESSION['role'] = $user['role'];
+      $_SESSION['page_name'] = 'login';
+
+      // Log the logout event
+      $this->createLogFile("log in");
 
       $this->publishActionMessage($redis, $user, array(
         "action" => "login",

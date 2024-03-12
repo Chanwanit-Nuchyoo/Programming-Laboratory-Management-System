@@ -83,7 +83,7 @@ const WorkSpacePanel = ({ exerciseQuery, submitPermission, submissionList, selec
   });
 
   useEffect(() => {
-    if (!submissionList.isLoading && submissionList.value.length > 0) {
+    if (!submissionList.isLoading && submissionList.value && submissionList.value.length > 0) {
       const acceptedSubmission = submissionList.value.filter(submission => submission.status === "accepted");
       if (acceptedSubmission.length > 0) {
         setAlreadyPassed(true);

@@ -928,7 +928,7 @@ class Lab_model_rest extends CI_Model
 	public function group_add($group_data)
 	{
 		$table = 'class_schedule';
-		
+
 		// Check if group_id and group_no exist in $group_data
 		if (isset($group_data['group_id']) && isset($group_data['group_no'])) {
 			$this->db->where('group_id', $group_data['group_id']);
@@ -940,7 +940,7 @@ class Lab_model_rest extends CI_Model
 				$this->db->insert($table, $group_data);
 			}
 		}
-		
+
 		// Return the post data
 		return $group_data;
 	}
@@ -956,17 +956,16 @@ class Lab_model_rest extends CI_Model
 
 			// If group_id and group_no exist, update the group_data
 			if ($query->num_rows() > 0) {
-				$this->db->where('group_id',$group_id);
+				$this->db->where('group_id', $group_id);
 				$this->db->update($table, $group_data);
-			}
-			else {
+			} else {
 				return false;
 			}
 		}
 		// Return the post data
 		return $group_data;
 	}
-	
+
 	public function exercise_testcase_add($exercise_id)
 	{
 		$table = 'exercise_testcase';
@@ -1080,16 +1079,16 @@ class Lab_model_rest extends CI_Model
 	public function get_all_staff()
 	{
 		$this->db->select('*')
-				 ->from('user_supervisor');
+			->from('user_supervisor');
 		$query = $this->db->get();
 		$query = $query->result_array();
-	
+
 		// Initialize $result as an empty array
 		$result = [];
-	
+
 		// Merge lab_staff to $result
 		$result['lab_staff'] = $query;
-	
+
 		return $result;
 	}
 
@@ -1097,13 +1096,13 @@ class Lab_model_rest extends CI_Model
 	{
 		// Get all staff_ids from the input data
 		$staff_ids = array_column($staff_data, 'staff_id');
-		
+
 		foreach ($staff_data as $data) {
 			// Check if the data already exists
 			$this->db->where('staff_id', $data['staff_id']);
 			$this->db->where('class_id', $data['class_id']);
 			$query = $this->db->get('class_lab_staff');
-	
+
 			// If the data does not exist, insert it
 			if ($query->num_rows() == 0) {
 				$this->db->insert('class_lab_staff', $data);
@@ -1255,38 +1254,38 @@ class Lab_model_rest extends CI_Model
 	}
 
 	public function assign_group_item_create_group($stu_group_id)
-{
-    $class_schedule = $this->get_class_schedule_by_group_id($stu_group_id);
-    for ($chapter_id = 1; $chapter_id <= $this->get_number_of_chapters(); $chapter_id++) {
-        for ($item_id = 1; $item_id <= 5; $item_id++) {
-            $this->db->where('group_id', $stu_group_id);
-            $this->db->where('chapter_id', $chapter_id);
-            $this->db->where('item_id', $item_id);
-            $query = $this->db->get('group_assigned_chapter_item');
-            $query = $query->first_row('array');
-            if (empty($query)) {
-                $status = 'closed';
+	{
+		$class_schedule = $this->get_class_schedule_by_group_id($stu_group_id);
+		for ($chapter_id = 1; $chapter_id <= $this->get_number_of_chapters(); $chapter_id++) {
+			for ($item_id = 1; $item_id <= 5; $item_id++) {
+				$this->db->where('group_id', $stu_group_id);
+				$this->db->where('chapter_id', $chapter_id);
+				$this->db->where('item_id', $item_id);
+				$query = $this->db->get('group_assigned_chapter_item');
+				$query = $query->first_row('array');
+				if (empty($query)) {
+					$status = 'closed';
 
-                $data = array(
-                    'group_id'			=>	$stu_group_id,
-                    'chapter_id'		=>	$chapter_id,
-                    'item_id'			=>	$item_id,
-                    'full_mark'			=>	2,
-                    'exercise_id_list'	=>	serialize([]),
-                    'time_start'		=>	$class_schedule['time_start'],
-                    'time_end'			=>	$class_schedule['time_end'],
-                    'status'			=>	$status
-                );
-                $query = $this->db->insert('group_assigned_chapter_item', $data);
-            }
-        }
-    }
-    $this->db->where('group_id', $stu_group_id);
-    $this->db->order_by('chapter_id');
-    $this->db->order_by('item_id');
-    $query = $this->db->get('group_assigned_chapter_item');
-    return $query->result_array();
-}
+					$data = array(
+						'group_id'			=>	$stu_group_id,
+						'chapter_id'		=>	$chapter_id,
+						'item_id'			=>	$item_id,
+						'full_mark'			=>	2,
+						'exercise_id_list'	=>	serialize([]),
+						'time_start'		=>	$class_schedule['time_start'],
+						'time_end'			=>	$class_schedule['time_end'],
+						'status'			=>	$status
+					);
+					$query = $this->db->insert('group_assigned_chapter_item', $data);
+				}
+			}
+		}
+		$this->db->where('group_id', $stu_group_id);
+		$this->db->order_by('chapter_id');
+		$this->db->order_by('item_id');
+		$query = $this->db->get('group_assigned_chapter_item');
+		return $query->result_array();
+	}
 
 	public function set_group_status_open($supervisor_id, $stu_group_id, $lab_no)
 	{
@@ -1909,6 +1908,13 @@ class Lab_model_rest extends CI_Model
 		$agent =  $_SERVER['HTTP_USER_AGENT'] ? $_SERVER['HTTP_USER_AGENT'] : 'none';
 		$page_name = $_SESSION['page_name'] ? $_SESSION['page_name'] : 'undefined';
 		$action =  isset($_SESSION['action']) ? $_SESSION['action'] : "test";
+
+		$group_id = NULL;
+
+		if ($_SESSION['role'] == "student") {
+			$group_id = $_SESSION['stu_group'];
+		}
+
 		$ci =  isset($_SESSION['__ci_last_regenerate']) ? $_SESSION['__ci_last_regenerate'] : 0;
 
 		$data = array(
@@ -1918,10 +1924,17 @@ class Lab_model_rest extends CI_Model
 			'agent'			=> $agent,
 			'page_name'		=> $page_name,
 			'action' 		=> $action,
+			'group_id' => $group_id,
 			'ci'			=> $ci
 		);
+
 		$query = $this->db->insert($_table, $data);
 	}
+
+	/* public function add_logV2($log)
+	{
+		$query = $this->db->insert('activity_logs', $log);
+	} */
 
 	public function get_midterm_score($stu_group_id)
 	{
@@ -2158,6 +2171,4 @@ class Lab_model_rest extends CI_Model
 			return false;
 		}
 	}
-
-
 }//class Lab_model

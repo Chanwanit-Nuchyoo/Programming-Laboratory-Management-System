@@ -282,9 +282,27 @@ class Student_rest extends MY_RestController
         $channel = $connection->channel();
         $channel->queue_declare(getenv('RMQ_QUEUE_NAME'), false, true, false, false);
 
+        $action = array(
+          "stu_id" => $stu_id,
+          "job_id" => $job_id,
+          "status" => "pending",
+          "submission_id" => $inserted_row["submission_id"],
+          "attempt" => $attemps,
+          'sourcecode_filename' => $file_name,
+        );
+
         $message = new AMQPMessage(json_encode(array(
           'job_id' => $job_id,
           'job_type' => 'exercise-submit',
+          'log_data' => array(
+            'group_id' => $_SESSION['stu_group'],
+            'username' => $_SESSION['username'],
+            'remote_ip' => $_SERVER['REMOTE_ADDR'],
+            'agent' => $_SERVER['HTTP_USER_AGENT'],
+            'page_name' => 'exercise_submit',
+            'action' => $action,
+            'ci' => $_SESSION['__ci_last_regenerate']
+          ),
           'submission_id' => $inserted_row["submission_id"],
           'sourcecode' => file_get_contents($directory_path . $file_name),
           'testcase_list' => $testcase_list,
@@ -292,6 +310,9 @@ class Student_rest extends MY_RestController
         )));
 
         $channel->basic_publish($message, '', 'task-queue');
+
+        $_SESSION['page_name'] = 'exercise_submit';
+        $this->createLogFile(json_encode($action));
 
         $channel->close();
         $connection->close();

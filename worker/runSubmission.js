@@ -2,6 +2,49 @@ import fs from 'fs';
 import tmp from 'tmp';
 import { AppError, ERROR_NAME, runPythonScript, runPythonScriptWithoutTestcase } from "./utils.js";
 
+async function addSubmissionLog(db_pool, log_data) {
+  const { group_id, username, remote_ip, page_name, agent, action, ci } = log_data;
+
+  const sql = `INSERT INTO activity_logs (group_id, username, remote_ip, agent, page_name, action, ci) VALUES (?,?,?,?,?,?,?);`
+  const values = [group_id, username, remote_ip, agent, page_name, action, ci];
+
+  return new Promise((resolve, reject) => {
+    db_pool.getConnection((err, connection) => {
+      if (err) {
+        reject(new AppError(ERROR_NAME.DATABASE_ERROR, "Failed to connect to the database."));
+      }
+      connection.beginTransaction(err => {
+        if (err) {
+          connection.release(); // Release the connection here
+          reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
+        } else {
+          connection.query(sql, values, (err, result) => {
+            if (err) {
+              connection.rollback(() => {
+                connection.release(); // And here
+                reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
+              });
+            } else {
+              connection.commit(err => {
+                if (err) {
+                  connection.rollback(() => {
+                    connection.release(); // And here
+                    reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
+                  });
+                } else {
+                  connection.release(); // And finally here
+                  resolve(result);
+                }
+              });
+            }
+          });
+        }
+      });
+    });
+  }
+  )
+}
+
 async function updateSubmission(db_pool, submission_data) {
   const { submission_id, status, marking, result, error_message } = submission_data;
 
@@ -51,7 +94,7 @@ async function updateSubmission(db_pool, submission_data) {
 }
 
 export async function runSubmission(channel, db_pool, msg, msg_body, redisClient) {
-  const { submission_id, sourcecode, testcase_list, job_id } = msg_body;
+  const { submission_id, sourcecode, testcase_list, job_id, log_data } = msg_body;
 
   const publisher = redisClient.duplicate();
   await publisher.connect();
@@ -62,7 +105,11 @@ export async function runSubmission(channel, db_pool, msg, msg_body, redisClient
   fs.writeFileSync(tmpFile.name, sourcecode);
 
   const testcase_result = [];
+
+  const newAction = log_data['action'];
+
   try {
+
     if (testcase_list.length > 0) {
       for (let i = 0; i < testcase_list.length; i++) {
         let result;
@@ -100,9 +147,17 @@ export async function runSubmission(channel, db_pool, msg, msg_body, redisClient
         error_message: null
       }
 
+      newAction["status"] = student_marking === 2 ? "accepted" : "wrong_answer";
+      newAction["marking"] = student_marking;
+      log_data["action"] = JSON.stringify(newAction);
+
       await updateSubmission(db_pool, submission).catch(err => {
         throw err;
       });
+
+      await addSubmissionLog(db_pool, log_data).catch(err => {
+        throw err;
+      })
     } else {
       const result = await runPythonScriptWithoutTestcase(tmpFile.name);
 
@@ -117,9 +172,17 @@ export async function runSubmission(channel, db_pool, msg, msg_body, redisClient
         error_message: null
       }
 
+      newAction["status"] = 'accepted';
+      newAction["marking"] = 2;
+      log_data["action"] = JSON.stringify(newAction);
+
       await updateSubmission(db_pool, submission).catch(err => {
         throw err;
       });
+
+      await addSubmissionLog(db_pool, log_data).catch(err => {
+        throw err;
+      })
     }
 
     console.log(testcase_list.length > 0 ? "\n" + "FINISHED TESTCASE".padStart(30, '-').padEnd(60, '-') : "\n" + "FINISHED RUNNING".padStart(30, '-').padEnd(60, '-'));
@@ -141,8 +204,13 @@ export async function runSubmission(channel, db_pool, msg, msg_body, redisClient
         error_message: err.message
       }
 
+      newAction["status"] = "error";
+      newAction["marking"] = 0;
+      log_data["action"] = JSON.stringify(newAction);
+
       try {
         await updateSubmission(db_pool, submission);
+        await addSubmissionLog(db_pool, log_data);
         channel.ack(msg);
       } catch (err) {
         console.error(err)
