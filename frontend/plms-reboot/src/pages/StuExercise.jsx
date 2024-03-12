@@ -5,7 +5,7 @@ import { getStudentAssignedExercise, getStudentSubmissionList } from '@/utils/ap
 import { useParams } from "react-router-dom"
 import { useAtom, useSetAtom } from "jotai"
 import { userAtom, sidebarSelectedAtom } from "@/store/store"
-import { useEffect, useState, useMemo, useCallback } from "react"
+import { useEffect, useState, useMemo, useCallback, useRef } from "react"
 import { useForm, FormProvider } from "react-hook-form";
 import useSubmittable from '@/hooks/useSubmittable';
 import { useNavigate } from "react-router-dom";
@@ -17,6 +17,7 @@ import ProblemPanel from '@/components/StuExercise/ProblemPanel'
 import WorkSpacePanel from '@/components/StuExercise/WorkSpacePanel'
 import SubmitPermissionInfoBox from "@/components/_shared/SubmitPermissionInfoBox"
 import useEventSource from "@/hooks/useEventSource"
+import useLogAction from "@/hooks/useLogAction"
 
 const StuExercise = () => {
   const [user] = useAtom(userAtom)
@@ -27,9 +28,20 @@ const StuExercise = () => {
   const [shouldShowLatestSubmission, setShouldShowLatestSubmission] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const hasLogged = useRef(false);
+
+  const logActionMutation = useLogAction();
 
   useEffect(() => {
     setSelected('stu_exercise_list');
+
+    if (!hasLogged.current) {
+      hasLogged.current = true;
+      logActionMutation.mutate({
+        action: `Student::lab_exercise chapter:${chapterId} item:${itemId}`,
+        page_name: "lab_exercise"
+      })
+    }
 
     return () => {
       queryClient.removeQueries(['chapter-permission', groupId]);

@@ -368,3 +368,9 @@ export const getClassSchedule = async (group_id) => {
   return data;
 }
 
+export const logAction = async ($log_data) => {
+  const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/common_rest/logAction`,
+    $log_data,
+    { withCredentials: true }
+  )
+}

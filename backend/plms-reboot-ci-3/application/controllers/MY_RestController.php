@@ -100,6 +100,12 @@ class MY_RestController extends RestController
     $this->lab_model->add_log();
   }
 
+  /* public function createLogFileV2($logs)
+  {
+    $this->load->model('lab_model_rest');
+    $this->lab_model_rest->add_logV2($logs);
+  } */
+
   public function createLogFile_auto_logout($stu_user, $role)
   {
     $log_folder = APPPATH . 'logs' . DIRECTORY_SEPARATOR;

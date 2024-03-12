@@ -39,17 +39,6 @@ redisClient.on('error', function (err) {
   console.log('Redis error: ' + err);
 });
 
-/* const connectToDatabase = () => {
-  db_pool.getConnection((err) => {
-    if (err) {
-      console.error('Failed to connect to the database. Retrying in 5 seconds...', err);
-      setTimeout(connectToDatabase, 5000);
-    } else {
-      console.log("Connected to the database!");
-    }
-  });
-}; */
-
 async function python_consumer() {
   try {
     // Wait for 10 seconds before starting
