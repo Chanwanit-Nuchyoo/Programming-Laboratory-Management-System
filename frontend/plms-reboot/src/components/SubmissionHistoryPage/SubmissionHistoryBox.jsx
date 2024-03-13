@@ -60,7 +60,11 @@ const SubmissionHistoryBox = ({ subHistory, isSubHistoryLoading }) => {
 
   const handleReject = () => {
     rejectSubmissionMutation.mutate({
-      "submission_id": subHistory[singleSelected].submission_id
+      "submission_id": subHistory[singleSelected].submission_id,
+      "stu_id": studentId,
+      "chapter_id": chapterId,
+      "item_id": itemId,
+      "page_name": "submission_history"
     })
   }
 

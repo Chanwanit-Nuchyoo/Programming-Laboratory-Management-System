@@ -110,7 +110,7 @@ class Auth_rest extends MY_RestController
         $_SESSION['page_name'] = 'login';
 
         // Log the logout event
-        $this->createLogFile("log out");
+        $inserted_log = $this->createLogFile("repeat login. user logged out from old session.");
 
         // Unset the logged_in flag and destroy the session
         $this->session->unset_userdata("logged_in");
@@ -127,6 +127,8 @@ class Auth_rest extends MY_RestController
           "action" => "logout",
           "id" => $user["id"]
         ));
+
+        $this->publishLogs($redis, $user, $inserted_log);
 
         // Throw an exception to indicate that the user needs to log in again
         throw new Exception('Repeat log in. Previous machine logged out. Please try again.', RestController::HTTP_UNAUTHORIZED);
@@ -146,12 +148,14 @@ class Auth_rest extends MY_RestController
       $_SESSION['page_name'] = 'login';
 
       // Log the logout event
-      $this->createLogFile("log in");
+      $inserted_log = $this->createLogFile("log in");
 
       $this->publishActionMessage($redis, $user, array(
         "action" => "login",
         "id" => $user["id"]
       ));
+
+      $this->publishLogs($redis, $user, $inserted_log);
 
       // Send a success response
       $this->response([
@@ -194,7 +198,8 @@ class Auth_rest extends MY_RestController
         throw new Exception('User ID not found in session.');
       }
 
-      $this->createLogFile("log out");
+      $inserted_log = $this->createLogFile("log out");
+      $this->publishLogs($redis, $user, $inserted_log);
       $this->session->unset_userdata("logged_in");
       $this->session->sess_destroy();
       $this->access = "*";

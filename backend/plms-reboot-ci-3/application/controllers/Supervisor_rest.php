@@ -1012,7 +1012,16 @@ class Supervisor_rest extends MY_RestController
 				/* echo "add will be performed.<br />"; */
 				$message = $this->student_model_rest->check_or_add_student_to_user($stu_id);
 				/* if ($message == 'OK') { */
-				$this->createLogfile(__METHOD__ . " : $stu_id is added to user table. ==> " . $message);
+
+				$inserted_log = $this->createLogfile(__METHOD__ . " : $stu_id is added to user table. ==> " . $message, $stu_group_id);
+
+				$redis = $this->get_redis_instance();
+				$redis->publish("student-added", json_encode(array(
+					'stu_id' => $stu_id,
+					'group_id' => $stu_group_id,
+					'log_id' => $inserted_log,
+				)));
+
 				/* echo " ==> Added.<br />"; */
 				$stu_gender = 'other';
 				if (substr($stu_name, 0, 9) == 'นาย') {
@@ -1254,7 +1263,20 @@ class Supervisor_rest extends MY_RestController
 	{
 		try {
 			$submission_id = $this->post('submission_id');
+			$stu_id = $this->post('stu_id');
+			$chapter_id = $this->post('chapter_id');
+			$item_id = $this->post('item_id');
+
+			// get student row by id
+			$student_info = $this->lab_model_rest->get_student_info($stu_id);
+
 			$status = $this->lab_model_rest->cancle_student_submission($submission_id);
+
+			$log = $this->createLogFile("reject submission #{$submission_id} stu_id:{$stu_id} chapter:{$chapter_id} item:{$item_id}", $student_info["stu_group"]);
+
+			$redis = $this->get_redis_instance();
+
+			$redis->publish("logs:{$student_info["stu_group"]}", json_encode($log));
 
 			$this->response([
 				'status' => TRUE,

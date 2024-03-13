@@ -15,25 +15,31 @@ async function addSubmissionLog(db_pool, log_data) {
       }
       connection.beginTransaction(err => {
         if (err) {
-          connection.release(); // Release the connection here
+          connection.release();
           reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
         } else {
           connection.query(sql, values, (err, result) => {
             if (err) {
               connection.rollback(() => {
-                connection.release(); // And here
+                connection.release();
                 reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
               });
             } else {
               connection.commit(err => {
                 if (err) {
                   connection.rollback(() => {
-                    connection.release(); // And here
+                    connection.release();
                     reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
                   });
                 } else {
-                  connection.release(); // And finally here
-                  resolve(result);
+                  connection.query('SELECT * FROM activity_logs WHERE log_id = LAST_INSERT_ID()', (err, rows) => {
+                    connection.release();
+                    if (err) {
+                      reject(new AppError(ERROR_NAME.DATABASE_ERROR, err.message));
+                    } else {
+                      resolve(rows[0]); // Return the inserted row
+                    }
+                  });
                 }
               });
             }
@@ -41,8 +47,7 @@ async function addSubmissionLog(db_pool, log_data) {
         }
       });
     });
-  }
-  )
+  });
 }
 
 async function updateSubmission(db_pool, submission_data) {
@@ -108,6 +113,8 @@ export async function runSubmission(channel, db_pool, msg, msg_body, redisClient
 
   const newAction = log_data['action'];
 
+  let inserted_log = null;
+
   try {
 
     if (testcase_list.length > 0) {
@@ -155,7 +162,7 @@ export async function runSubmission(channel, db_pool, msg, msg_body, redisClient
         throw err;
       });
 
-      await addSubmissionLog(db_pool, log_data).catch(err => {
+      inserted_log = await addSubmissionLog(db_pool, log_data).catch(err => {
         throw err;
       })
     } else {
@@ -180,7 +187,7 @@ export async function runSubmission(channel, db_pool, msg, msg_body, redisClient
         throw err;
       });
 
-      await addSubmissionLog(db_pool, log_data).catch(err => {
+      inserted_log = await addSubmissionLog(db_pool, log_data).catch(err => {
         throw err;
       })
     }
@@ -210,7 +217,7 @@ export async function runSubmission(channel, db_pool, msg, msg_body, redisClient
 
       try {
         await updateSubmission(db_pool, submission);
-        await addSubmissionLog(db_pool, log_data);
+        inserted_log = await addSubmissionLog(db_pool, log_data);
         channel.ack(msg);
       } catch (err) {
         console.error(err)
@@ -221,6 +228,9 @@ export async function runSubmission(channel, db_pool, msg, msg_body, redisClient
   } finally {
     // publish message
     await publisher.publish(`submission-result:${job_id}`, "done");
+    if (inserted_log) {
+      await publisher.publish(`logs:${log_data.group_id}`, JSON.stringify(inserted_log));
+    }
     publisher.quit();
     tmpFile.removeCallback();
     tmpFile2.removeCallback();

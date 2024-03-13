@@ -364,6 +364,13 @@ class Common_rest extends MY_RestController
   {
     $_SESSION['page_name'] = $this->post('page_name') ? $this->post('page_name') : 'none';
     $action = $this->post('action') ? $this->post('action') : 'test';
-    $this->createLogFile($action);
+
+    $redis = $this->get_redis_instance();
+
+    $inserted_log = $this->createLogFile($action);
+
+    $user = $this->session->userdata();
+
+    $this->publishLogs($redis, $user, $inserted_log);
   }
 }
