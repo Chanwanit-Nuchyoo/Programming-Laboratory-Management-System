@@ -48,3 +48,37 @@
 .hoverable:hover {
   background-color: var(--hover);
 }
+
+.my-table-2 {
+  width: 100%;
+  border-collapse: collapse;
+  color: #F5F5F5;
+}
+
+.my-table-2 th, .my-table-2 td {
+  border: 1px solid #444;
+  padding: 10px;
+  text-align: left;
+}
+
+.my-table-2 th {
+  background-color: black;
+  color: #F5F5F5;
+  border: none;
+  text-align: center;
+  position: sticky; /* Add this line */
+  top: 0; /* Add this line */
+}
+
+.my-table-2 tr:nth-child(even) {
+  background-color: #3C3C3C;
+}
+
+.my-table-2 tr:nth-child(odd) {
+  background-color: #2c2c2c;
+}
+
+.my-table-2 tr:hover {
+  background-color: #444;
+  cursor: pointer;
+}

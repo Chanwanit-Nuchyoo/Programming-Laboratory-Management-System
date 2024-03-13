@@ -1899,7 +1899,7 @@ class Lab_model_rest extends CI_Model
 	}
 
 	// 2565-09-16 kanut
-	public function add_log()
+	public function add_log($group_id = null)
 	{
 		$_table = 'activity_logs';
 		$username = $_SESSION['username'] ? $_SESSION['username'] : 'anonymous';
@@ -1913,6 +1913,8 @@ class Lab_model_rest extends CI_Model
 
 		if ($_SESSION['role'] == "student") {
 			$group_id = $_SESSION['stu_group'];
+		} else {
+			$group_id = $group_id;
 		}
 
 		$ci =  isset($_SESSION['__ci_last_regenerate']) ? $_SESSION['__ci_last_regenerate'] : 0;
@@ -1929,12 +1931,13 @@ class Lab_model_rest extends CI_Model
 		);
 
 		$query = $this->db->insert($_table, $data);
-	}
 
-	/* public function add_logV2($log)
-	{
-		$query = $this->db->insert('activity_logs', $log);
-	} */
+		// get the inserted row
+		$this->db->where('log_id', $this->db->insert_id());
+		$query = $this->db->get($_table)->row();
+
+		return $query;
+	}
 
 	public function get_midterm_score($stu_group_id)
 	{

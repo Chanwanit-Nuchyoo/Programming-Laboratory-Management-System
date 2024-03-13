@@ -1,25 +1,76 @@
-import { Box, Button, Stack, TextField } from "@mui/material"
+import { Box, Button, Stack } from "@mui/material"
 import blueFolder from "@/assets/images/bluefoldericon.svg"
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getBreadCrumbs } from '@/utils/api';
 import { ABS_INS_URL } from "@/utils/constants/routeConst"
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useSetAtom } from "jotai";
+import useEventSource from "@/hooks/useEventSource";
 import { sidebarSelectedAtom } from "@/store/store";
-import { redirect } from "react-router-dom";
+
 // components
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs'
 import Header from "@/components/_shared/Header"
 import Logtable from "@/components/LogPage/Logtable"
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 const LogPage = () => {
   const { groupId } = useParams();
   const setSelected = useSetAtom(sidebarSelectedAtom);
-  
+  const [logData, setLogData] = useState([]);
+  const stackRef = useRef();
+  const scrollToBottomRef = useRef(true);
+  const scrollToBottom = () => {
+    if (stackRef.current) {
+      stackRef.current.scrollTop = stackRef.current.scrollHeight;
+    }
+  };
+
   useEffect(() => {
     setSelected('my_groups');
+    scrollToBottom();
   }, []);
+
+  useEffect(() => {
+    if (scrollToBottomRef.current && logData.length > 0) {
+      scrollToBottomRef.current = false;
+      scrollToBottom();
+      console.log("hello")
+    }
+  }, [logData]);
+
+  useEventSource(
+    `${import.meta.env.VITE_REALTIME_BASE_URL}/subscribe/class-logs/${groupId}`,
+    (event) => {
+      let data = JSON.parse(event.data);
+
+      console.log
+
+      if (Array.isArray(data)) {
+        data = data.map(log => {
+          let page_name = log.page_name;
+          if (page_name === 'exercise_submit') {
+            log.action = JSON.parse(log.action);
+          }
+          return log;
+        });
+
+        setLogData(data);
+      } else {
+        if (data.page_name === 'exercise_submit') {
+          data.action = JSON.parse(data.action);
+        }
+
+        // check if scroll is at the bottom of stack or not
+        if (stackRef.current.scrollHeight - stackRef.current.scrollTop === stackRef.current.clientHeight) {
+          scrollToBottomRef.current = true;
+        }
+
+        setLogData((prevData) => [...prevData, data]);
+      }
+    }
+  );
 
   const breadCrumbsId = useMemo(() => {
     return {
@@ -32,42 +83,10 @@ const LogPage = () => {
     queryFn: () => getBreadCrumbs(breadCrumbsId)
   })
 
-  const groupsQuery = [{
-    "stu_id": 63010185,
-    "remote_ip": "1.0.210.148" ,
-    "remote_port": "53194" ,
-    "pagename": "login",
-    "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
-    "action": 
-    `"job_ip" => 12345,"status" => "pending","submittion_id" => 1234,"attemp" => 2,"sourcecode_filename" => "dswasds"`,
-  },
-  {
-    "stu_id": 63010185,
-    "remote_ip": "1.0.210.148" ,
-    "remote_port": "53194" ,
-    "pagename": "login",
-    "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
-    "action": 
-    `"job_ip" => 12345,"status" => "pending","submittion_id" => 1234,"attemp" => 3,"sourcecode_filename" => "dswasds.py"`,
-  }
-]
-// format string to json object
-const formatToObject = (actionString) => {
-  const entries = actionString.split(',').map(entry => {
-    const [key, value] = entry.split('=>').map(str => str.trim());
-    return [key.replace(/['"]/g, ''), eval(value)];
-  });
-  return Object.fromEntries(entries);
-}
-for (let i = 0; i < groupsQuery.length; i++) {
-  groupsQuery[i].action = formatToObject(groupsQuery[i].action);
-}
-
   return (
     <Box >
       <Stack spacing={"20px"}>
         <MyBreadCrumbs items={[
-
           { label: 'My Groups', href: '/ins' },
           { label: `Group ${!isBcLoading ? bc.group_no : "..."} `, href: ABS_INS_URL.DYNAMIC.GROUP(groupId) },
           { label: 'Log Activity', href: '#' }
@@ -75,8 +94,25 @@ for (let i = 0; i < groupsQuery.length; i++) {
 
         <Header logoSrc={blueFolder} title={`Group ${!isBcLoading ? bc.group_no : "..."} Log Activity`} />
 
-        <Logtable queryData={groupsQuery}/>
-
+        <Box position="relative">
+          <Stack ref={stackRef} sx={{ position: "relative", height: "800px", overflowY: "scroll", borderRadius: "8px", overflowX: "hidden" }}>
+            <Logtable queryData={logData} />
+          </Stack>
+          <Button
+            variant="contained"
+            sx={{
+              position: "absolute",
+              right: "20px",
+              bottom: "10px",
+              zIndex: 10,
+              bgcolor: "var(--ebony)",
+              borderRadius: "100px",
+              opacity: 0.5,
+            }} onClick={scrollToBottom}
+          >
+            <KeyboardArrowDownIcon />
+          </Button>
+        </Box>
       </Stack>
     </Box>
   )

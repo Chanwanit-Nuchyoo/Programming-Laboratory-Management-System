@@ -312,7 +312,12 @@ class Student_rest extends MY_RestController
         $channel->basic_publish($message, '', 'task-queue');
 
         $_SESSION['page_name'] = 'exercise_submit';
-        $this->createLogFile(json_encode($action));
+
+        $redis = $this->get_redis_instance();
+
+        $inserted_log = $this->createLogFile(json_encode($action));
+
+        $this->publishLogs($redis, $_SESSION, $inserted_log);
 
         $channel->close();
         $connection->close();

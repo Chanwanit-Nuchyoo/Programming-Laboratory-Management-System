@@ -26,9 +26,19 @@ class MY_RestController extends RestController
       'host' => 'redis',
       'port' => 6379,
       'connectTimeout' => 2.5,
-      'auth' => ['default', 'plmskmitl2023'],
+      'auth' => ['default', getenv("REDIS_PASSWORD")],
     ]);
     return $redis;
+  }
+
+  public function publishLogs($redis, $user, $log)
+  {
+    if ($user["role"] == "student") {
+      $this->load->model('lab_model_rest');
+      $student = $this->lab_model_rest->get_student_info($user['id']);
+      $group_id = $student['stu_group'];
+      $redis->publish("logs:$group_id", json_encode($log));
+    }
   }
 
   public function handleError(Exception $e)
@@ -93,18 +103,13 @@ class MY_RestController extends RestController
     }
   }
 
-  public function createLogFile($action = 'test')
+  public function createLogFile($action = 'test', $group_id = null)
   {
     $_SESSION['action'] = $action;
     $this->load->model('lab_model_rest', 'lab_model');
-    $this->lab_model->add_log();
+    $inserted_row = $this->lab_model->add_log($group_id);
+    return $inserted_row;
   }
-
-  /* public function createLogFileV2($logs)
-  {
-    $this->load->model('lab_model_rest');
-    $this->lab_model_rest->add_logV2($logs);
-  } */
 
   public function createLogFile_auto_logout($stu_user, $role)
   {
