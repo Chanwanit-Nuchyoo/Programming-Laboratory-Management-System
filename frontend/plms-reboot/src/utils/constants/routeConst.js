@@ -37,6 +37,8 @@ export const ABS_INS_URL = {
       `${PREFIX[USER_ROLES.SUPERVISOR]}/profile/${userId}`,
     "EDITGROUP": (groupId = ":groupId") =>
     `${PREFIX[USER_ROLES.SUPERVISOR]}/editgroup/${groupId}`,
+    "LOGPAGE": (groupId = ":groupId") =>
+    `${PREFIX[USER_ROLES.SUPERVISOR]}/logpage/${groupId}`,
   }
 }
 
@@ -71,6 +73,8 @@ export const REL_INS_URL = {
       `profile/${userId}`,
       "EDITGROUP": (groupId = ":groupId") =>
       `editgroup/${groupId}`,
+      "LOGPAGE": (groupId = ":groupId") =>
+      `logpage/${groupId}`,
   }
 }
 

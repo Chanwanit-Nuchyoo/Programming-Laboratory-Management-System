@@ -27,6 +27,7 @@ const StuExerciseList = lazy(() => import('@/pages/StuExerciseList'));
 const StuHome = lazy(() => import('@/pages/StuHome'));
 const AddGroup = lazy(() => import('@/pages/AddGroup'));
 const EditGroup = lazy(() => import('@/pages/EditGroup'));
+const LogPage = lazy(() => import('@/pages/LogPage'));
 const RouterComponent = () => {
 
   return (
@@ -58,6 +59,7 @@ const RouterComponent = () => {
             <Route path={REL_INS_URL.DYNAMIC.PROFILE()} element={<EditProfile />} />
             <Route path={REL_INS_URL.STATIC.ADDGROUP} element={<Suspense fallback={<div>Loading...</div>}><AddGroup /></Suspense>}/>
             <Route path={REL_INS_URL.DYNAMIC.EDITGROUP()} element={<Suspense fallback={<div>Loading...</div>}><EditGroup /></Suspense>} />
+            <Route path={REL_INS_URL.DYNAMIC.LOGPAGE()} element={<Suspense fallback={<div>Loading...</div>}><LogPage /></Suspense>} />
 
           </Route>
         </Route>

@@ -32,6 +32,10 @@ const MiddleBox = ({ isClassLoading, groupData, onlineStudentsList }) => {
     navigate(ABS_INS_URL.DYNAMIC.STUDENT_LIST(groupId));
   }
 
+  const handleGoToLogPage = () => {
+    navigate(ABS_INS_URL.DYNAMIC.LOGPAGE(groupId));
+  }
+
   return (
     <ClassInfoBox>
       <Stack direction={"row"} spacing={"20px"} >
@@ -60,6 +64,9 @@ const MiddleBox = ({ isClassLoading, groupData, onlineStudentsList }) => {
           Log out all
         </Button>
       </Stack>
+      <Button variant="contained" color="primary" sx={{ textTransform: "none", fontSize: "16px", height: "40px" }}  onClick={handleGoToLogPage} >
+          Log Page
+        </Button>
     </ClassInfoBox>
   )
 }
