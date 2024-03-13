@@ -106,8 +106,8 @@ class MY_RestController extends RestController
   public function createLogFile($action = 'test', $group_id = null)
   {
     $_SESSION['action'] = $action;
-    $this->load->model('lab_model_rest', 'lab_model');
-    $inserted_row = $this->lab_model->add_log($group_id);
+    $this->load->model('lab_model_rest');
+    $inserted_row = $this->lab_model_rest->add_log($group_id);
     return $inserted_row;
   }
 

@@ -22,17 +22,17 @@ const RightBox = ({ groupData }) => {
     onMutate: async (variables) => {
       const snapshot = queryClient.getQueryData(['groupData', groupId]);
       // Optimistically update
-      queryClient.setQueryData(['groupData', groupId],  
-      {
-        ...snapshot,
-        allow_login: snapshot.allow_login === "yes" ? "no" : "yes",
-      });
+      queryClient.setQueryData(['groupData', groupId],
+        {
+          ...snapshot,
+          allow_login: snapshot.allow_login === "yes" ? "no" : "yes",
+        });
       // Return a context object with the snapshot for backup plan
       return { snapshot };
     },
     onError: (error, variables, context) => {
       console.log(error);
-      queryClient.setQueryData(['groupData', groupId], () =>context?.snapshot);
+      queryClient.setQueryData(['groupData', groupId], () => context?.snapshot);
     },
     onSettled: () => {
       queryClient.invalidateQueries(['groupData', groupId]);
@@ -48,17 +48,17 @@ const RightBox = ({ groupData }) => {
     onMutate: async (variables) => {
       const snapshot = queryClient.getQueryData(['groupData', groupId]);
       // Optimistically update
-      queryClient.setQueryData(['groupData', groupId],  
-      {
-        ...snapshot,
-        allow_upload_pic: snapshot.allow_upload_pic === "yes" ? "no" : "yes",
-      });
+      queryClient.setQueryData(['groupData', groupId],
+        {
+          ...snapshot,
+          allow_upload_pic: snapshot.allow_upload_pic === "yes" ? "no" : "yes",
+        });
       // Return a context object with the snapshot for backup plan
       return { snapshot };
     },
     onError: (error, variables, context) => {
       console.log(error);
-      queryClient.setQueryData(['groupData', groupId], () =>context?.snapshot);
+      queryClient.setQueryData(['groupData', groupId], () => context?.snapshot);
     },
     onSettled: () => {
       queryClient.invalidateQueries(['groupData', groupId]);
@@ -80,15 +80,15 @@ const RightBox = ({ groupData }) => {
   };
 
   return (
-    <ClassInfoBox 
-      stackProps={{ display: 'flex', flexDirection: 'row' }}
+    <ClassInfoBox
+      stackProps={{ display: 'flex', flexDirection: 'row', height: "100%" }}
     >
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', borderRight: '1px solid rgba(255, 255, 255, 0.20)' }}>
         <img src={allowLogin} style={{ marginTop: '10px', marginBottom: '10px' }} alt="Allow Login" />
         <Typography color={"primary"} fontWeight={600} style={{ marginBottom: '34px' }}>Allow log in</Typography>
         <ToggleSwitch isChecked={groupData?.allow_login === "yes"} onToggle={toggleAllowLogin} />
       </div>
-  
+
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <img src={allowUpload} style={{ marginBottom: '10px' }} alt="Allow Upload" />
         <Typography color={"primary"} fontWeight={600} style={{ marginBottom: '10px' }}>Allow upload <br />profile picture</Typography>
@@ -96,7 +96,7 @@ const RightBox = ({ groupData }) => {
       </div>
     </ClassInfoBox>
   );
-  
+
 };
 
 export default RightBox

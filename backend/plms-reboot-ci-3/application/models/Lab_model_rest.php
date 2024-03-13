@@ -1899,7 +1899,7 @@ class Lab_model_rest extends CI_Model
 	}
 
 	// 2565-09-16 kanut
-	public function add_log($group_id = null)
+	public function add_log($gid = null)
 	{
 		$_table = 'activity_logs';
 		$username = $_SESSION['username'] ? $_SESSION['username'] : 'anonymous';
@@ -1914,7 +1914,7 @@ class Lab_model_rest extends CI_Model
 		if ($_SESSION['role'] == "student") {
 			$group_id = $_SESSION['stu_group'];
 		} else {
-			$group_id = $group_id;
+			$group_id = $gid;
 		}
 
 		$ci =  isset($_SESSION['__ci_last_regenerate']) ? $_SESSION['__ci_last_regenerate'] : 0;
