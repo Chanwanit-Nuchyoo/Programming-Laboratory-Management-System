@@ -4,9 +4,8 @@ import { Typography, Stack, Skeleton } from "@mui/material"
 import TimeSchedule from "@/components/_shared/TimeSchedule"
 const LeftBox = ({ isClassLoading, groupData }) => {
   return (
-    
-    <ClassInfoBox>
-      
+
+    <ClassInfoBox stackProps={{ sx: { height: "100%" } }}>
       <Stack direction={"row"} spacing={"20px"} >
         <Stack direction={"row"} gap={"5px"} >
           <Typography color={"primary"}  >Group ID:</Typography>
@@ -43,9 +42,9 @@ const LeftBox = ({ isClassLoading, groupData }) => {
       </Stack>
 
       {
-        isClassLoading ? <Skeleton variant="rounded" width={250} height={24} /> : <TimeSchedule 
-        classDate={`${groupData?.day_of_week}, ${groupData?.time_start} - ${groupData?.time_end}`} 
-      />
+        isClassLoading ? <Skeleton variant="rounded" width={250} height={24} /> : <TimeSchedule
+          classDate={`${groupData?.day_of_week}, ${groupData?.time_start} - ${groupData?.time_end}`}
+        />
       }
     </ClassInfoBox>
   )

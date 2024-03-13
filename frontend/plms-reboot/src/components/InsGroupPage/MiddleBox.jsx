@@ -37,7 +37,7 @@ const MiddleBox = ({ isClassLoading, groupData, onlineStudentsList }) => {
   }
 
   return (
-    <ClassInfoBox>
+    <ClassInfoBox stackProps={{ sx: { height: "100%" } }} >
       <Stack direction={"row"} spacing={"20px"} >
         <Stack direction={"row"} gap={"5px"} >
           <Typography color={"primary"}  >Department:</Typography>
@@ -64,9 +64,9 @@ const MiddleBox = ({ isClassLoading, groupData, onlineStudentsList }) => {
           Log out all
         </Button>
       </Stack>
-      <Button variant="contained" color="primary" sx={{ textTransform: "none", fontSize: "16px", height: "40px" }}  onClick={handleGoToLogPage} >
-          Log Page
-        </Button>
+      <Button variant="contained" color="primary" sx={{ textTransform: "none", fontSize: "16px", height: "40px" }} onClick={handleGoToLogPage} >
+        Log Page
+      </Button>
     </ClassInfoBox>
   )
 }

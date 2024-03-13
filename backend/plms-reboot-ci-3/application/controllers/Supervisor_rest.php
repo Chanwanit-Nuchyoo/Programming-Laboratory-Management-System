@@ -893,6 +893,19 @@ class Supervisor_rest extends MY_RestController
 				}
 			}
 
+			$log = $this->createLogFile("logout all students", $group_id);
+
+			$redis = $this->get_redis_instance();
+
+			$redis->publish("online-students:{$group_id}", json_encode(
+				array(
+					"action" => "logout-all",
+					"id" => NULL,
+				)
+			));
+
+			$redis->publish("logs:{$group_id}", json_encode($log));
+
 			$this->response([
 				'message' => 'Logout ' . $count . ' students successfully',
 				'payload' => $stu_logout,

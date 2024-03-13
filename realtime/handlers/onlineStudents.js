@@ -49,6 +49,8 @@ export default async function onlineStudents(req, res, next, db_pool, redisClien
       idList.push(data.id);
     } else if (data.action === 'logout') {
       idList = idList.filter(id => id !== data.id);
+    } else if (data.action === 'logout-all') {
+      idList = []
     }
 
     res.write(`data: ${JSON.stringify(idList)}\n\n`);

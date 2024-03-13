@@ -8,6 +8,7 @@ import moment from 'moment';
 
 const negativeAction = [
   'log out',
+  'logout all students',
   'repeat login. user logged out from old session.',
 ]
 
