@@ -1,0 +1,29 @@
+# First stage: Python
+FROM python:3.12.0-bullseye AS python-stage
+
+FROM ubuntu:latest
+
+# Copy Python from the first stage
+COPY --from=python-stage /usr/local /usr/local
+
+# Install Node.js
+RUN apt-get update && \
+  apt-get install -y curl && \
+  curl -fsSL https://deb.nodesource.com/setup_21.x | bash - && \
+  apt-get install -y nodejs
+
+# Verify Node.js installation
+RUN node -v
+
+# Verify Python installation
+RUN python3.12 --version
+
+WORKDIR /app
+
+COPY . .
+
+# Install dependencies
+RUN npm install --omit=dev
+
+# start app
+CMD ["node","worker.js"]

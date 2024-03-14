@@ -1,30 +1,39 @@
+# FOR DEVELOPMENT ENVIRONMENT
+# TO RUN : docker-compose -f docker-compose.dev.yml up -d --build
+
 version: "3"
 
 services:
   frontend:
-    build: ./frontend/plms-reboot
-    container_name: frontend-container
+    build: 
+      context: ./frontend/plms-reboot
+      dockerfile: dockerfile.dev
+    container_name: frontend-container-dev
     ports:
       - 80:5173
-    volumes:
-      - ./frontend/plms-reboot/:/app
-      - /app/node_modules
     environment:
       TZ: Asia/Bangkok
+      ENVIRONMENT: ${ENVIRONMENT}
       CHOKIDAR_USEPOLLING: true
       VITE_BACKEND_BASE_URL: ${BACKEND_URL}
       VITE_REALTIME_BASE_URL: ${REALTIME_URL}
       VITE_YEAR: 2022
+    volumes:
+      - ./frontend/plms-reboot/:/app
+      - /app/node_modules
     depends_on:
       - backend
 
   backend:
-    build: ./backend/plms-reboot-ci-3
-    container_name: backend-container
+    build:
+      context: ./backend/plms-reboot-ci-3
+      dockerfile: dockerfile.dev
+    container_name: backend-container-dev
     ports:
       - 3000:80 
     environment:
       TZ: Asia/Bangkok
+      ENVIRONMENT: ${ENVIRONMENT}
       BASE_URL: ${BACKEND_URL}
       FRONTEND_URL: ${FRONTEND_URL}
       DATABASE_USER: ${DATABASE_USER}
@@ -37,14 +46,14 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     volumes:
       - ./backend/plms-reboot-ci-3:/var/www/html
-      - ./config/apache.conf:/etc/apache2/sites-enabled
-      - ./config/php.conf:/usr/local/etc/php
+      - ./config/dev/apache.conf:/etc/apache2/sites-enabled
+      - ./config/php.conf/dev:/usr/local/etc/php
     depends_on:
       - db
 
   db:
     image: mysql:8.0.31
-    container_name: db-container
+    container_name: db-container-dev
     command: --default-authentication-plugin=mysql_native_password      
     environment:
       TZ: Asia/Bangkok
@@ -58,7 +67,7 @@ services:
 
   redis:
     image: redis:7.0.15-alpine
-    container_name: redis-container
+    container_name: redis-container-dev
     command: redis-server --requirepass ${REDIS_PASSWORD}
     ports:
       - "6379:6379"
@@ -67,7 +76,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:5.2.0
-    container_name: phpmyadmin-container
+    container_name: phpmyadmin-container-dev
     environment:
       TZ: Asia/Bangkok
       PMA_HOST: db
@@ -80,7 +89,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.12.11-management-alpine
-    container_name: rabbitmq-container
+    container_name: rabbitmq-container-dev
     tty: true
     ports:
       - 5672:5672
@@ -95,12 +104,15 @@ services:
       - db
 
   realtime:
-    build: ./realtime
-    container_name: realtime-container
+    build: 
+      context: ./realtime
+      dockerfile: dockerfile.dev
+    container_name: realtime-container-dev
     ports:
       - 3001:3001
     environment:
       TZ: Asia/Bangkok
+      ENVIRONMENT: ${ENVIRONMENT}
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_NAME: ${DATABASE_NAME}
@@ -112,7 +124,9 @@ services:
       - db
 
   worker:
-    build: ./worker
+    build: 
+      context: ./worker
+      dockerfile: dockerfile.dev
     volumes:
       - ./worker:/app
     deploy:
@@ -122,6 +136,7 @@ services:
           memory: 100M
     environment:
       TZ: Asia/Bangkok
+      ENVIRONMENT: ${ENVIRONMENT}
       RMQ_USER: ${RMQ_USER}
       RMQ_PASSWORD: ${RMQ_PASSWORD}
       RMQ_QUEUE_NAME: ${RMQ_QUEUE_NAME}

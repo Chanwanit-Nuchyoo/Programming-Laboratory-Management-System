@@ -1,12 +1,20 @@
 import express from 'express';
 import cors from 'cors';
 import mysql from "mysql";
+/* import https from "https"
+import fs from 'fs' */
 import chapterPermission from './handlers/chapterPermission.js';
 import testcaseResult from './handlers/testcaseResult.js';
 import submissionResult from './handlers/submissionResult.js';
 import onlineStudents from './handlers/onlineStudents.js';
 import classLogs from './handlers/classLogs.js';
 import redis from "redis";
+
+// SSL certificate and key files
+/* const sslOptions = {
+  key: fs.readFileSync('/etc/ssl/localhost-key.pem'),
+  cert: fs.readFileSync('/etc/ssl/localhost.pem')
+}; */
 
 const DB_CONFIG = {
   host: "db",
@@ -52,3 +60,7 @@ app.get('/subscribe/class-logs/:group_id', (req, res, next) => classLogs(req, re
 app.listen(3001, () => {
   console.log('Server is running on port 3001');
 });
+
+/* https.createServer(sslOptions, app).listen(3001, () => {
+  console.log('Server is running on port 3001');
+}); */
