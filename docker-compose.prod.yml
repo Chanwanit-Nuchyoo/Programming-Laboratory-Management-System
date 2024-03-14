@@ -1,0 +1,148 @@
+# FOR PRODUCTION ENVIRONMENT
+# TO RUN : docker-compose -f docker-compose.prod.yml up -d --build
+
+version: "3"
+
+services:
+  frontend:
+    build: 
+      context: ./frontend/plms-reboot
+      dockerfile: dockerfile.prod
+      args:
+        ENVIRONMENT: ${ENVIRONMENT}
+        VITE_BACKEND_BASE_URL: ${BACKEND_URL}
+        VITE_REALTIME_BASE_URL: ${REALTIME_URL}
+        VITE_YEAR: 2022
+    container_name: frontend-container-prod
+    volumes:
+      - ./ssl:/etc/ssl
+    ports:
+      - 80:80
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend/plms-reboot-ci-3
+      dockerfile: dockerfile.prod
+    container_name: backend-container-prod
+    ports:
+      - 3000:80 
+    environment:
+      TZ: Asia/Bangkok
+      ENVIRONMENT: ${ENVIRONMENT}
+      BASE_URL: ${BACKEND_URL}
+      FRONTEND_URL: ${FRONTEND_URL}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      RMQ_USER: ${RMQ_USER}
+      RMQ_PASSWORD: ${RMQ_PASSWORD}
+      RMQ_QUEUE_NAME: ${RMQ_QUEUE_NAME}
+      RMQ_PORT: 5672
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - ./config/prod/apache.conf:/etc/apache2/sites-enabled
+      - ./config/php.conf/prod:/usr/local/etc/php
+      # - ./ssl:/etc/ssl
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0.31
+    container_name: db-container-prod
+    command: --default-authentication-plugin=mysql_native_password      
+    environment:
+      TZ: Asia/Bangkok
+      MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_NAME}
+    ports:
+      - 3306:3306
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./sql-files:/sql-files
+
+  redis:
+    image: redis:7.0.15-alpine
+    container_name: redis-container-prod
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis:/data
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.2.0
+    container_name: phpmyadmin-container-prod
+    environment:
+      TZ: Asia/Bangkok
+      PMA_HOST: db
+      PMA_USER: ${DATABASE_USER}
+      PMA_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - 8080:80
+    depends_on:
+      - db
+
+  rabbitmq:
+    image: rabbitmq:3.12.11-management-alpine
+    container_name: rabbitmq-container-prod
+    tty: true
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      TZ: Asia/Bangkok
+      RABBITMQ_DEFAULT_USER: ${RMQ_USER} # Set default RabbitMQ user
+      RABBITMQ_DEFAULT_PASS: ${RMQ_PASSWORD} # Set default RabbitMQ password
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+  realtime:
+    build: 
+      context: ./realtime
+      dockerfile: dockerfile.prod
+    container_name: realtime-container-prod
+    ports:
+      - 3001:3001
+    environment:
+      TZ: Asia/Bangkok
+      ENVIRONMENT: ${ENVIRONMENT}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    # volumes:
+    #   - ./ssl:/etc/ssl
+    depends_on:
+      - redis
+      - db
+
+  worker:
+    build: 
+      context: ./worker
+      dockerfile: dockerfile.prod
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 100M
+    environment:
+      TZ: Asia/Bangkok
+      ENVIRONMENT: ${ENVIRONMENT}
+      RMQ_USER: ${RMQ_USER}
+      RMQ_PASSWORD: ${RMQ_PASSWORD}
+      RMQ_QUEUE_NAME: ${RMQ_QUEUE_NAME}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    # volumes:
+    #   - ./ssl:/etc/ssl
+    depends_on:
+      - db
+      - rabbitmq
+      
+volumes:
+  db-data:
+  rabbitmq-data:

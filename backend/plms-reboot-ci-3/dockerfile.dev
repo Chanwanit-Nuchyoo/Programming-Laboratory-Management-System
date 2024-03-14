@@ -36,16 +36,13 @@ RUN docker-php-ext-install mysqli pdo_mysql gd zip pcntl exif sockets
 RUN docker-php-ext-enable mysqli
 
 # Enable common Apache modules
-RUN a2enmod headers expires rewrite
+RUN a2enmod headers expires rewrite ssl
 
 # XDEBUG
 RUN pecl install xdebug && docker-php-ext-enable xdebug
 
 # PHPREDIS
 RUN pecl install redis && docker-php-ext-enable redis
-
-# This needs in order to run xdebug from VSCode
-ENV PHP_IDE_CONFIG 'serverName=DockerApp'
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
@@ -60,7 +57,3 @@ RUN composer install
 
 RUN chown -R root:root /var/www/html
 RUN chmod -R 777 /var/www/html
-
-# COPY entrypoint.sh /usr/local/bin/
-# RUN chmod +x /usr/local/bin/entrypoint.sh
-# ENTRYPOINT ["entrypoint.sh"]

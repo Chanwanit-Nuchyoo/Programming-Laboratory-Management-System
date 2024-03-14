@@ -1,0 +1,31 @@
+# Build stage
+FROM node:21.5.0-alpine AS build
+
+# Create app directory
+WORKDIR /app
+
+# Install app dependencies
+COPY package*.json ./
+
+RUN npm install --omit=dev
+
+# Bundle app source
+COPY . .
+
+# Production stage
+FROM node:21.5.0-alpine AS production
+
+# Create a new user
+RUN adduser -D myuser
+
+# Switch to the new user
+USER myuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy built app from the build stage
+COPY --from=build /app .
+
+# start app
+CMD ["node", "realtime.js"]
