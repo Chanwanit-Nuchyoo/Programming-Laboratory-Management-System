@@ -51,14 +51,23 @@ const app = express();
 
 app.use(cors());
 
+app.use((req, res, next) => {
+  console.log(req.path);
+  next();
+});
+
+app.get('/', (req, res) => {
+  res.send('/ is working');
+});
+
 app.get('/subscribe/testcase-result/:job_id', (req, res, next) => testcaseResult(req, res, next, redisClient))
 app.get('/subscribe/submission-result/:job_id', (req, res, next) => submissionResult(req, res, next, redisClient))
 app.get('/subscribe/chapter-permission/:group_id', (req, res, next) => chapterPermission(req, res, next, redisClient))
 app.get('/subscribe/online-students/:group_id', (req, res, next) => onlineStudents(req, res, next, db_pool, redisClient))
 app.get('/subscribe/class-logs/:group_id', (req, res, next) => classLogs(req, res, next, db_pool, redisClient))
 
-app.listen(3001, () => {
-  console.log('Server is running on port 3001');
+app.listen(3002, () => {
+  console.log('Server is running on port 3002');
 });
 
 /* https.createServer(sslOptions, app).listen(3001, () => {
