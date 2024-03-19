@@ -1123,7 +1123,7 @@ class Supervisor_rest extends MY_RestController
 				'job_type' => 'upsert-testcase',
 				'exercise_id' => $exercise_id,
 				'testcase_list' => $testcase_list,
-				'sourcecode' => file_get_contents($file_to_run),
+				'sourcecode' => file_get_contents($file_to_run) ? file_get_contents($file_to_run) : "",
 			)));
 
 			$channel->basic_publish($message, '', 'task-queue');
