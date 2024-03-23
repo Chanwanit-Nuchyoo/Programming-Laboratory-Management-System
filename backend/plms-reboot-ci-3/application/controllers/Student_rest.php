@@ -170,7 +170,7 @@ class Student_rest extends MY_RestController
 
       $lecturer = $this->supervisor_model_rest->get_supervisor_fullname_by_id($group_data['lecturer']);
 
-      $ip_address = $this->input->ip_address();
+      $ip_address = $_SERVER["HTTP_X_FORWARDED_FOR"];
 
       $data = [
         'stu_id' => $student['stu_id'],
