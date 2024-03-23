@@ -6,7 +6,7 @@ version: "3"
 services:
   nginx-proxy:
     image: nginx:latest
-    container_name: nginx-proxy-prod-dev
+    container_name: nginx-proxy-dev
     restart: always
     volumes:
       - ./proxy/dev/nginx.conf:/etc/nginx/nginx.conf
