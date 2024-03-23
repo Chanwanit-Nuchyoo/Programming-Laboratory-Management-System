@@ -1903,7 +1903,7 @@ class Lab_model_rest extends CI_Model
 	{
 		$_table = 'activity_logs';
 		$username = $_SESSION['username'] ? $_SESSION['username'] : 'anonymous';
-		$remote_ip =  $_SERVER['REMOTE_ADDR'] ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+		$remote_ip =  isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : ($_SERVER['REMOTE_ADDR'] ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0');
 		$remote_port =  $_SERVER['REMOTE_PORT'] ? $_SERVER['REMOTE_PORT'] : 0;
 		$agent =  $_SERVER['HTTP_USER_AGENT'] ? $_SERVER['HTTP_USER_AGENT'] : 'none';
 		$page_name = $_SESSION['page_name'] ? $_SESSION['page_name'] : 'undefined';
@@ -1920,14 +1920,14 @@ class Lab_model_rest extends CI_Model
 		$ci =  isset($_SESSION['__ci_last_regenerate']) ? $_SESSION['__ci_last_regenerate'] : 0;
 
 		$data = array(
-			'username'		=> $username,
-			'remote_ip'		=> $remote_ip,
-			'remote_port'	=> $remote_port,
-			'agent'			=> $agent,
-			'page_name'		=> $page_name,
-			'action' 		=> $action,
+			'username'      => $username,
+			'remote_ip'     => $remote_ip,
+			'remote_port'   => $remote_port,
+			'agent'         => $agent,
+			'page_name'     => $page_name,
+			'action'        => $action,
 			'group_id' => $group_id,
-			'ci'			=> $ci
+			'ci'            => $ci
 		);
 
 		$query = $this->db->insert($_table, $data);

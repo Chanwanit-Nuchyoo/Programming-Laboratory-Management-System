@@ -297,7 +297,7 @@ class Student_rest extends MY_RestController
           'log_data' => array(
             'group_id' => $_SESSION['stu_group'],
             'username' => $_SESSION['username'],
-            'remote_ip' => $_SERVER['REMOTE_ADDR'],
+            'remote_ip' =>  isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : ($_SERVER['REMOTE_ADDR'] ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0'),
             'agent' => $_SERVER['HTTP_USER_AGENT'],
             'page_name' => 'exercise_submit',
             'action' => $action,
