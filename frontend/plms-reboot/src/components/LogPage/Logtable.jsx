@@ -76,7 +76,15 @@ const Logtable = ({ queryData }) => {
     {
       header: "Remote IP",
       accessorKey: "remote_ip",
-      size: 40,
+      size: 60,
+      cell: (info) => {
+        const ip = info.getValue();
+        return (
+          <Tooltip title={ip}>
+            <Box textAlign="center" >{ip}</Box>
+          </Tooltip>
+        )
+      },
     },
     {
       header: "User Agent",
