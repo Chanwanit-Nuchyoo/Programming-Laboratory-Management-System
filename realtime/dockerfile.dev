@@ -10,4 +10,4 @@ RUN npm install
 RUN chmod -R 777 /app 
 
 # start app
-CMD ["npm", "run","start"]
+CMD ["node", "--watch","realtime.js"]
