@@ -57,7 +57,7 @@ const EditProfile = () => {
           {/* Breadcrumbs and Header components */}
           <Header logoIcon={<PersonIcon sx={{ fontSize: "30px" }} />} title="Edit Profile" />
 
-          <EditProfileForm user={user} formData={form} userId={user.id} />
+          <EditProfileForm user={user} formData={form} userId={user.id} allowUploadPic={user.role === "supervisor" || (!isLoading && formData.allow_upload_pic === "yes")} />
 
         </Stack>
       </Container>

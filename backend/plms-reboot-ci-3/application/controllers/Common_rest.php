@@ -62,11 +62,15 @@ class Common_rest extends MY_RestController
         $newData[$newKey] = $value;
       }
 
+      $allow_upload_pic = "no";
+
       if ($role == "student") {
         $department_list = $this->common_model_rest->get_all_department();
         $dept_id = $newData['dept_id'];
         unset($newData['dept_id']);
-
+        $this->load->model("lab_model_rest");
+        $stu_group = $this->lab_model_rest->get_student_group($this->session->userdata('id'));
+        $allow_upload_pic = $this->lab_model_rest->get_class_schedule_by_group_id($stu_group)["allow_upload_pic"];
         foreach ($department_list as $department) {
           if ($department['dept_id'] == $dept_id) {
             $newData['department'] = $department['dept_name'];
@@ -74,6 +78,8 @@ class Common_rest extends MY_RestController
           }
         }
       }
+
+      $newData['allow_upload_pic'] = $allow_upload_pic;
       $this->response($newData, RestController::HTTP_OK);
     } catch (Exception $e) {
       $this->handleError($e);

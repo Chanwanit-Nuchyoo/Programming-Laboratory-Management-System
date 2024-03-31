@@ -14,7 +14,7 @@ const StyledDatePicker = styled(DatePicker)({
   }
 });
 
-const PersonalInfoForm = ({ formData }) => {
+const PersonalInfoForm = ({ formData, allowUploadPic }) => {
   const { control, formState: { errors } } = useFormContext();
 
   const handlePreview = value => typeof value === "string" ? `${value}` : URL.createObjectURL(value);
@@ -51,9 +51,21 @@ const PersonalInfoForm = ({ formData }) => {
               render={({ field: { value, onChange, ...field } }) => (
                 <>
                   <Avatar alt={formData.firstname} src={handlePreview(value)} sx={{ width: "150px", height: "150px" }} />
-                  <input {...field} value={value?.fileName} onChange={e => onChange(e.target.files[0])} type="file" id="avatar" style={{ display: 'none' }} />
+                  <input {...field} value={value?.fileName} onChange={e => onChange(e.target.files[0])} type="file" id="avatar" style={{ display: 'none' }} disabled={!allowUploadPic} />
                   <label htmlFor="avatar">
-                    <IconButton component="span" sx={{ position: 'absolute', bottom: 0, right: 0, backgroundColor: 'var(--cerulean)', color: 'white', '&:hover': { backgroundColor: 'var(--cerulean)' } }}>
+                    <IconButton
+                      component="span"
+                      disableRipple={!allowUploadPic}
+                      sx={{
+                        position: 'absolute',
+                        bottom: 0,
+                        right: 0,
+                        backgroundColor: allowUploadPic ? 'var(--cerulean)' : 'var(--raven)',
+                        cursor: allowUploadPic ? 'pointer' : 'not-allowed',
+                        color: 'white',
+                        '&:hover': { backgroundColor: allowUploadPic ? 'var(--cerulean)' : 'var(--raven)' }
+                      }}
+                    >
                       <EditIcon />
                     </IconButton>
                   </label>

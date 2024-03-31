@@ -23,7 +23,7 @@ const defaultValue = {
   "tel": "",
 }
 
-const EditProfileForm = ({ formData = defaultValue, userId }) => {
+const EditProfileForm = ({ formData = defaultValue, userId, allowUploadPic }) => {
   const performLoginCheck = useLoginCheck();
   const queryClient = useQueryClient()
   const { mutateAsync: mutateProfile, isPending: isMutateProfilePending } = useMutation({
@@ -101,7 +101,7 @@ const EditProfileForm = ({ formData = defaultValue, userId }) => {
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} >
         <Grid container spacing={"10px"} >
-          <PersonalInfoForm control={control} formData={formData} errors={errors} />
+          <PersonalInfoForm control={control} formData={formData} errors={errors} allowUploadPic={allowUploadPic} />
 
           <Grid xs={12} md={6}>
             <Stack spacing="10px">
