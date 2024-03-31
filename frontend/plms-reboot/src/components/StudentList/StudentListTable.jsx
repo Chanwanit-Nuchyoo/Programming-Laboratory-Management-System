@@ -161,6 +161,10 @@ const StudentListTable = ({ isPending, labInfo, data }) => {
     {
       header: "Total",
       accessorFn: (row) => Object.values(row.chapter_score).reduce((acc, score) => acc + score, 0),
+    },
+    {
+      header: "Mid Score",
+      accessorKey: "mid_score"
     }
   ], [labInfo, onlineStudentsList])
 

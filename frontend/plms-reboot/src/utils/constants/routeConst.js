@@ -29,6 +29,8 @@ export const ABS_INS_URL = {
       `${PREFIX[USER_ROLES.SUPERVISOR]}/group/${groupId}/stu-list`,
     "ADD_STUDENT": (groupId = ":groupId") =>
       `${PREFIX[USER_ROLES.SUPERVISOR]}/group/${groupId}/add-stu`,
+    "ADD_MIDTERM_SCORE": (groupId = ":groupId") =>
+      `${PREFIX[USER_ROLES.SUPERVISOR]}/group/${groupId}/add-midterm-score`,
     "STUDENT_SCORE": (groupId = ":groupId", studentId = ":studentId") =>
       `${PREFIX[USER_ROLES.SUPERVISOR]}/group/${groupId}/score/stu/${studentId}`,
     "STUDENT_SUBMIT_HISTORY": (groupId = ":groupId", studentId = ":studentId", chapterId = ":chapterId", itemId = ":itemId") =>
@@ -36,9 +38,9 @@ export const ABS_INS_URL = {
     "PROFILE": (userId = ":userId") =>
       `${PREFIX[USER_ROLES.SUPERVISOR]}/profile/${userId}`,
     "EDITGROUP": (groupId = ":groupId") =>
-    `${PREFIX[USER_ROLES.SUPERVISOR]}/editgroup/${groupId}`,
+      `${PREFIX[USER_ROLES.SUPERVISOR]}/editgroup/${groupId}`,
     "LOGPAGE": (groupId = ":groupId") =>
-    `${PREFIX[USER_ROLES.SUPERVISOR]}/logpage/${groupId}`,
+      `${PREFIX[USER_ROLES.SUPERVISOR]}/logpage/${groupId}`,
   }
 }
 
@@ -65,15 +67,17 @@ export const REL_INS_URL = {
       `group/${groupId}/stu-list`,
     "ADD_STUDENT": (groupId = ":groupId") =>
       `group/${groupId}/add-stu`,
+    "ADD_MIDTERM_SCORE": (groupId = ":groupId") =>
+      `group/${groupId}/add-midterm-score`,
     "STUDENT_SCORE": (groupId = ":groupId", studentId = ":studentId") =>
       `group/${groupId}/score/stu/${studentId}`,
     "STUDENT_SUBMIT_HISTORY": (groupId = ":groupId", studentId = ":studentId", chapterId = ":chapterId", itemId = ":itemId") =>
       `group/${groupId}/sub-his/stu/${studentId}/chapter/${chapterId}/item/${itemId}`,
     "PROFILE": (userId = ":userId") =>
       `profile/${userId}`,
-      "EDITGROUP": (groupId = ":groupId") =>
+    "EDITGROUP": (groupId = ":groupId") =>
       `editgroup/${groupId}`,
-      "LOGPAGE": (groupId = ":groupId") =>
+    "LOGPAGE": (groupId = ":groupId") =>
       `logpage/${groupId}`,
   }
 }

@@ -8,7 +8,7 @@ import { ABS_INS_URL } from "@/utils/constants/routeConst"
 import { useState, useMemo, useEffect } from 'react';
 import { useSetAtom } from "jotai";
 import { sidebarSelectedAtom } from "@/store/store";
-import { redirect } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 // components
 import MyBreadCrumbs from '@/components/_shared/MyBreadCrumbs'
 import Header from "@/components/_shared/Header"
@@ -25,7 +25,8 @@ const AddStudent = () => {
   const { groupId } = useParams();
   const [student_data, setStudentData] = useState('');
   const setSelected = useSetAtom(sidebarSelectedAtom);
-  
+  const navigate = useNavigate();
+
   useEffect(() => {
     setSelected('my_groups');
   }, []);
@@ -44,8 +45,15 @@ const AddStudent = () => {
   const { mutate: AddStudentMutation } = useMutation({
     mutationFn: addStudent,
     onSuccess: () => {
-      queryClient.invalidateQueries(['groupData', groupId]);
+      navigate(ABS_INS_URL.DYNAMIC.STUDENT_LIST(groupId));
     },
+    onError: (error) => {
+      if (error.response.data.message) {
+        alert(error.response.data.message)
+      } else {
+        alert("Failed to add student")
+      }
+    }
   });
 
   return (
