@@ -61,7 +61,7 @@ const ExerciseChapterList = ({ cacheKey, refetch, isLoading, data, examChapters,
         setExamFlag(flag);
       }, 500);
     } else {
-      setExamFlag(null);
+      setExamFlag(false);
     }
 
     return () => {

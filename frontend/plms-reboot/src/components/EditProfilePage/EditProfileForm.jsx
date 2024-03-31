@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Box, Stack, TextField, Button } from "@mui/material";
+import { useLoginCheck } from "@/components/ProtectedRoute";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -23,12 +24,21 @@ const defaultValue = {
 }
 
 const EditProfileForm = ({ formData = defaultValue, userId }) => {
+  const performLoginCheck = useLoginCheck();
   const queryClient = useQueryClient()
-  const { mutateAsync: mutateProfile } = useMutation({
+  const { mutateAsync: mutateProfile, isPending: isMutateProfilePending } = useMutation({
     mutationFn: updateProfile,
     onSuccess: () => {
       reset(formData);
       queryClient.invalidateQueries(['profileFormData', userId])
+      window.location.reload();
+    },
+    onError: (error) => {
+      if (error.response.data.message) {
+        alert(error.response.data.message)
+      } else {
+        alert("failed to edit profile..")
+      }
     }
   })
   const methods = useForm({
@@ -62,7 +72,7 @@ const EditProfileForm = ({ formData = defaultValue, userId }) => {
       ["confirm_password"]: "",
       ["current_password"]: "",
     });
-  }, [formData, reset]);
+  }, [formData]);
 
   const onSubmit = (data) => {
     data[`dob`] = data[`dob`]?.format("YYYY-MM-DD");
@@ -84,6 +94,7 @@ const EditProfileForm = ({ formData = defaultValue, userId }) => {
     }
 
     mutateProfile(formData);
+    performLoginCheck();
   }
 
   return (
@@ -124,8 +135,8 @@ const EditProfileForm = ({ formData = defaultValue, userId }) => {
             />
           </Box>
           <Box>
-            <Button type='submit' variant="contained" sx={{ flex: 1 }} disabled={Object.keys(errors).length > 0 || !hasChanges || currentPassword === ""}>
-              Save
+            <Button type='submit' variant="contained" sx={{ flex: 1 }} disabled={Object.keys(errors).length > 0 || !hasChanges || currentPassword === "" || isMutateProfilePending}>
+              {isMutateProfilePending ? "Saving.." : "Save"}
             </Button>
           </Box>
         </Stack>
