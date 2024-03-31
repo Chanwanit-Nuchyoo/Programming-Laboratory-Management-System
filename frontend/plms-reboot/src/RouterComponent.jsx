@@ -28,6 +28,7 @@ const StuHome = lazy(() => import('@/pages/StuHome'));
 const AddGroup = lazy(() => import('@/pages/AddGroup'));
 const EditGroup = lazy(() => import('@/pages/EditGroup'));
 const LogPage = lazy(() => import('@/pages/LogPage'));
+const AddMidtermScore = lazy(() => import('@/pages/AddMidtermScore'));
 const RouterComponent = () => {
 
   return (
@@ -49,7 +50,8 @@ const RouterComponent = () => {
             <Route path={REL_INS_URL.DYNAMIC.ADD_EXERCISE()} element={<Suspense fallback={<div>Loading...</div>}><AddExercise /></Suspense>} />
             <Route path={REL_INS_URL.DYNAMIC.EDIT_EXERCISE()} element={<Suspense fallback={<div>Loading...</div>}><EditExercise /></Suspense>} />
             <Route path={REL_INS_URL.DYNAMIC.STUDENT_LIST()} element={<Suspense fallback={<div>Loading...</div>}><StudentList /></Suspense>} />
-            <Route path={REL_INS_URL.DYNAMIC.ADD_STUDENT()} element={<AddStudent />} />
+            <Route path={REL_INS_URL.DYNAMIC.ADD_STUDENT()} element={<Suspense fallback={<div>Loading...</div>}><AddStudent /></Suspense>} />
+            <Route path={REL_INS_URL.DYNAMIC.ADD_MIDTERM_SCORE()} element={<Suspense fallback={<div>Loading...</div>}><AddMidtermScore /></Suspense>} />
             <Route path={REL_INS_URL.DYNAMIC.STUDENT_SCORE()} element={<Suspense fallback={<div>Loading...</div>}><StudentScore /></Suspense>} />
             <Route path={REL_INS_URL.DYNAMIC.STUDENT_SUBMIT_HISTORY()} element={<Suspense fallback={<div>Loading...</div>}><SubmissionHistory /></Suspense>} />
             <Route path={REL_INS_URL.STATIC.AVAILABLE_GROUPS} element={<Suspense fallback={<div>Loading...</div>}><AvailableGroups /></Suspense>} />
@@ -57,10 +59,9 @@ const RouterComponent = () => {
             <Route path={REL_INS_URL.STATIC.EXAMINATION} element={<Examination />} />
             <Route path={REL_INS_URL.STATIC.FAQ} element={<Faq />} />
             <Route path={REL_INS_URL.DYNAMIC.PROFILE()} element={<EditProfile />} />
-            <Route path={REL_INS_URL.STATIC.ADDGROUP} element={<Suspense fallback={<div>Loading...</div>}><AddGroup /></Suspense>}/>
+            <Route path={REL_INS_URL.STATIC.ADDGROUP} element={<Suspense fallback={<div>Loading...</div>}><AddGroup /></Suspense>} />
             <Route path={REL_INS_URL.DYNAMIC.EDITGROUP()} element={<Suspense fallback={<div>Loading...</div>}><EditGroup /></Suspense>} />
             <Route path={REL_INS_URL.DYNAMIC.LOGPAGE()} element={<Suspense fallback={<div>Loading...</div>}><LogPage /></Suspense>} />
-
           </Route>
         </Route>
         <Route path={COMMON_URL.STATIC.SIGNIN} element={<SignIn />} />

@@ -51,7 +51,7 @@ const StudentList = () => {
 
         <Header logoSrc={folderIcon} title={`Group ${studentList.group_no}`} />
 
-        <Box sx={{ position: "sticky", top: 0, left: 0 }} >
+        <Stack direction="row" spacing="10px" sx={{ position: "sticky", top: 0, left: 0 }} >
           <Link to={ABS_INS_URL.DYNAMIC.ADD_STUDENT(groupId)} >
             <Button
               variant="contained"
@@ -67,7 +67,22 @@ const StudentList = () => {
               Add Student
             </Button>
           </Link>
-        </Box>
+          <Link to={ABS_INS_URL.DYNAMIC.ADD_MIDTERM_SCORE(groupId)} >
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{
+                height: '40px',
+                width: '250px',
+                fontSize: '16px',
+                textTransform: 'none',
+              }}
+              startIcon={<AddCircleIcon />}
+            >
+              Upload Midterm Score
+            </Button>
+          </Link>
+        </Stack>
         <Stack spacing={"10px"} width="calc(100vw-256px)" height="800px" sx={{ overflowX: "auto", position: "relative" }} >
           <StudentListTable isPending={isPending} labInfo={labInfo} data={students} />
         </Stack>
