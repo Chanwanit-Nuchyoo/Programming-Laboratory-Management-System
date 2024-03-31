@@ -1430,7 +1430,6 @@ class Supervisor_rest extends MY_RestController
 
 		$scores = $this->post('scores');
 		$s_arr = explode("\n", $scores);
-		print_r($s_arr);
 		$result = array();
 	
 		$this->load->model('supervisor_model_rest');
@@ -1440,7 +1439,6 @@ class Supervisor_rest extends MY_RestController
 			list($a, $b, $c) = $x;
 			$id = (int) $b;
 			$score = (int) $c;
-			echo "a=$a b=$b c=$score <br>";
 			$this->supervisor_model_rest->update_midscore($id, $score);
 	
 			$result[] = array(
