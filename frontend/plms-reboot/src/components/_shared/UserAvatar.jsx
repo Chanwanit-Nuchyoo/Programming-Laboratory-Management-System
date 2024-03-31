@@ -18,6 +18,7 @@ import { ABS_STU_URL, ABS_INS_URL, COMMON_URL } from "@/utils/constants/routeCon
 
 const UserAvatar = () => {
   const [user, setUser] = useAtom(userAtom);
+
   const navigate = useNavigate();
   const userMenuState = usePopupState({ variant: 'popover', popupId: 'userMenu' })
 

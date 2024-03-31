@@ -50,7 +50,7 @@ class Common_rest extends MY_RestController
       $image_file_name = $data[$prefix[$role] . '_avatar'];
 
       if ($image_file_name) {
-        $data[$prefix[$role] . '_avatar'] = ($role == "student" ? STUDENT_AVATAR_FOLDER : SUPERVISOR_AVATAR_FOLDER) . $image_file_name;
+        $data[$prefix[$role] . '_avatar'] = base_url() . ($role == "student" ? STUDENT_AVATAR_FOLDER : SUPERVISOR_AVATAR_FOLDER) . $image_file_name;
       } else {
         $data[$prefix[$role] . '_avatar'] = null;
       }
@@ -153,13 +153,11 @@ class Common_rest extends MY_RestController
 
       $this->upload->initialize($config);
       if (!$this->upload->do_upload('avatar')) {
-        error_log('File upload error: ' . $this->upload->display_errors());
-        return $data;
+        throw new Exception('File upload error: ' . $this->upload->display_errors('',''), RestController::HTTP_INTERNAL_ERROR);
       }
 
       $data[$this->common_model_rest->prefix[$role] . "_" . 'avatar'] = $newFileName;
-    } else {
-      error_log('No file uploaded for avatar');
+      $_SESSION['avatar'] = base_url() . $folder . $newFileName;
     }
     return $data;
   }
