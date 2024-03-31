@@ -1425,4 +1425,35 @@ class Supervisor_rest extends MY_RestController
 
 		$this->lab_model_rest->set_staff($staff_data_array);
 	}
+	public function uploadMidtermScoreAction_post() {
+		try {
+
+		$scores = $this->post('scores');
+		$s_arr = explode("\n", $scores);
+		print_r($s_arr);
+		$result = array();
+	
+		$this->load->model('supervisor_model_rest');
+	
+		foreach ($s_arr as $line) {
+			$x = preg_split("/[\s\n]+/", $line);
+			list($a, $b, $c) = $x;
+			$id = (int) $b;
+			$score = (int) $c;
+			echo "a=$a b=$b c=$score <br>";
+			$this->supervisor_model_rest->update_midscore($id, $score);
+	
+			$result[] = array(
+				'line' => $line,
+				'parsed' => $x,
+				'id' => $id,
+				'score' => $score
+			);
+		}
+	
+		$this->response($result, RestController::HTTP_OK);
+	} catch (Exception $e) {
+		return $this->handleError($e);
+	}
+	}
 }

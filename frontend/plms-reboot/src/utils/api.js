@@ -374,3 +374,11 @@ export const logAction = async ($log_data) => {
     { withCredentials: true }
   )
 }
+
+export const uploadMidtermScoreAction = async (formData) => {
+  const res = await axios.post(`${import.meta.env.VITE_BACKEND_BASE_URL}/index.php/supervisor_rest/uploadMidtermScoreAction`,
+    formData,
+    { withCredentials: true }
+  )
+  return res.data;
+}
