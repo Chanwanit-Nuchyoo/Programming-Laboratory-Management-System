@@ -36,7 +36,6 @@ const LogPage = () => {
     if (scrollToBottomRef.current && logData.length > 0) {
       scrollToBottomRef.current = false;
       scrollToBottom();
-      console.log("hello")
     }
   }, [logData]);
 
@@ -44,8 +43,6 @@ const LogPage = () => {
     `${import.meta.env.VITE_REALTIME_BASE_URL}/subscribe/class-logs/${groupId}`,
     (event) => {
       let data = JSON.parse(event.data);
-
-      console.log
 
       if (Array.isArray(data)) {
         data = data.map(log => {

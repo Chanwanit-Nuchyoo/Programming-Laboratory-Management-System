@@ -30,8 +30,8 @@ const WorkSpacePanel = ({ exerciseQuery, submitPermission, submissionList, selec
     eventSourceRef.current = new EventSource(`${import.meta.env.VITE_REALTIME_BASE_URL}/subscribe/submission-result/${job_id}`);
 
     eventSourceRef.current.onmessage = (event) => {
-      submissionList.refetch();
       shouldShowLatestSubmission.setValue(true);
+      submissionList.refetch();
       eventSourceRef.current.close();
       eventSourceRef.current = null;
     }

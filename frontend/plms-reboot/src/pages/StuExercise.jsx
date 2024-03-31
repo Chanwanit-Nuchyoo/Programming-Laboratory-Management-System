@@ -71,8 +71,7 @@ const StuExercise = () => {
   })
 
 
-  const { data: submissionList, isLoading: isSubmissionListLoading, refetch: refetchSubmissionList } = submissionListQuery;
-
+  const { data: submissionList, isLoading: isSubmissionListLoading, refetch: refetchSubmissionList, isRefetching } = submissionListQuery;
 
   const latestSubmission = useMemo(() => submissionList && submissionList.length > 0 ? submissionList.slice(-1)[0] : null, [submissionList]);
 
@@ -88,11 +87,11 @@ const StuExercise = () => {
   useEffect(handleExamFlag, [handleExamFlag]);
 
   const handleSubmissionListLoading = useCallback(() => {
-    if (!isSubmissionListLoading && submissionList.length > 0 && shouldShowLatestSubmission) {
+    if (!isSubmissionListLoading && submissionList.length > 0 && shouldShowLatestSubmission && !isRefetching) {
       setSelectedSubmission(submissionList.length - 1);
       setShouldShowLatestSubmission(false);
     }
-  }, [isSubmissionListLoading, submissionList, shouldShowLatestSubmission]);
+  }, [isSubmissionListLoading, submissionList, shouldShowLatestSubmission, isRefetching]);
 
   useEffect(handleSubmissionListLoading, [handleSubmissionListLoading]);
 
