@@ -41,20 +41,6 @@ const FaqList = () => {
           aria-controls="panel2a-content"
           id="panel2a-header"
         >
-          <Typography>ถ้านักศึกษามีการย้ายกลุ่ม ต้องทำอย่างไร</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography>
-            ให้แจ้งอาจารย์ผู้สอน ว่าย้ายมาจากกลุ่มไหน
-          </Typography>
-        </AccordionDetails>
-      </Accordion>
-      <Accordion>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel2a-content"
-          id="panel2a-header"
-        >
           <Typography>ทำไมส่งแลปได้คะแนนเต็มแล้ว เข้าไปอีกครั้ง คะแนนเปลี่ยนไป</Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -143,39 +129,11 @@ const FaqList = () => {
           aria-controls="panel2a-content"
           id="panel2a-header"
         >
-          <Typography>ทำไมถึงห้ามใช้ import</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography>
-            มีตัวอักษรได้สูงสุด 1024 ตัวอักษร
-          </Typography>
-        </AccordionDetails>
-      </Accordion>
-      <Accordion>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel2a-content"
-          id="panel2a-header"
-        >
           <Typography>ทำไม ไม่มี testcase แสดงออกมา</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
             ให้ตรวจสอบการรับอินพุท จำนวน input ต้องเป็นไปตามที่โจทย์กำหนด
-          </Typography>
-        </AccordionDetails>
-      </Accordion>
-      <Accordion>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel2a-content"
-          id="panel2a-header"
-        >
-          <Typography>ต้องการ submit ไฟล์ใหม่ หลังจากได้คะแนนเต็มแล้ว ทำได้ไหม</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography>
-            ทำได้โดยแจ้ง อาจารย์ให้ทราบ พร้อมทั้งบอกเหตุผล
           </Typography>
         </AccordionDetails>
       </Accordion>
