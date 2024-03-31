@@ -31,3 +31,6 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 *.sublime-project
 /tests/tests/
 /tests/results/
+
+/student_data/c_files/*.py
+/student_data/c_files/*.input

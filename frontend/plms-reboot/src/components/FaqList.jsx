@@ -17,7 +17,7 @@ const FaqList = () => {
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-            Python 3.8.10
+            Python 3.12.0
           </Typography>
         </AccordionDetails>
       </Accordion>
