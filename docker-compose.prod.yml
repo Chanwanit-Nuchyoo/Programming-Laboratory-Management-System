@@ -59,6 +59,8 @@ services:
     volumes:
       - ./backend/config/apache.conf/prod:/etc/apache2/sites-enabled
       - ./backend/config/php.conf/prod:/usr/local/etc/php
+      - ./backend/plms-reboot-ci-3/student_data:/var/www/html/student_data
+      - ./backend/plms-reboot-ci-3/supervisor_data:/var/www/html/supervisor_data
     depends_on:
       - db
 
