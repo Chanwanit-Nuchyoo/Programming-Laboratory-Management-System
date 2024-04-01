@@ -93,8 +93,6 @@ services:
     environment:
       TZ: Asia/Bangkok
       PMA_HOST: db
-      PMA_USER: ${DATABASE_USER}
-      PMA_PASSWORD: ${DATABASE_PASSWORD}
     ports:
       - 8080:80
     depends_on:
