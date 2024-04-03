@@ -1,6 +1,12 @@
+import { useState } from 'react';
 import { Box, Button, Stack } from '@mui/material';
 import CircleIcon from '@mui/icons-material/Circle';
-import { useReactTable, flexRender, getCoreRowModel } from '@tanstack/react-table';
+import {
+  useReactTable,
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+} from '@tanstack/react-table';
 import useSetStudentCanSubmitMutation from '@/hooks/useSetStudentCanSubmitMutation';
 import { getClassNames } from "@/utils";
 import { useMemo } from "react"
@@ -58,6 +64,7 @@ import StudentAvatarCell from '@/components/StudentList/StudentAvatarCell';
     }
 }
 */
+
 const columnStyles = {
   "Avatar": { width: '130px' },
   "Status": { width: '150px' },
@@ -70,6 +77,7 @@ const StudentListTable = ({ isPending, labInfo, data }) => {
   const { groupId } = useParams();
   const onlineStudentsList = useOnlineStudentsList(groupId);
   const setStuCanSubmitMutation = useSetStudentCanSubmitMutation(groupId);
+  const [sorting, setSorting] = useState([]);
 
   const handleToggleCanSubmit = (stuId, canSubmit) => {
     setStuCanSubmitMutation.mutate({
@@ -89,7 +97,8 @@ const StudentListTable = ({ isPending, labInfo, data }) => {
       cell: (info) => {
         const { stu_id, stu_avatar } = info.getValue()
         return (<StudentAvatarCell groupId={groupId} stuId={stu_id} avatar={stu_avatar} /* onlineStudentsList={onlineStudentsList} */ />)
-      }
+      },
+      enableSorting: false,
     },
     {
       header: "Status",
@@ -120,23 +129,22 @@ const StudentListTable = ({ isPending, labInfo, data }) => {
             </Button>
           </Stack>
         )
-      }
+      },
+      enableSorting: false,
     },
     {
       header: "Student ID",
-      accessorFn: (row) => ({
-        stu_id: row.stu_id,
-        can_submit: row.can_submit,
-      }),
+      accessorKey: "stu_id",
       cell: (info) => {
-        const { stu_id, can_submit } = info.getValue()
+        const stu_id = info.getValue()
         return (
           <Stack width="100%" justifyContent="center" alignItems="center" spacing="10px" >
             <Box>{stu_id}</Box>
-            {/* <Button variant='contained' color={can_submit === "yes" ? "success" : "error"} sx={{ width: "130px" }} >{can_submit ? "Can Submit" : "Can't Submit"}</Button> */}
           </Stack>
         )
-      }
+      },
+      sortDescFirst: true,
+      sortingFn: "alphanumeric"
     },
     {
       header: "Name",
@@ -152,26 +160,45 @@ const StudentListTable = ({ isPending, labInfo, data }) => {
             <Box>{nickname && `(${nickname})`}</Box>
           </Stack>
         )
+      },
+      sortDescFirst: true,
+      sortingFn: (
+        rowA,
+        rowB,
+        columnId
+      ) => {
+        const numA = rowA.getValue(columnId).full_name;
+        const numB = rowB.getValue(columnId).full_name;
+
+        return numA < numB ? 1 : numA > numB ? -1 : 0;
       }
     },
     ...labInfo.map((lab, index) => ({
       header: `Lab ${index + 1} (10)`,
-      accessorFn: (row) => row.chapter_score[index + 1],
+      accessorFn: (row) => Number(row.chapter_score[index + 1]),
+      sortDescFirst: true,
     })),
     {
       header: "Total",
       accessorFn: (row) => Object.values(row.chapter_score).reduce((acc, score) => acc + score, 0),
+      sortDescFirst: true,
     },
     {
       header: "Mid Score",
-      accessorKey: "mid_score"
+      accessorKey: "mid_score",
+      sortDescFirst: true,
     }
   ], [labInfo, onlineStudentsList])
 
   const { getHeaderGroups, getRowModel } = useReactTable({
     columns,
     data,
+    state: {
+      sorting,
+    },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   })
 
   return (
@@ -182,6 +209,7 @@ const StudentListTable = ({ isPending, labInfo, data }) => {
             {headerGroup.headers.map((header, index) => (
               <th
                 key={header.id}
+                colSpan={header.colSpan}
                 style={{
                   ...(['Avatar', 'Status', 'Student ID', 'Name'].includes(header.column.columnDef.header) ?
                     { ...columnStyles[header.column.columnDef.header], minWidth: '150px' }
@@ -194,9 +222,37 @@ const StudentListTable = ({ isPending, labInfo, data }) => {
                   zIndex: index < 4 ? 20 : 15,
                 }}
               >
-                {flexRender(
-                  header.column.columnDef.header,
-                  header.getContext()
+                {header.isPlaceholder ? null : (
+                  <div
+                    className={
+                      header.column.getCanSort()
+                        ? 'cursor-pointer select-none'
+                        : ''
+                    }
+                    onClick={header.column.getToggleSortingHandler()}
+                    title={
+                      header.column.getCanSort()
+                        ? header.column.getNextSortingOrder() === 'asc'
+                          ? 'Sort ascending'
+                          : header.column.getNextSortingOrder() === 'desc'
+                            ? 'Sort descending'
+                            : 'Clear sort'
+                        : undefined
+                    }
+                    style={{
+                      cursor: 'pointer',
+                      userSelect: "none",
+                    }}
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                    {{
+                      asc: ' 🔼',
+                      desc: ' 🔽',
+                    }[header.column.getIsSorted()] ?? null}
+                  </div>
                 )}
               </th>
             ))}
