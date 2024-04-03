@@ -1067,7 +1067,6 @@ class Lab_model_rest extends CI_Model
 	{
 		$this->db->select('class_id')
 			->from('class_lab_staff')
-
 			->where('staff_id', $staff_id);
 
 		$query = $this->db->get();
@@ -1078,8 +1077,9 @@ class Lab_model_rest extends CI_Model
 	}
 	public function get_all_staff()
 	{
-		$this->db->select('*')
-			->from('user_supervisor');
+		$this->db->select('user_supervisor.*, user.username')
+			->from('user_supervisor')
+			->join('user', 'user.id = user_supervisor.supervisor_id');
 		$query = $this->db->get();
 		$query = $query->result_array();
 

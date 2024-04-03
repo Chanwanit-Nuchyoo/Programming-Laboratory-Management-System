@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Box, TextField, Stack, CircularProgress } from "@mui/material";
-import { Controller, useForm ,FormProvider} from "react-hook-form";
+import { Controller, useForm, FormProvider } from "react-hook-form";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllDepartment } from "@/utils/api";
@@ -13,7 +13,7 @@ import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
 import { ABS_INS_URL } from "@/utils/constants/routeConst";
 
-const AddGroupForm = ({form}) => {
+const AddGroupForm = ({ form }) => {
   if (form) {
     if (form.time_start) {
       form.time_start = moment(form.time_start, 'HH:mm:ss');
@@ -23,7 +23,7 @@ const AddGroupForm = ({form}) => {
     }
   }
   const navigate = useNavigate();
-  const { control, handleSubmit, formState: { errors } ,reset} = useForm({
+  const { control, handleSubmit, formState: { errors }, reset } = useForm({
     defaultValues: form
   });
 
@@ -46,17 +46,17 @@ const AddGroupForm = ({form}) => {
     queryFn: getAllLabStaff,
   })
 
-  const {mutate :editGroupMutation ,isPending:editGroupPending} = useMutation({
-    mutationFn:editGroup,
-    onSuccess: () =>{
+  const { mutate: editGroupMutation, isPending: editGroupPending } = useMutation({
+    mutationFn: editGroup,
+    onSuccess: () => {
       queryClient.invalidateQueries('groupdata');
       navigate(ABS_INS_URL.STATIC.MY_GROUPS);
       reset();
     },
     onError: (err) => {
-        alert(err.response.data.message)
-        reset();
-      }
+      alert(err.response.data.message)
+      reset();
+    }
   })
 
   const renderTextField = (name, label, type = "text", rules = {}, disabled = false) => (
@@ -80,17 +80,17 @@ const AddGroupForm = ({form}) => {
     />
   );
 
-  const renderSelectField = (name, label, options, rules = {}, disabled = false, id,labelId) => (
+  const renderSelectField = (name, label, options, rules = {}, disabled = false, id, labelId) => (
     <Controller
       name={name}
       control={control}
       rules={rules}
       render={({ field }) => (
         <FormControl sx={{ flex: 1 }}>
-          <InputLabel id ={labelId} >{label}</InputLabel>
+          <InputLabel id={labelId} >{label}</InputLabel>
           <Select
-            labelId = {labelId}
-            id ={id}
+            labelId={labelId}
+            id={id}
             value={field.value || ''}
             onChange={field.onChange}
             disabled={disabled}
@@ -172,7 +172,7 @@ const AddGroupForm = ({form}) => {
           >
             {options.map((option, index) => (
               <MenuItem key={index} value={option.supervisor_id}>
-                {option.supervisor_firstname} {option.supervisor_lastname}
+                id ({option.supervisor_id}) - username ({option.username}) - name ({option.supervisor_firstname} {option.supervisor_lastname})
               </MenuItem>
             ))}
           </Select>
@@ -190,21 +190,21 @@ const AddGroupForm = ({form}) => {
     editGroupMutation(data);
   };
   return (
-      <Box sx={boxStyle}>
-        <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+    <Box sx={boxStyle}>
+      <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <Stack direction={'row'} spacing="10px" sx={{ mb: 2 }}>
           {renderTextField(`group_name`, "Group Name*", "text", { required: 'Group name is required' }, false)}
         </Stack>
         <Stack direction={'row'} spacing="10px" sx={{ mb: 2 }}>
-        {renderTextField(`group_id`, "GroupId*", "text", { required: 'groupId is required'}, true)}
-        {renderTextField(`group_no`, "Group No*", "text", { required: 'Group No is required', pattern: { value: /^[0-9]*$/, message: 'Only numbers are allowed' } }, false)}
+          {renderTextField(`group_id`, "GroupId*", "text", { required: 'groupId is required' }, true)}
+          {renderTextField(`group_no`, "Group No*", "text", { required: 'Group No is required', pattern: { value: /^[0-9]*$/, message: 'Only numbers are allowed' } }, false)}
         </Stack>
         <Stack direction={'row'} spacing="10px" sx={{ mb: 2 }}>
-        {isDepLoading ? (<p>Loading...</p>) : (
-          renderDepartmentSelectField(`department`, "Department", departments, { required: 'Department is required' }, false, "department", "department-label")
-        )}
+          {isDepLoading ? (<p>Loading...</p>) : (
+            renderDepartmentSelectField(`department`, "Department", departments, { required: 'Department is required' }, false, "department", "department-label")
+          )}
           {renderSelectField(`day_of_week`, "Day of Week*", daysOfWeek, { required: 'Day of Week is required' }, false,
-          "dayofweek","dayofweek-label")}
+            "dayofweek", "dayofweek-label")}
         </Stack>
         <Stack direction={'row'} spacing="10px" sx={{ mb: 2 }}>
           {renderTimePicker(`time_start`, "TimeStart*", { required: 'time_start is required' }, false)}
@@ -213,19 +213,19 @@ const AddGroupForm = ({form}) => {
         <Stack direction={'row'} spacing="10px" sx={{ mb: 2 }}>
           {renderTextField(`year`, "Year*", "text", { required: 'Year is required', pattern: { value: /^[0-9]{4}$/, message: 'Year must be exactly 4 digits' } }, false)}
           {renderSelectField(`semester`, "Semester", [1, 2, 3], { required: 'Semester is required' }, false,
-          "semester","semester-label")}
-        </Stack> 
+            "semester", "semester-label")}
+        </Stack>
         <Stack direction={'row'} spacing="10px" sx={{ mb: 2 }}>
-        {isStaffLoading ? (<p>Loading...</p>) : (
-          renderMultipleSelectField(`staff_id`, "Staff", AllLabStaffdata.payload.lab_staff, {}, false,
-          "staff","staff-label")
+          {isStaffLoading ? (<p>Loading...</p>) : (
+            renderMultipleSelectField(`staff_id`, "Staff", AllLabStaffdata.payload.lab_staff, {}, false,
+              "staff", "staff-label")
           )}
-        </Stack> 
-        <Button type="submit" variant="contained" color="primary" disabled ={editGroupPending} startIcon={editGroupPending && <CircularProgress size = {30}/>}>
+        </Stack>
+        <Button type="submit" variant="contained" color="primary" disabled={editGroupPending} startIcon={editGroupPending && <CircularProgress size={30} />}>
           {editGroupPending ? "Loading..." : "Submit"}
         </Button>
-        </form>
-      </Box>
+      </form>
+    </Box>
   );
 };
 
