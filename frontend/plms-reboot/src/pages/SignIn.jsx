@@ -46,7 +46,7 @@ const SignIn = () => {
     } catch (error) {
       /* console.log(error) */
       // Set error message in the errors object of react-hook-form
-      alert(error.response.data.message)
+      alert(error.response.data.message ? error.response.data.message : "An error occurred while logging in.")
       setUser(null);
       setServerTimeOffset(null);
     }

@@ -580,17 +580,16 @@ class Supervisor_rest extends MY_RestController
 			$testcase_array = $this->lab_model_rest->get_testcase_array($exercise_id);
 
 			$data = array(
-				testcases => $testcase_array,
-				added_by => $lab['added_by'],
-				created_by => $lab["created_by"],
-			)
+				"testcases" => $testcase_array,
+				"added_by" => $lab['added_by'],
+				"created_by" => $lab["created_by"],
+			);
 
-			return $this->response($testcase_array, RestController::HTTP_OK);
+			return $this->response($data, RestController::HTTP_OK);
 		} catch (Exception $e) {
 			return $this->handleError($e);
 		}
 	}
-
 
 	public function get_sourcecode_output_no_testcase($exercise_id)
 	{
@@ -698,7 +697,7 @@ class Supervisor_rest extends MY_RestController
 				'sourcecode_content' => $formdata['sourcecode_content'],
 				'created_by' => $formdata['created_by'],
 				'added_by' => $formdata['added_by'],
-				'keyword_constraints' =>
+				'keyword_constraints' => array(
 					'suggested_constraints' => $formdata['suggested_constraints'] == null ? $default_constraints : json_decode($formdata['suggested_constraints'], true),
 					'user_defined_constraints' => $formdata['user_defined_constraints'] == null ? $default_constraints : json_decode($formdata['user_defined_constraints'], true),
 				)
