@@ -39,7 +39,7 @@ const StudentList = () => {
   }, []);
 
   return (
-    <Box>
+    <Box paddingX={10} >
       <Stack spacing={"20px"}>
         <MyBreadCrumbs
           items={[
@@ -83,7 +83,7 @@ const StudentList = () => {
             </Button>
           </Link>
         </Stack>
-        <Stack spacing={"10px"} width="calc(100vw-256px)" height="800px" sx={{ overflowX: "auto", position: "relative" }} >
+        <Stack spacing={"10px"} sx={{ overflowX: "auto", position: "relative" }} >
           <StudentListTable isPending={isPending} labInfo={labInfo} data={students} />
         </Stack>
       </Stack>

@@ -60,7 +60,7 @@ function MyGroups() {
   const items = [{ label: 'My Groups', href: '/ins' }];
 
   return (
-    <Container>
+    <Container >
       <Stack spacing="20px">
         <MyBreadCrumbs items={items} />
         <div style={{ display: 'flex', gap: "10px", alignItems: "center" }}>

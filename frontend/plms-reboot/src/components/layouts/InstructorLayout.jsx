@@ -10,12 +10,12 @@ const InstructorLayout = () => {
   return (
     <>
       <Sidebar />
-      <Box marginX={10} paddingTop={2} paddingBottom={5}>
+      <Box marginLeft={10} paddingTop={2} paddingBottom={5}>
+        <Box marginRight={10} >
+          <UserAvatar />
+        </Box>
         <ServerTimeDisplay />
-        <UserAvatar />
-        <Container maxWidth="xl" >
-          <Outlet />
-        </Container>
+        <Outlet />
       </Box>
       <footer></footer>
     </>
