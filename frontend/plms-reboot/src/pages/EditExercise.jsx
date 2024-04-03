@@ -51,6 +51,8 @@ const EditExercise = () => {
     lab_name: '',
     lab_content: '',
     sourcecode_content: '# Source code\n',
+    created_by: '',
+    added_by: '',
     keyword_constraints: {
       suggested_constraints: defaultCon,
       user_defined_constraints: defaultCon
@@ -59,6 +61,8 @@ const EditExercise = () => {
     lab_name: form.lab_name,
     lab_content: form.lab_content,
     sourcecode_content: form.sourcecode_content,
+    created_by: form.created_by,
+    added_by: form.added_by,
     keyword_constraints: {
       suggested_constraints: form["keyword_constraints"]["suggested_constraints"],
       user_defined_constraints: form["keyword_constraints"]["user_defined_constraints"]

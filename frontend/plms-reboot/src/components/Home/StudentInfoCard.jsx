@@ -68,9 +68,9 @@ const StudentInfoCard = ({ user }) => {
             </Stack>
           </Stack>
 
-          <Stack justifyContent={"center"} alignItems={"center"} width={"100%"} height={"30px"} sx={{ textAlign: "center" }} paddingY={"5px"} borderRadius={"8px"} bgcolor={"var(--chathamBlue)"} >
+          {/* <Stack justifyContent={"center"} alignItems={"center"} width={"100%"} height={"30px"} sx={{ textAlign: "center" }} paddingY={"5px"} borderRadius={"8px"} bgcolor={"var(--chathamBlue)"} >
             <Typography>คะแนนสอบกลางภาค (60) {!isLoading && studentCard && studentCard.mid_score} คะแนน</Typography>
-          </Stack>
+          </Stack> */}
 
         </Stack>
       </Stack>

@@ -10,6 +10,8 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { saveExerciseTestcase } from "@/utils/api"
 import testcaseIcon from '@/assets/images/testcaseicon.svg'
 import { v4 as uuidv4 } from 'uuid';
+import { userAtom } from '@/store/store'
+import { useAtom } from "jotai";
 
 const buttonProps = {
   size: 'medium',
@@ -19,8 +21,9 @@ const buttonProps = {
 
 const Testcases = ({ hasSourceCode = false }) => {
   const { exerciseId } = useParams();
+  const [user,] = useAtom(userAtom);
 
-  const { data, isLoading, status, refetch: refetchTestcaseData } = useQuery({
+  const { data: tcRes, isLoading, status, refetch: refetchTestcaseData } = useQuery({
     queryKey: ['testcaseData', exerciseId],
     queryFn: () => getExerciseTestcases(exerciseId),
     /* refetchInterval: ({ state: { data } }) => {
@@ -37,6 +40,10 @@ const Testcases = ({ hasSourceCode = false }) => {
       }
     }, */
   })
+
+  const canEdit = tcRes?.created_by === user.id || user.username === tcRes?.added_by;
+  const data = tcRes?.testcases
+
   const queryClient = useQueryClient();
   const { mutate: saveTestcases } = useMutation({
     mutationFn: saveExerciseTestcase,
@@ -153,11 +160,11 @@ const Testcases = ({ hasSourceCode = false }) => {
                 <Typography sx={{ color: '#0ca6e9', fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center' }} >
                   <img src={testcaseIcon} alt="Testcase Icon" style={{ marginRight: '8px' }} /> Test case
                 </Typography>
-                <Stack direction={"row"} spacing={"10px"} >
+                {canEdit && <Stack direction={"row"} spacing={"10px"} >
                   <>
                     {isEditable ?
                       <>
-                        <Button {...buttonProps} disabled={!isDirty || !allTestcasesHaveInput} onClick={handleSubmit(handleSubmitEditedTestcase)}
+                        <Button {...buttonProps} disabled={!isDirty || !allTestcasesHaveInput || !canEdit} onClick={handleSubmit(handleSubmitEditedTestcase)}
                           sx={{
                             width: '120px',
                             height: '40px',
@@ -172,13 +179,13 @@ const Testcases = ({ hasSourceCode = false }) => {
                       </>
                       :
                       <>
-                        <Button {...buttonProps} color={'error'} type="button" onClick={handleSubmit(handleSubmitedAll)}
+                        <Button {...buttonProps} disabled={!canEdit} color={'error'} type="button" onClick={handleSubmit(handleSubmitedAll)}
                           sx={{
                             width: '160px',
                             height: '40px',
                             fontSize: '16px',
                           }}>Run All Testcase</Button>
-                        <Button {...buttonProps} type="button" onClick={() => { setIsEditable(true) }}
+                        <Button {...buttonProps} type="button" disabled={!canEdit} onClick={() => { setIsEditable(true) }}
                           sx={{
                             width: '120px',
                             height: '40px',
@@ -188,6 +195,7 @@ const Testcases = ({ hasSourceCode = false }) => {
                     }
                   </>
                 </Stack>
+                }
               </Stack>
               <Stack direction={'row'} >
                 {isEditable && <Button {...buttonProps} type="submit" variant={"outlined"} startIcon={<AddCircleIcon size="small" />} onClick={handleAddNewTestcase}
