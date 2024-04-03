@@ -13,6 +13,8 @@ import { createExercise, updateExercise, getKeywordList, checkKeyword, deleteExe
 import { getConstraintsFailedMessage } from '@/utils';
 import { modalStyle } from '@/utils';
 import { ABS_INS_URL } from "@/utils/constants/routeConst";
+import { userAtom } from "@/store/store";
+import { useAtom } from "jotai";
 import levelIcon from '@/assets/images/levelicon.svg'
 import ErrorIcon from '@mui/icons-material/Error';
 import suggestedIcon from '@/assets/images/suggestedicon.svg'
@@ -50,7 +52,9 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
   const [isPyodideReady, setIsPyodideReady] = useState(false);
   const rteRef = useRef(null);
   const pyodideWorkerRef = useRef(null);
+  const [user,] = useAtom(userAtom);
   const editor = rteRef.current?.editor;
+  const canEdit = user?.id === form.created_by || user?.username === 'kanut';
 
   const { mutate: createNewExercse } = useMutation({
     mutationFn: createExercise,
@@ -226,7 +230,10 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
     } else {
       return (
         <Stack direction="row" spacing={1}>
-          <Button variant="contained" size="medium"
+          <Button
+            disabled={!canEdit}
+            variant="contained"
+            size="medium"
             sx={{
               width: '120px',
               height: '40px',

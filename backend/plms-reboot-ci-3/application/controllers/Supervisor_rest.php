@@ -575,12 +575,15 @@ class Supervisor_rest extends MY_RestController
 				throw new Exception('Invalid data provided.', RestController::HTTP_BAD_REQUEST);
 			}
 
-			if (!empty($cache)) {
-				$data = json_decode($cache, true);
-				return $this->response($data, RestController::HTTP_OK);
-			}
+			$lab = $this->lab_model_rest->get_exercise_form($exercise_id);
 
 			$testcase_array = $this->lab_model_rest->get_testcase_array($exercise_id);
+
+			$data = array(
+				testcases => $testcase_array,
+				added_by => $lab['added_by'],
+				created_by => $lab["created_by"],
+			)
 
 			return $this->response($testcase_array, RestController::HTTP_OK);
 		} catch (Exception $e) {
@@ -693,7 +696,9 @@ class Supervisor_rest extends MY_RestController
 				'lab_name' => $formdata['lab_name'],
 				'lab_content' => $formdata['lab_content'],
 				'sourcecode_content' => $formdata['sourcecode_content'],
-				'keyword_constraints' => array(
+				'created_by' => $formdata['created_by'],
+				'added_by' => $formdata['added_by'],
+				'keyword_constraints' =>
 					'suggested_constraints' => $formdata['suggested_constraints'] == null ? $default_constraints : json_decode($formdata['suggested_constraints'], true),
 					'user_defined_constraints' => $formdata['user_defined_constraints'] == null ? $default_constraints : json_decode($formdata['user_defined_constraints'], true),
 				)
@@ -726,9 +731,9 @@ class Supervisor_rest extends MY_RestController
 
 			$lab = $this->lab_model_rest->get_lab_exercise_by_id($exercise_id);
 
-			/* if (!($user_id == $lab['created_by'] || $this->session->userdata('username') == 'kanut')) {
+			if (!($user_id == $lab['created_by'] || $this->session->userdata('username') == 'kanut')) {
 				throw new Exception('You are not allowed to edit this exercise.', 403);
-			} */
+			}
 
 			$updated_data['user_defined_constraints'] = json_encode($updated_data['keyword_constraints']['user_defined_constraints']);
 			$updated_data['suggested_constraints'] = json_encode($updated_data['keyword_constraints']['suggested_constraints']);
@@ -1083,8 +1088,14 @@ class Supervisor_rest extends MY_RestController
 		if (!isset($exercise_id)) {
 			return $this->response(['message' => 'Invalid request body'], RestController::HTTP_BAD_REQUEST);
 		}
-
+		
 		$this->load->model('lab_model_rest');
+
+		$lab = $this->lab_model_rest->get_exercise_form($exercise_id);
+
+		if (!($user_id == $lab['created_by'] || $this->session->userdata('username') == 'kanut')) {
+			throw new Exception('You are not allowed to edit this exercise\'s testcases.', 403);
+		}
 
 		// Start a transaction
 		$this->db->trans_begin();
