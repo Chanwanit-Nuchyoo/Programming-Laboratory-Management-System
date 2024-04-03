@@ -54,7 +54,7 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
   const pyodideWorkerRef = useRef(null);
   const [user,] = useAtom(userAtom);
   const editor = rteRef.current?.editor;
-  const canEdit = user?.id === form.created_by || user?.username === 'kanut';
+  const canEdit = user?.id === formData.created_by || user?.username === 'kanut';
 
   const { mutate: createNewExercse } = useMutation({
     mutationFn: createExercise,
@@ -242,7 +242,11 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
             }}
             onClick={() => setEditable(true)}
           >Edit</Button>
-          <Button variant="contained" color="error" size="medium"
+          <Button
+            disabled={!canEdit}
+            variant="contained"
+            color="error"
+            size="medium"
             onClick={() => setConfirmDeleteModal(true)}
             sx={{
               width: '120px',
@@ -297,7 +301,7 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
           <Typography sx={{ color: '#0ca6e9', fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center' }} >
             <img src={levelIcon} alt="Level Icon" style={{ marginRight: '10px' }} /> Level {lv}
           </Typography>
-          {renderEditButtons()}
+          {canEdit && renderEditButtons()}
         </Stack>
         <Controller
           name="lab_name"

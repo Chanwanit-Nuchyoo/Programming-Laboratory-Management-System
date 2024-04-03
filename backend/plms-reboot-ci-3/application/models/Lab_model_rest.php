@@ -1911,7 +1911,7 @@ class Lab_model_rest extends CI_Model
 
 		$group_id = NULL;
 
-		if ($_SESSION['role'] == "student") {
+		if (isset($_SESSION['role']) && $_SESSION['role'] == "student") {
 			$group_id = $_SESSION['stu_group'];
 		} else {
 			$group_id = $gid;
@@ -2066,7 +2066,7 @@ class Lab_model_rest extends CI_Model
 
 	public function get_exercise_form($exercise_id)
 	{
-		$this->db->select('lab_name, lab_content, sourcecode, user_defined_constraints, suggested_constraints', 'added_by', 'created_by')
+		$this->db->select('lab_name, lab_content, sourcecode, user_defined_constraints, suggested_constraints, added_by, created_by')
 			->where('exercise_id', $exercise_id)
 			->from('lab_exercise');
 		$query = $this->db->get()->row_array();
