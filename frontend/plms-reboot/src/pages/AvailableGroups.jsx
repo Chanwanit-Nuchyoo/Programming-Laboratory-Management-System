@@ -10,8 +10,6 @@ import { useSearchParams } from "react-router-dom";
 // components
 import Header from "@/components/_shared/Header";
 import MyBreadCrumbs from "@/components/_shared/MyBreadCrumbs"
-import AvgTableRow from "@/components/AvailableGroupsPage/AvgTableRow";
-import AvgTableHead from "@/components/AvailableGroupsPage/AvgTableHead";
 import AllGroupsTable from "@/components/AvailableGroupsPage/AllGroupsTable";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { getAllAvailableGroups } from "@/utils/api";
@@ -45,10 +43,12 @@ const AvailableGroups = () => {
     year: "",
     sem: "",
     ins: "",
+    staff: "",
     day: "",
   });
 
   const [instructorOptions, setInstructorOptions] = useState([]);
+  const [staffOptions, setStaffOptions] = useState([]);
   const [yearOptions, setYearOptions] = useState([]);
   const getSearchParam = (paramName) => {
     const paramValue = searchParams.get(paramName);
@@ -59,6 +59,7 @@ const AvailableGroups = () => {
   const [selectedSemester, setSelectedSemester] = useState(getSearchParam('sem'));
   const [selectedClassDate, setSelectedClassDate] = useState(getSearchParam('day'));
   const [selectedInstructor, setSelectedInstructor] = useState(getSearchParam('ins'));
+  const [selectedStaff, setSelectedStaff] = useState(getSearchParam('staff'));
   const setSelected = useSetAtom(sidebarSelectedAtom);
 
   const groupsQuery = useQuery({
@@ -76,129 +77,138 @@ const AvailableGroups = () => {
   useEffect(() => {
     //get all instructors name from groups
     const instructors = groupsQuery.data?.instructor_list || [];
+    const staffs = groupsQuery.data?.staff_list || [];
     const years = groupsQuery.data?.year_list || [];
     setInstructorOptions(instructors.map(ins => `${ins.supervisor_firstname} ${ins.supervisor_lastname || ""}`));
     setYearOptions(years);
+    setStaffOptions(staffs.map(staff => `${staff.supervisor_firstname} ${staff.supervisor_lastname || ""}`));
   }, [groupsQuery.isPending, setSelected])
 
   return (
-    <Box>
-      <Container>
-        <Stack spacing={"20px"} >
-          <MyBreadCrumbs items={[
-            { label: 'Available Groups', href: '#' },
-          ]} />
+    <Box paddingX={10} >
+      <Stack spacing={"20px"} >
+        <MyBreadCrumbs items={[
+          { label: 'Available Groups', href: '#' },
+        ]} />
 
-          <Header logoSrc={peopleIcon} title="Variables Expression Statement" />
+        <Header logoSrc={peopleIcon} title="Variables Expression Statement" />
 
-          {/* Filter section */}
-          <Stack spacing="10px" >
-            <Accordion>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1-content"
-                id="panel1-header"
-              >
-                <Typography  >Filter Options</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <form>
-                  <Stack spacing="20px" >
-                    <Stack direction="row" justifyContent="space-evenly">
-                      <CustomAutocomplete
-                        options={instructorOptions}
-                        label="Instructors"
-                        width={400}
-                        value={selectedInstructor}
-                        onChange={(event, value) => setSelectedInstructor(value)}
-                      />
-                      <CustomAutocomplete
-                        options={yearOptions}
-                        label="Years"
-                        width={200}
-                        value={selectedYears}
-                        onChange={(event, value) => setSelectedYears(value)}
-                      />
-                      <CustomAutocomplete
-                        options={['1', '2', '3']}
-                        label="Semeters"
-                        width={200}
-                        value={selectedSemester}
-                        onChange={(event, value) => setSelectedSemester(value)}
-                      />
-                      <CustomAutocomplete
-                        options={["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]}
-                        label="Class Date"
-                        width={200}
-                        value={selectedClassDate}
-                        onChange={(event, value) => setSelectedClassDate(value)}
-                      />
-                    </Stack>
-                    <Stack direction="row" spacing="10px" justifyContent="flex-end" sx={{ paddingRight: "22px" }} >
-                      <Button
-                        variant="contained"
-                        type="button"
-                        onClick={() => {
-                          setSearchParams(prev => {
-                            prev.set('year', selectedYears.join(','));
-                            prev.set('sem', selectedSemester.join(','));
-                            prev.set('ins', selectedInstructor.join(','));
-                            prev.set('day', selectedClassDate.join(','));
-                            return prev;
-                          });
-                        }}
-                        sx={{ width: "100px" }}
-                      >
-                        Filter
-                      </Button>
-                      <Button
-                        variant="contained"
-                        type="button"
-                        color="error"
-                        onClick={() => {
-                          setSelectedYears([]);
-                          setSelectedSemester([]);
-                          setSelectedClassDate([]);
-                          setSelectedInstructor([]);
-                          setSearchParams(prev => {
-                            prev.set('year', '');
-                            prev.set('sem', '');
-                            prev.set('ins', '');
-                            prev.set('day', '');
-                            return prev;
-                          });
-                        }}
-                        sx={{ width: "100px" }}
-                      >
-                        Reset
-                      </Button>
-                    </Stack>
+        {/* Filter section */}
+        <Stack spacing="10px" >
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1-content"
+              id="panel1-header"
+            >
+              <Typography  >Filter Options</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <form>
+                <Stack spacing="20px" >
+                  <Stack direction="row" justifyContent="space-evenly">
+                    <CustomAutocomplete
+                      options={instructorOptions}
+                      label="Instructors"
+                      width={400}
+                      value={selectedInstructor}
+                      onChange={(event, value) => setSelectedInstructor(value)}
+                    />
+                    <CustomAutocomplete
+                      options={staffOptions}
+                      label="Staffs"
+                      width={400}
+                      value={selectedStaff}
+                      onChange={(event, value) => setSelectedStaff(value)}
+                    />
+                    <CustomAutocomplete
+                      options={yearOptions}
+                      label="Years"
+                      width={200}
+                      value={selectedYears}
+                      onChange={(event, value) => setSelectedYears(value)}
+                    />
+                    <CustomAutocomplete
+                      options={['1', '2', '3']}
+                      label="Semeters"
+                      width={200}
+                      value={selectedSemester}
+                      onChange={(event, value) => setSelectedSemester(value)}
+                    />
+                    <CustomAutocomplete
+                      options={["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]}
+                      label="Class Date"
+                      width={200}
+                      value={selectedClassDate}
+                      onChange={(event, value) => setSelectedClassDate(value)}
+                    />
                   </Stack>
-                </form>
-              </AccordionDetails>
-            </Accordion>
-          </Stack>
-
-          {/* New table */}
-          <Stack>
-            <AllGroupsTable queryData={groupsQuery} />
-            <Stack direction="row" justifyContent="flex-end" >
-              <Pagination
-                count={groupsQuery.data?.number_of_pages || 1}
-                defaultPage={1}
-                page={parseInt(searchParams.get("page")) || 1}
-                onChange={(e, page) => {
-                  setSearchParams(prev => {
-                    prev.set('page', page)
-                    return prev;
-                  });
-                }}
-              />
-            </Stack>
-          </Stack>
-
+                  <Stack direction="row" spacing="10px" justifyContent="flex-end" sx={{ paddingRight: "22px" }} >
+                    <Button
+                      variant="contained"
+                      type="button"
+                      onClick={() => {
+                        setSearchParams(prev => {
+                          prev.set('year', selectedYears.join(','));
+                          prev.set('sem', selectedSemester.join(','));
+                          prev.set('ins', selectedInstructor.join(','));
+                          prev.set('day', selectedClassDate.join(','));
+                          prev.set('staff', selectedStaff.join(','));
+                          return prev;
+                        });
+                      }}
+                      sx={{ width: "100px" }}
+                    >
+                      Filter
+                    </Button>
+                    <Button
+                      variant="contained"
+                      type="button"
+                      color="error"
+                      onClick={() => {
+                        setSelectedYears([]);
+                        setSelectedSemester([]);
+                        setSelectedClassDate([]);
+                        setSelectedInstructor([]);
+                        setSelectedStaff([]);
+                        setSearchParams(prev => {
+                          prev.set('year', '');
+                          prev.set('sem', '');
+                          prev.set('ins', '');
+                          prev.set('day', '');
+                          prev.set('staff', '');
+                          return prev;
+                        });
+                      }}
+                      sx={{ width: "100px" }}
+                    >
+                      Reset
+                    </Button>
+                  </Stack>
+                </Stack>
+              </form>
+            </AccordionDetails>
+          </Accordion>
         </Stack>
-      </Container>
+
+        {/* New table */}
+        <Stack>
+          <AllGroupsTable queryData={groupsQuery} />
+          <Stack direction="row" justifyContent="flex-end" >
+            <Pagination
+              count={groupsQuery.data?.number_of_pages || 1}
+              defaultPage={1}
+              page={parseInt(searchParams.get("page")) || 1}
+              onChange={(e, page) => {
+                setSearchParams(prev => {
+                  prev.set('page', page)
+                  return prev;
+                });
+              }}
+            />
+          </Stack>
+        </Stack>
+      </Stack>
     </Box >
   )
 }

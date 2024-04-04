@@ -56,7 +56,7 @@ const MiddleBox = ({ isClassLoading, groupData, onlineStudentsList }) => {
           <Typography >{onlineStudentsList.length}</Typography>
         </Stack>
       </Stack>
-      <Stack direction="row" spacing="10px" >
+      <Stack direction="row" spacing="10px" justifyContent="center" >
         <Button variant="contained" color="primary" startIcon={<img src={usericon} alt="Logout" />} sx={{ textTransform: "none", fontSize: "16px", height: "40px" }} onClick={handleGoToStudentListPage} >
           Students
         </Button>

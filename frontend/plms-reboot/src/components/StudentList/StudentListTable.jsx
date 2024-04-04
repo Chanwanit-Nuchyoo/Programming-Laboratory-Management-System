@@ -14,7 +14,6 @@ import { useParams } from "react-router-dom";
 
 import table from '@/assets/css/Table.module.css'
 import classes from "@/assets/css/StudentList.module.css";
-import useOnlineStudentsList from "@/hooks/useOnlineStudentsList";
 import StudentAvatarCell from '@/components/StudentList/StudentAvatarCell';
 /* 
   {
@@ -73,9 +72,8 @@ const columnStyles = {
   "lab": { width: '100px' }
 }
 
-const StudentListTable = ({ isPending, labInfo, data }) => {
+const StudentListTable = ({ isPending, labInfo, data, onlineStudentsList }) => {
   const { groupId } = useParams();
-  const onlineStudentsList = useOnlineStudentsList(groupId);
   const setStuCanSubmitMutation = useSetStudentCanSubmitMutation(groupId);
   const [sorting, setSorting] = useState([]);
 
@@ -96,7 +94,7 @@ const StudentListTable = ({ isPending, labInfo, data }) => {
       }),
       cell: (info) => {
         const { stu_id, stu_avatar } = info.getValue()
-        return (<StudentAvatarCell groupId={groupId} stuId={stu_id} avatar={stu_avatar} /* onlineStudentsList={onlineStudentsList} */ />)
+        return (<StudentAvatarCell groupId={groupId} stuId={stu_id} avatar={stu_avatar} />)
       },
       enableSorting: false,
     },
@@ -202,84 +200,86 @@ const StudentListTable = ({ isPending, labInfo, data }) => {
   })
 
   return (
-    <table style={{ tableLayout: 'fixed', width: '100%', overflowX: 'auto' }} className={getClassNames(table, "my-table")} >
-      <thead>
-        {getHeaderGroups().map((headerGroup) => (
-          <tr key={headerGroup.id}>
-            {headerGroup.headers.map((header, index) => (
-              <th
-                key={header.id}
-                colSpan={header.colSpan}
-                style={{
-                  ...(['Avatar', 'Status', 'Student ID', 'Name'].includes(header.column.columnDef.header) ?
-                    { ...columnStyles[header.column.columnDef.header], minWidth: '150px' }
-                    :
-                    { ...columnStyles['lab'], minWidth: '150px' }),
-                  position: 'sticky',
-                  top: 0, // stick to top
-                  left: index < 4 ? `${index * 150 - (index >= 1 && 20)}px` : 'auto',
-                  background: "var(--mirage)",
-                  zIndex: index < 4 ? 20 : 15,
-                }}
-              >
-                {header.isPlaceholder ? null : (
-                  <div
-                    className={
-                      header.column.getCanSort()
-                        ? 'cursor-pointer select-none'
-                        : ''
-                    }
-                    onClick={header.column.getToggleSortingHandler()}
-                    title={
-                      header.column.getCanSort()
-                        ? header.column.getNextSortingOrder() === 'asc'
-                          ? 'Sort ascending'
-                          : header.column.getNextSortingOrder() === 'desc'
-                            ? 'Sort descending'
-                            : 'Clear sort'
-                        : undefined
-                    }
-                    style={{
-                      cursor: 'pointer',
-                      userSelect: "none",
-                    }}
-                  >
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-                    {{
-                      asc: ' 🔼',
-                      desc: ' 🔽',
-                    }[header.column.getIsSorted()] ?? null}
-                  </div>
-                )}
-              </th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody>
-        {getRowModel().rows.map((rows) => (
-          <tr key={rows.id} className={getClassNames(classes, "student-rows")} >
-            {rows.getVisibleCells().map((cell, index) => {
-              return (
-                <td key={cell.id} style={{
-                  position: 'sticky',
-                  left: index < 4 ? `${index * 150 - (index >= 1 && 20)}px` : 'auto',
-                  zIndex: index < 4 ? 10 : 0,
-                }}>
-                  {flexRender(
-                    cell.column.columnDef.cell,
-                    cell.getContext()
+    <Box maxHeight="90vh" >
+      <table style={{ tableLayout: 'fixed', width: '100%', overflowX: 'auto' }} className={getClassNames(table, "my-table")} >
+        <thead>
+          {getHeaderGroups().map((headerGroup) => (
+            <tr key={headerGroup.id}>
+              {headerGroup.headers.map((header, index) => (
+                <th
+                  key={header.id}
+                  colSpan={header.colSpan}
+                  style={{
+                    ...(['Avatar', 'Status', 'Student ID', 'Name'].includes(header.column.columnDef.header) ?
+                      { ...columnStyles[header.column.columnDef.header], minWidth: '150px' }
+                      :
+                      { ...columnStyles['lab'], minWidth: '150px' }),
+                    position: 'sticky',
+                    top: 0, // stick to top
+                    left: index < 4 ? `${index * 150 - (index >= 1 && 20)}px` : 'auto',
+                    background: "var(--mirage)",
+                    zIndex: index < 4 ? 20 : 15,
+                  }}
+                >
+                  {header.isPlaceholder ? null : (
+                    <div
+                      className={
+                        header.column.getCanSort()
+                          ? 'cursor-pointer select-none'
+                          : ''
+                      }
+                      onClick={header.column.getToggleSortingHandler()}
+                      title={
+                        header.column.getCanSort()
+                          ? header.column.getNextSortingOrder() === 'asc'
+                            ? 'Sort ascending'
+                            : header.column.getNextSortingOrder() === 'desc'
+                              ? 'Sort descending'
+                              : 'Clear sort'
+                          : undefined
+                      }
+                      style={{
+                        cursor: 'pointer',
+                        userSelect: "none",
+                      }}
+                    >
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                      {{
+                        asc: ' 🔼',
+                        desc: ' 🔽',
+                      }[header.column.getIsSorted()] ?? null}
+                    </div>
                   )}
-                </td>
-              )
-            })}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody>
+          {getRowModel().rows.map((rows) => (
+            <tr key={rows.id} className={getClassNames(classes, "student-rows")} >
+              {rows.getVisibleCells().map((cell, index) => {
+                return (
+                  <td key={cell.id} style={{
+                    position: 'sticky',
+                    left: index < 4 ? `${index * 150 - (index >= 1 && 20)}px` : 'auto',
+                    zIndex: index < 4 ? 10 : 0,
+                  }}>
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext()
+                    )}
+                  </td>
+                )
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </Box>
   )
 }
 

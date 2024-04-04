@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Box, TextField, Stack, CircularProgress } from "@mui/material";
 import { Controller, useForm, FormProvider } from "react-hook-form";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
@@ -26,6 +26,12 @@ const AddGroupForm = ({ form }) => {
   const { control, handleSubmit, formState: { errors }, reset } = useForm({
     defaultValues: form
   });
+
+  useEffect(() => {
+    if (form) {
+      reset(form);
+    }
+  }, [form])
 
   const [user] = useAtom(userAtom);
   const queryClient = useQueryClient();
@@ -147,7 +153,6 @@ const AddGroupForm = ({ form }) => {
           }}
           disabled={disabled}
           error={!!errors[name]}
-          renderInput={(params) => <TextField {...params} />}
         />
       )}
     />

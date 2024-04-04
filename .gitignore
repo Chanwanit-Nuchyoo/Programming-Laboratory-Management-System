@@ -4,7 +4,7 @@
 /redis
 /redis-insight
 
-ssl
+/ssl
 
 exercise.py
 input.txt

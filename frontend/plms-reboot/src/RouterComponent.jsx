@@ -4,11 +4,6 @@ import InstructorLayout from '@/components/layouts/InstructorLayout';
 import StudentLayout from '@/components/layouts/StudentLayout';
 import RoleChecker from "@/components/layouts/RoleChecker";
 import SignIn from "@/pages/SignIn";
-import Instruction from '@/pages/Instructions';
-import Examination from '@/pages/Examination';
-import Faq from '@/pages/Faq';
-import EditProfile from '@/pages/EditProfile';
-import AddStudent from '@/pages/AddStudent';
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ABS_INS_URL, REL_INS_URL, ABS_STU_URL, REL_STU_URL, COMMON_URL } from "@/utils/constants/routeConst";
 
@@ -29,8 +24,15 @@ const AddGroup = lazy(() => import('@/pages/AddGroup'));
 const EditGroup = lazy(() => import('@/pages/EditGroup'));
 const LogPage = lazy(() => import('@/pages/LogPage'));
 const AddMidtermScore = lazy(() => import('@/pages/AddMidtermScore'));
-const RouterComponent = () => {
+const EditProfile = lazy(() => import('@/pages/EditProfile'));
+const Faq = lazy(() => import('@/pages/Faq'));
+const Examination = lazy(() => import('@/pages/Examination'));
+const Instruction = lazy(() => import('@/pages/Instructions'));
+const AddStudent = lazy(() => import('@/pages/AddStudent'));
 
+const Loading = () => <div style={{ padding: "40px" }} >Loading...</div>;
+
+const RouterComponent = () => {
   return (
     <Router>
       <Routes>
@@ -44,24 +46,24 @@ const RouterComponent = () => {
           </ProtectedRoute>
         }>
           <Route path={ABS_INS_URL.STATIC.MY_GROUPS} element={<Outlet />} >
-            <Route index element={<Suspense fallback={<div>Loading...</div>}><MyGroups /></Suspense>} />
-            <Route path={REL_INS_URL.DYNAMIC.GROUP()} element={<Suspense fallback={<div>Loading...</div>}><InsGroup /></Suspense>} />
-            <Route path={REL_INS_URL.DYNAMIC.CHAPTER()} element={<Suspense fallback={<div>Loading...</div>}><Chapter /></Suspense>} />
-            <Route path={REL_INS_URL.DYNAMIC.ADD_EXERCISE()} element={<Suspense fallback={<div>Loading...</div>}><AddExercise /></Suspense>} />
-            <Route path={REL_INS_URL.DYNAMIC.EDIT_EXERCISE()} element={<Suspense fallback={<div>Loading...</div>}><EditExercise /></Suspense>} />
-            <Route path={REL_INS_URL.DYNAMIC.STUDENT_LIST()} element={<Suspense fallback={<div>Loading...</div>}><StudentList /></Suspense>} />
-            <Route path={REL_INS_URL.DYNAMIC.ADD_STUDENT()} element={<Suspense fallback={<div>Loading...</div>}><AddStudent /></Suspense>} />
-            <Route path={REL_INS_URL.DYNAMIC.ADD_MIDTERM_SCORE()} element={<Suspense fallback={<div>Loading...</div>}><AddMidtermScore /></Suspense>} />
-            <Route path={REL_INS_URL.DYNAMIC.STUDENT_SCORE()} element={<Suspense fallback={<div>Loading...</div>}><StudentScore /></Suspense>} />
-            <Route path={REL_INS_URL.DYNAMIC.STUDENT_SUBMIT_HISTORY()} element={<Suspense fallback={<div>Loading...</div>}><SubmissionHistory /></Suspense>} />
-            <Route path={REL_INS_URL.STATIC.AVAILABLE_GROUPS} element={<Suspense fallback={<div>Loading...</div>}><AvailableGroups /></Suspense>} />
-            <Route path={REL_INS_URL.STATIC.INSTRUCTION} element={<Instruction />} />
-            <Route path={REL_INS_URL.STATIC.EXAMINATION} element={<Examination />} />
-            <Route path={REL_INS_URL.STATIC.FAQ} element={<Faq />} />
-            <Route path={REL_INS_URL.DYNAMIC.PROFILE()} element={<EditProfile />} />
-            <Route path={REL_INS_URL.STATIC.ADDGROUP} element={<Suspense fallback={<div>Loading...</div>}><AddGroup /></Suspense>} />
-            <Route path={REL_INS_URL.DYNAMIC.EDITGROUP()} element={<Suspense fallback={<div>Loading...</div>}><EditGroup /></Suspense>} />
-            <Route path={REL_INS_URL.DYNAMIC.LOGPAGE()} element={<Suspense fallback={<div>Loading...</div>}><LogPage /></Suspense>} />
+            <Route index element={<Suspense fallback={<Loading />}><MyGroups /></Suspense>} />
+            <Route path={REL_INS_URL.DYNAMIC.GROUP()} element={<Suspense fallback={<Loading />}><InsGroup /></Suspense>} />
+            <Route path={REL_INS_URL.DYNAMIC.CHAPTER()} element={<Suspense fallback={<Loading />}><Chapter /></Suspense>} />
+            <Route path={REL_INS_URL.DYNAMIC.ADD_EXERCISE()} element={<Suspense fallback={<Loading />}><AddExercise /></Suspense>} />
+            <Route path={REL_INS_URL.DYNAMIC.EDIT_EXERCISE()} element={<Suspense fallback={<Loading />}><EditExercise /></Suspense>} />
+            <Route path={REL_INS_URL.DYNAMIC.STUDENT_LIST()} element={<Suspense fallback={<Loading />}><StudentList /></Suspense>} />
+            <Route path={REL_INS_URL.DYNAMIC.ADD_STUDENT()} element={<Suspense fallback={<Loading />}><AddStudent /></Suspense>} />
+            <Route path={REL_INS_URL.DYNAMIC.ADD_MIDTERM_SCORE()} element={<Suspense fallback={<Loading />}><AddMidtermScore /></Suspense>} />
+            <Route path={REL_INS_URL.DYNAMIC.STUDENT_SCORE()} element={<Suspense fallback={<Loading />}><StudentScore /></Suspense>} />
+            <Route path={REL_INS_URL.DYNAMIC.STUDENT_SUBMIT_HISTORY()} element={<Suspense fallback={<Loading />}><SubmissionHistory /></Suspense>} />
+            <Route path={REL_INS_URL.STATIC.AVAILABLE_GROUPS} element={<Suspense fallback={<Loading />}><AvailableGroups /></Suspense>} />
+            <Route path={REL_INS_URL.STATIC.INSTRUCTION} element={<Suspense fallback={<Loading />}><Instruction /></Suspense>} />
+            <Route path={REL_INS_URL.STATIC.EXAMINATION} element={<Suspense fallback={<Loading />}><Examination /></Suspense>} />
+            <Route path={REL_INS_URL.STATIC.FAQ} element={<Suspense fallback={<Loading />}><Faq /></Suspense>} />
+            <Route path={REL_INS_URL.DYNAMIC.PROFILE()} element={<Suspense fallback={<Loading />}><EditProfile /></Suspense>} />
+            <Route path={REL_INS_URL.STATIC.ADDGROUP} element={<Suspense fallback={<Loading />}><AddGroup /></Suspense>} />
+            <Route path={REL_INS_URL.DYNAMIC.EDITGROUP()} element={<Suspense fallback={<Loading />}><EditGroup /></Suspense>} />
+            <Route path={REL_INS_URL.DYNAMIC.LOGPAGE()} element={<Suspense fallback={<Loading />}><LogPage /></Suspense>} />
           </Route>
         </Route>
         <Route path={COMMON_URL.STATIC.SIGNIN} element={<SignIn />} />
@@ -72,12 +74,12 @@ const RouterComponent = () => {
             </RoleChecker>
           </ProtectedRoute>
         } >
-          <Route index element={<Suspense fallback={<div>Loading...</div>}><StuHome /></Suspense>} />
-          <Route path={REL_STU_URL.STATIC.EXERCISE_LIST} element={<Suspense fallback={<div>Loading...</div>}><StuExerciseList /></Suspense>} />
-          <Route path={REL_STU_URL.DYNAMIC.EXERCISE()} element={<Suspense fallback={<div>Loading...</div>}><StuExercise /></Suspense>} />
-          <Route path={REL_STU_URL.STATIC.INSTRUCTION} element={<Instruction />} />
-          <Route path={REL_STU_URL.STATIC.EXAMINATION} element={<Examination />} />
-          <Route path={REL_STU_URL.STATIC.FAQ} element={<Faq />} />
+          <Route index element={<Suspense fallback={<Loading />}><StuHome /></Suspense>} />
+          <Route path={REL_STU_URL.STATIC.EXERCISE_LIST} element={<Suspense fallback={<Loading />}><StuExerciseList /></Suspense>} />
+          <Route path={REL_STU_URL.DYNAMIC.EXERCISE()} element={<Suspense fallback={<Loading />}><StuExercise /></Suspense>} />
+          <Route path={REL_STU_URL.STATIC.INSTRUCTION} element={<Suspense fallback={<Loading />}><Instruction /></Suspense>} />
+          <Route path={REL_STU_URL.STATIC.EXAMINATION} element={<Suspense fallback={<Loading />}><Examination /></Suspense>} />
+          <Route path={REL_STU_URL.STATIC.FAQ} element={<Suspense fallback={<Loading />}><Faq /></Suspense>} />
           <Route path={REL_STU_URL.DYNAMIC.PROFILE()} element={<EditProfile />} />
         </Route>
       </Routes>

@@ -1092,23 +1092,25 @@ class Lab_model_rest extends CI_Model
 		return $result;
 	}
 
-	public function set_staff($staff_data)
+	public function set_staff($staff_data, $group_id)
 	{
 		// Get all staff_ids from the input data
 		$staff_ids = array_column($staff_data, 'staff_id');
 
 		foreach ($staff_data as $data) {
-			// Check if the data already exists
-			$this->db->where('staff_id', $data['staff_id']);
-			$this->db->where('class_id', $data['class_id']);
-			$query = $this->db->get('class_lab_staff');
+			if (!empty($data['staff_id'])  && !empty($data['class_id'])) {
+				// Check if the data already exists
+				$this->db->where('staff_id', $data['staff_id']);
+				$this->db->where('class_id', $data['class_id']);
+				$query = $this->db->get('class_lab_staff');
 
-			// If the data does not exist, insert it
-			if ($query->num_rows() == 0) {
-				$this->db->insert('class_lab_staff', $data);
+				// If the data does not exist, insert it
+				if ($query->num_rows() == 0) {
+					$this->db->insert('class_lab_staff', $data);
+				}
 			}
 		}
-		$this->db->where('class_id', $data['class_id']);
+		$this->db->where('class_id', $group_id);
 		$this->db->where_not_in('staff_id', $staff_ids);
 		$this->db->delete('class_lab_staff');
 	}
@@ -1153,7 +1155,6 @@ class Lab_model_rest extends CI_Model
 
 	public function get_class_schedule_by_group_id($group_id)
 	{
-
 		$this->db->select('*')
 			->from('class_schedule')
 			->join('user_supervisor', 'class_schedule.lecturer = user_supervisor.supervisor_id')
@@ -1162,6 +1163,11 @@ class Lab_model_rest extends CI_Model
 
 		$query = $this->db->get();
 		$result = $query->first_row('array');
+
+		// If no row was found, return an error message
+		if ($result === null) {
+			return array();
+		}
 
 		//\E0\BE\D4\E8\C1 lab staff
 		$this->db->select('*')
@@ -1175,6 +1181,18 @@ class Lab_model_rest extends CI_Model
 		$result['lab_staff'] = $query;
 
 		return $result;
+	}
+
+	public function get_all_staffs_data_in_group($group_id)
+	{
+		$this->db->select('*')
+			->from('class_lab_staff')
+			->join('user_supervisor', 'class_lab_staff.staff_id = user_supervisor.supervisor_id')
+			->where('class_id', $group_id);
+		$query = $this->db->get();
+		$query = $query->result_array();
+
+		return $query;
 	}
 
 	public function check_class_schedule_by_group_id($group_id)
