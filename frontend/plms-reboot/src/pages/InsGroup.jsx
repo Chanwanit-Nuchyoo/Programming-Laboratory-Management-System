@@ -39,7 +39,6 @@ const InsGroup = () => {
   }, [labData]);
 
   useEffect(() => {
-    console.log('groupData', groupData);
 
     if (!isClassLoading && !isFetching && groupData) {
       const groupStaffs = new Set((groupData.lab_staff || []).map(staff => staff.staff_id));

@@ -86,7 +86,6 @@ const AddStudent = () => {
             onClick={() => {
               AddStudentMutation({ student_data, group_id: groupId });
               setStudentData('');
-              console.log(ABS_INS_URL.STATIC.MY_GROUPS);
               // history.push(ABS_INS_URL.STATIC.MY_GROUPS);
             }}>Submit</Button>
         </Stack>
