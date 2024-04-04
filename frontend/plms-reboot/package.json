@@ -65,7 +65,8 @@
     "react-router-dom": "^6.15.0",
     "react-split": "^2.0.14",
     "strip-bom": "^5.0.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "vite-plugin-compression": "^0.5.1"
   },
   "devDependencies": {
     "@hookform/devtools": "^4.3.1",

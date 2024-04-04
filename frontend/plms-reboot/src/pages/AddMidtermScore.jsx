@@ -56,7 +56,7 @@ const AddMidtermScore = () => {
   });
 
   return (
-    <Box >
+    <Box paddingX={10} >
       <Stack spacing={"20px"}>
         <MyBreadCrumbs items={[
 

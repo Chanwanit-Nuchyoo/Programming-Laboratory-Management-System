@@ -3,13 +3,23 @@ import { Box, Stack, Avatar, Typography } from "@mui/material"
 import avatarPlaceholder from "@/assets/images/avatarplaceholder.svg"
 import { useQuery } from "@tanstack/react-query";
 import { getStudentCardInfo } from "@/utils/api"
+import { studentCardAtom } from "@/store/store";
+import { useAtom } from "jotai";
+import { useEffect } from "react";
 const StudentInfoCard = ({ user }) => {
+  const [studentCardInfo, setStudentCardInfo] = useAtom(studentCardAtom)
 
   const { data: studentCard, isLoading } = useQuery({
     queryKey: ['student-card-info', user.id],
     queryFn: () => getStudentCardInfo(user.id),
     staleTime: Infinity,
   })
+
+  useEffect(() => {
+    if (!isLoading && studentCard) {
+      setStudentCardInfo(studentCard);
+    }
+  }, [isLoading, studentCard])
 
   return (
     <Box bgcolor={"var(--ebony)"} borderRadius={"8px"} padding={"20px"} >

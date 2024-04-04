@@ -19,3 +19,5 @@ export const userAtom = atomWithStorage('user', null);
 export const sidebarSelectedAtom = atom(0);
 
 export const serverTimeOffsetAtom = atomWithStorage('serverTimeOffset', null);
+
+export const studentCardAtom = atomWithStorage('studentCard', null);

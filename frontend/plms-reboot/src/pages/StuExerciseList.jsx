@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Container, Stack } from "@mui/material"
+import { Container, Stack, Typography, Box } from "@mui/material"
 import Header from "@/components/_shared/Header"
 import ExerciseChapterList from "@/components/_shared/ExerciseChapterList"
 import MyBreadCrumbs from "@/components/_shared/MyBreadCrumbs"
@@ -8,10 +8,11 @@ import { getChapterList } from "@/utils/api"
 import { useQuery } from "@tanstack/react-query"
 import { userAtom, sidebarSelectedAtom } from "@/store/store"
 import { useAtom, useSetAtom } from "jotai"
-import { useQueryClient } from "@tanstack/react-query"
+import { studentCardAtom } from "@/store/store"
 
 const StuExerciseList = () => {
   const [user] = useAtom(userAtom)
+  const [studentCardInfo, setStudentCardInfo] = useAtom(studentCardAtom);
   const setSelected = useSetAtom(sidebarSelectedAtom);
   const [examChapters, setExamChapters] = useState(null);
 
@@ -33,6 +34,10 @@ const StuExerciseList = () => {
   return (
     <Container>
       <Stack spacing="20px" >
+        <Box sx={{ position: "absolute", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", top: "20px", left: "50%", transform: "translateX(-50%)" }} >
+          <Typography variant="h4" >Group:{studentCardInfo?.group_no}</Typography>
+          <Typography sx={{ color: "var(--cerulean)", fontWeight: "600" }} >Semester:{studentCardInfo?.year}/{studentCardInfo?.semester}</Typography>
+        </Box>
         <MyBreadCrumbs items={[
           { label: 'Exercise List', href: "#" },
         ]} />

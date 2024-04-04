@@ -35,19 +35,12 @@ class Supervisor_rest extends MY_RestController
 	public function getAllAvailableGroups_get()
 	{
 		try {
-			if (!empty($cache)) {
-				$data = json_decode($cache, true);
-				return $this->response([
-					'status' => TRUE,
-					'message' => 'Successfully fetched available groups',
-					'payload' => $data,
-				], RestController::HTTP_OK);
-			}
 
 			$this->update_last_seen();
 
 			$class_schedule = $this->supervisor_model_rest->get_class_schedule();
 			$instructor_list = $this->supervisor_model_rest->get_all_instructor_list();
+			$allStaff = $this->lab_model_rest->get_all_staff()['lab_staff'];
 
 			for ($i = 0; $i < sizeof($class_schedule); $i++) {
 				$group_id = $class_schedule[$i]['group_id'];
@@ -56,6 +49,7 @@ class Supervisor_rest extends MY_RestController
 				$lecturer = $this->supervisor_model_rest->get_supervisor_fullname_by_id($lecturer_id);
 				$class_schedule[$i]['num_students'] = $students_in_group;
 				$class_schedule[$i]['lecturer_name'] = $lecturer;
+				$class_schedule[$i]['lab_staff'] = $this->lab_model_rest->get_all_staffs_data_in_group($group_id);
 			}
 
 			// get unique year from $original_class_schedule array
@@ -64,18 +58,23 @@ class Supervisor_rest extends MY_RestController
 			$year_list = array_values($year_list);
 			sort($year_list);
 
-			// turn string to array by splitting ,
 			$year = $this->query('year') !== '' ? explode(',', $this->query('year')) : [];
 			$semester = $this->query('sem') !== '' ? explode(',', $this->query('sem')) : [];
 			$day = $this->query('day') !== '' ? explode(',', $this->query('day')) : [];
 			$instructor = $this->query('ins') !== '' ? explode(',', $this->query('ins')) : [];
+			$staff = $this->query('staff') !== '' ? explode(',', $this->query('staff')) : [];
 
 			// filter the array based on the query parameters if they exist
-			$class_schedule = array_filter($class_schedule, function ($class) use ($year, $semester, $day, $instructor) {
-				return (empty($year) || in_array((string)$class['year'], $year)) &&
-					(empty($semester) || in_array((string)$class['semester'], $semester)) &&
-					(empty($day) || in_array((string)$class['day_of_week'], $day)) &&
-					(empty($instructor) || in_array((string)$class['lecturer_name'], $instructor));
+			$class_schedule = array_filter($class_schedule, function ($class) use ($year, $semester, $day, $instructor, $staff) {
+					$staffNames = array_map(function ($staffMember) {
+							return $staffMember['supervisor_firstname'] . ' ' . $staffMember['supervisor_lastname'];
+					}, $class['lab_staff']);
+
+					return (empty($year) || in_array((string)$class['year'], $year)) &&
+							(empty($semester) || in_array((string)$class['semester'], $semester)) &&
+							(empty($day) || in_array((string)$class['day_of_week'], $day)) &&
+							(empty($instructor) || in_array((string)$class['lecturer_name'], $instructor)) &&
+							(empty($staff) || !empty(array_intersect($staffNames, $staff))); // Added this line
 			});
 
 			// pagination
@@ -99,6 +98,7 @@ class Supervisor_rest extends MY_RestController
 
 			$data['instructor_list'] = $instructor_list;
 			$data['year_list'] = $year_list;
+			$data['staff_list'] = $allStaff;
 
 			return $this->response([
 				'status' => TRUE,
@@ -177,6 +177,11 @@ class Supervisor_rest extends MY_RestController
 
 			$group_id = $this->query('group_id');
 			$class_schedule = $this->lab_model_rest->get_class_schedule_by_group_id($group_id);
+
+			if (empty($class_schedule)) {
+				throw new Exception('Group not found', RestController::HTTP_NOT_FOUND);
+			}
+
 			$students_data = $this->lab_model_rest->get_students_by_group_id($group_id);
 
 			$midterm_scores = $this->lab_model_rest->get_midterm_score($group_id);
@@ -656,11 +661,6 @@ class Supervisor_rest extends MY_RestController
 	{
 		try {
 			$exercise_id = $this->query("exercise_id");
-
-			if (!empty($cache)) {
-				$data = json_decode($cache, true);
-				return $this->response($data, RestController::HTTP_OK);
-			}
 
 			$formdata = $this->lab_model_rest->get_exercise_form($exercise_id);
 
@@ -1433,7 +1433,7 @@ class Supervisor_rest extends MY_RestController
 			}
 		}
 
-		$this->lab_model_rest->set_staff($staff_data_array);
+		$this->lab_model_rest->set_staff($staff_data_array, $group_id);
 	}
 	public function uploadMidtermScoreAction_post() {
 		try {

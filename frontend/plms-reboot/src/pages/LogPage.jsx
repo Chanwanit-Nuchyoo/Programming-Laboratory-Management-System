@@ -81,7 +81,7 @@ const LogPage = () => {
   })
 
   return (
-    <Box >
+    <Box paddingX={10}>
       <Stack spacing={"20px"}>
         <MyBreadCrumbs items={[
           { label: 'My Groups', href: '/ins' },
