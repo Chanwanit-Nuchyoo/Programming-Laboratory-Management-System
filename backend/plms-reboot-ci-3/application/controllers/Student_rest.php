@@ -5,7 +5,7 @@ use chriskacerguis\RestServer\RestController;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 
-require_once(APPPATH . "/controllers/MY_RestController.php");
+require_once (APPPATH . "/controllers/MY_RestController.php");
 
 /**
  * Class Student_rest
@@ -105,7 +105,7 @@ class Student_rest extends MY_RestController
         while (empty($exercise)) {
           // Select a random exercise ID from the pool
           $exercise_id = $exercise_random_pool[array_rand($exercise_random_pool)];
-          $exercise =  $this->lab_model_rest->get_exercise_by_id($exercise_id);
+          $exercise = $this->lab_model_rest->get_exercise_by_id($exercise_id);
 
           if (empty($exercise) && !empty($exercise_random_pool)) {
             // Remove the selected exercise ID from the pool
@@ -126,6 +126,22 @@ class Student_rest extends MY_RestController
 
       // Retrieve the details of the assigned exercise using the exercise ID
       $lab_exercise = $this->lab_model_rest->get_lab_exercise_by_id($exercise_id);
+
+      // check if $lab_exercise.testcase is an array or not
+      if (is_array($lab_exercise['testcase'])) {
+        // loop through each testcase
+        foreach ($lab_exercise['testcase'] as $key => &$testcase) {
+          if ($testcase['show_to_student'] == 'no') {
+            $testcase['testcase_content'] = 'hidden';
+            $testcase['testcase_output'] = 'hidden';
+          }
+
+          if ($testcase['active'] == 'no') {
+            unset($lab_exercise['testcase'][$key]);
+          }
+        }
+        unset($testcase); // Unset reference when the loop is finished
+      }
 
       // Retrieve the name of the chapter using the chapter ID
       $lab_exercise['chapter_name'] = $this->lab_model_rest->get_chapter_name($chapter_id);
@@ -272,10 +288,10 @@ class Student_rest extends MY_RestController
       $testcase_list = $this->lab_model_rest->get_testcase_array($exercise_id);
 
       $testcase_list = array_filter($testcase_list, function ($testcase) {
-        return isset($testcase['active']) && $testcase['active'] == 'yes';
+        return isset ($testcase['active']) && $testcase['active'] == 'yes';
       });
 
-      $exercise =  $this->lab_model_rest->get_exercise_by_id($exercise_id);
+      $exercise = $this->lab_model_rest->get_exercise_by_id($exercise_id);
 
       try {
         $connection = new AMQPStreamConnection('rabbitmq', getenv('RMQ_PORT'), getenv('RMQ_USER'), getenv('RMQ_PASSWORD'));
@@ -291,23 +307,27 @@ class Student_rest extends MY_RestController
           'sourcecode_filename' => $file_name,
         );
 
-        $message = new AMQPMessage(json_encode(array(
-          'job_id' => $job_id,
-          'job_type' => 'exercise-submit',
-          'log_data' => array(
-            'group_id' => $_SESSION['stu_group'],
-            'username' => $_SESSION['username'],
-            'remote_ip' =>  isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : ($_SERVER['REMOTE_ADDR'] ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0'),
-            'agent' => $_SERVER['HTTP_USER_AGENT'],
-            'page_name' => 'exercise_submit',
-            'action' => $action,
-            'ci' => $_SESSION['__ci_last_regenerate']
-          ),
-          'submission_id' => $inserted_row["submission_id"],
-          'sourcecode' => file_get_contents($directory_path . $file_name),
-          'testcase_list' => $testcase_list,
-          'keyword_constraints' => $exercise['user_defined_constraints'],
-        )));
+        $message = new AMQPMessage(
+          json_encode(
+            array(
+              'job_id' => $job_id,
+              'job_type' => 'exercise-submit',
+              'log_data' => array(
+                'group_id' => $_SESSION['stu_group'],
+                'username' => $_SESSION['username'],
+                'remote_ip' => isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : ($_SERVER['REMOTE_ADDR'] ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0'),
+                'agent' => $_SERVER['HTTP_USER_AGENT'],
+                'page_name' => 'exercise_submit',
+                'action' => $action,
+                'ci' => $_SESSION['__ci_last_regenerate']
+              ),
+              'submission_id' => $inserted_row["submission_id"],
+              'sourcecode' => file_get_contents($directory_path . $file_name),
+              'testcase_list' => $testcase_list,
+              'keyword_constraints' => $exercise['user_defined_constraints'],
+            )
+          )
+        );
 
         $channel->basic_publish($message, '', 'task-queue');
 
