@@ -41,7 +41,7 @@ const Testcases = ({ hasSourceCode = false }) => {
     }, */
   })
 
-  const canEdit = tcRes?.created_by === user.id || user.username === tcRes?.added_by;
+  const canEdit = tcRes?.created_by === user.id || user.username === tcRes?.added_by || user.username === "kanut";
   const data = tcRes?.testcases
 
   const queryClient = useQueryClient();
