@@ -132,9 +132,11 @@ export async function runSubmission(channel, db_pool, msg, msg_body, redisClient
           testcase_result.push({
             testcase_no: i + 1,
             is_passed: passed,
+            show_to_student: testcase_list[i].show_to_student === "yes",
             expected: testcase_list[i].testcase_output.trimEnd(),
             actual: result.output.trimEnd(),
           });
+
 
         } catch (error) {
           console.log(`Testcase ${i + 1}: FAILED`);

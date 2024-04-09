@@ -1,8 +1,9 @@
-<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (!defined('BASEPATH'))
+  exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
 
-require_once(APPPATH . "/controllers/MY_RestController.php");
+require_once (APPPATH . "/controllers/MY_RestController.php");
 
 class Common_rest extends MY_RestController
 {
@@ -159,7 +160,7 @@ class Common_rest extends MY_RestController
 
       $this->upload->initialize($config);
       if (!$this->upload->do_upload('avatar')) {
-        throw new Exception('File upload error: ' . $this->upload->display_errors('',''), RestController::HTTP_INTERNAL_ERROR);
+        throw new Exception('File upload error: ' . $this->upload->display_errors('', ''), RestController::HTTP_INTERNAL_ERROR);
       }
 
       $data[$this->common_model_rest->prefix[$role] . "_" . 'avatar'] = $newFileName;
@@ -239,7 +240,7 @@ class Common_rest extends MY_RestController
 
     foreach ($exercise_kw_list as &$category) {
       $category = array_filter($category, function ($kw) {
-        return isset($kw['active']) && $kw['active'] === true;
+        return isset ($kw['active']) && $kw['active'] === true;
       });
     }
 
@@ -340,7 +341,7 @@ class Common_rest extends MY_RestController
 
     $submission_list = $this->lab_model_rest->get_student_submission($stu_id, $exercise_id);
 
-    foreach ($submission_list as &$submission) {
+    foreach ($submission_list as $key => &$submission) {
       $file_path = STUDENT_CFILES_FOLDER . $submission['sourcecode_filename'];
       if (file_exists($file_path)) {
         $file_content = file_get_contents($file_path);
@@ -349,7 +350,21 @@ class Common_rest extends MY_RestController
         $submission['sourcecode_content'] = "# file not found";
       }
 
-      $submission['result'] = json_decode($submission['result']);
+      $submission['result'] = json_decode($submission['result'], true);
+
+      if ($_SESSION['role'] == 'student') {
+        // loop through $submission['result'] and check 
+        for ($i = 0; $i < count($submission['result']); $i++) {
+          if (
+            isset($submission["result"][$i]["show_to_student"]) &&
+            $submission["result"][$i]["show_to_student"] == false &&
+            $submission["result"][$i]["is_passed"] == false
+          ) {
+            $submission_list[$key]["result"][$i]["expected"] = "Hidden testcase";
+            $submission_list[$key]["result"][$i]["actual"] = "Hidden testcase";
+          }
+        }
+      }
     }
 
     $this->response($submission_list, RestController::HTTP_OK);

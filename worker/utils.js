@@ -107,7 +107,7 @@ export async function runPythonScript(testcase, scriptFileName) {
   const tmpInputFile = tmp.fileSync({ postfix: '.txt' });
 
   // Write the testcase content to the file
-  fs.writeFileSync(tmpInputFile.name, testcase.testcase_content);
+  fs.writeFileSync(tmpInputFile.name, testcase.testcase_content.trimEnd());
 
   const command = `timeout -k 10 ${TIME_LIMIT}s python3.12 runner.py ${scriptFileName} ${tmpInputFile.name}`;
 
