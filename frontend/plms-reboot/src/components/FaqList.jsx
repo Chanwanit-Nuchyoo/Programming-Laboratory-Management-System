@@ -21,6 +21,7 @@ const FaqList = () => {
           </Typography>
         </AccordionDetails>
       </Accordion>
+
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -35,6 +36,22 @@ const FaqList = () => {
           </Typography>
         </AccordionDetails>
       </Accordion>
+
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel2a-content"
+          id="panel2a-header"
+        >
+          <Typography>ส่งแลปได้กี่ครั้ง</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            ส่งได้ไม่จำกัดจำนวนครั้ง จนกว่าจะได้คะแนนเต็ม
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -49,6 +66,7 @@ const FaqList = () => {
           </Typography>
         </AccordionDetails>
       </Accordion>
+
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -63,6 +81,7 @@ const FaqList = () => {
           </Typography>
         </AccordionDetails>
       </Accordion>
+
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -78,6 +97,7 @@ const FaqList = () => {
           </Typography>
         </AccordionDetails>
       </Accordion>
+
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -92,6 +112,7 @@ const FaqList = () => {
           </Typography>
         </AccordionDetails>
       </Accordion>
+
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -107,6 +128,7 @@ const FaqList = () => {
           </Typography>
         </AccordionDetails>
       </Accordion>
+
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -123,6 +145,22 @@ const FaqList = () => {
           </Typography>
         </AccordionDetails>
       </Accordion>
+
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel2a-content"
+          id="panel2a-header"
+        >
+          <Typography>output ของ test case ยาวได้ขนาดเท่าไร</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            จำนวน byte ของ output ยาวได้ไม่เกิน 1 MB
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -137,6 +175,7 @@ const FaqList = () => {
           </Typography>
         </AccordionDetails>
       </Accordion>
+
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -144,6 +183,21 @@ const FaqList = () => {
           id="panel2a-header"
         >
           <Typography>ต้องการ submit ไฟล์ใหม่ หลังจากได้คะแนนเต็มแล้ว ทำได้ไหม</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            ทำได้โดยแจ้ง อาจารย์ให้ทราบ พร้อมทั้งบอกเหตุผล
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel2a-content"
+          id="panel2a-header"
+        >
+          <Typography>ทดสอบได้ ในเครื่องตนเอง แต่ส่งไม่ผ่าน</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
