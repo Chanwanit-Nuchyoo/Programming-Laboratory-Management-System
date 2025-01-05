@@ -83,9 +83,9 @@ const WorkSpacePanel = ({ exerciseQuery, submitPermission, submissionList, selec
   });
 
   useEffect(() => {
-    if (!submissionList.isLoading && submissionList.value && submissionList.value.length > 0) {
+    if (!submissionList.isLoading && submissionList.value && submissionList.value?.length > 0) {
       const acceptedSubmission = submissionList.value.filter(submission => submission.status === "accepted");
-      if (acceptedSubmission.length > 0) {
+      if (acceptedSubmission?.length > 0) {
         setAlreadyPassed(true);
       }
     }
@@ -96,7 +96,7 @@ const WorkSpacePanel = ({ exerciseQuery, submitPermission, submissionList, selec
       const localSourcecode = localStorage.getItem(`sourcecode-${user.id}-${chapterId}-${itemId}`);
       if (localSourcecode) {
         setValue("sourcecode", localSourcecode);
-      } else if (submissionList.value.length > 0) {
+      } else if (submissionList.value?.length > 0) {
         setValue("sourcecode", submissionList.latest.sourcecode_content);
       }
     }

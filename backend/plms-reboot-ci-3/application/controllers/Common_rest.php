@@ -352,7 +352,7 @@ class Common_rest extends MY_RestController
 
       $submission['result'] = json_decode($submission['result'], true);
 
-      if ($_SESSION['role'] == 'student') {
+      if ($_SESSION['role'] == 'student' && !is_string($submission['result'])) {
         // loop through $submission['result'] and check 
         for ($i = 0; $i < count($submission['result']); $i++) {
           if (
