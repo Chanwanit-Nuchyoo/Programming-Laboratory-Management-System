@@ -1091,6 +1091,7 @@ class Supervisor_rest extends MY_RestController
 		$this->load->model('lab_model_rest');
 
 		$lab = $this->lab_model_rest->get_exercise_form($exercise_id);
+		$user_id = $_SESSION['id'];
 
 		if (!($user_id == $lab['created_by'] || $this->session->userdata('username') == 'kanut')) {
 			throw new Exception('You are not allowed to edit this exercise\'s testcases.', 403);

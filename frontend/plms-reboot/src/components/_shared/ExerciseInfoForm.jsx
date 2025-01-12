@@ -46,12 +46,10 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { chapterId, level, groupId, exerciseId } = useParams()
-  const [confirmDeleteModal, setConfirmDeleteModal] = useState(false)
-  const { control, handleSubmit, getValues, setValue, watch, reset, formState: { isValid, errors, isDirty } } = useForm({ defaultValues: formData, mode: 'onBlur' });
-  const [editable, setEditable] = useState(onAddExercisePage);
-  const [isPyodideReady, setIsPyodideReady] = useState(false);
+  const [ confirmDeleteModal, setConfirmDeleteModal] = useState(false)
+  const { control, handleSubmit, getValues, setValue, watch, reset, formState: { isValid, isDirty } } = useForm({ defaultValues: formData, mode: 'onBlur' });
+  const [ editable, setEditable] = useState(onAddExercisePage);
   const rteRef = useRef(null);
-  const pyodideWorkerRef = useRef(null);
   const [user,] = useAtom(userAtom);
   const editor = rteRef.current?.editor;
   const canEdit = user?.id === formData.created_by || user?.username === 'kanut';
@@ -301,7 +299,7 @@ const ExerciseInfoForm = ({ onAddExercisePage = false, lv, formData = defaultVal
           <Typography sx={{ color: '#0ca6e9', fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center' }} >
             <img src={levelIcon} alt="Level Icon" style={{ marginRight: '10px' }} /> Level {lv}
           </Typography>
-          {canEdit && renderEditButtons()}
+          {(canEdit || onAddExercisePage) && renderEditButtons()}
         </Stack>
         <Controller
           name="lab_name"
